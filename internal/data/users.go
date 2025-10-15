@@ -379,3 +379,19 @@ func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error
 	}
 	return &user, nil // Return the user data
 }
+
+func (m *UserModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `
+		DELETE FROM users
+		WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+	return err
+}

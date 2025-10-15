@@ -309,3 +309,54 @@ func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Req
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *appDependencies) deleteUserHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	// Delete the officer as well
+	err = app.models.Officer.Delete(id)
+	e := app.deleteUserHandlerErrorHandler(err, w, r)
+	if e == true {
+		return
+	}
+
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	// Delete the user
+	err = app.models.User.Delete(id)
+
+	e = app.deleteUserHandlerErrorHandler(err, w, r)
+	if e == true {
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"message": "user successfully deleted"}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *appDependencies) deleteUserHandlerErrorHandler(err error, w http.ResponseWriter, r *http.Request) bool {
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return true
+	}
+
+	return false
+}
