@@ -148,6 +148,22 @@ func (app *appDependencies) getSingleIntQueryParameter(params url.Values, key st
 	return i // return the valid integer value
 }
 
+// getOptionalBoolQueryParameter retrieves a boolean query parameter returning a pointer if present.
+func (app *appDependencies) getOptionalBoolQueryParameter(params url.Values, key string, v *validator.Validator) *bool {
+	value := params.Get(key)
+	if value == "" {
+		return nil
+	}
+
+	b, err := strconv.ParseBool(value)
+	if err != nil {
+		v.AddError(key, "must be true or false")
+		return nil
+	}
+
+	return &b
+}
+
 /************************************************************************************************************/
 // Go routine helper functions
 /************************************************************************************************************/
