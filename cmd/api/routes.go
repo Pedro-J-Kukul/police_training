@@ -30,8 +30,8 @@ func (app *appDependencies) routes() http.Handler {
 
 	// Authenticated user endpoints
 	router.Handler(http.MethodGet, "/v1/users/me", app.requireActivatedUser(http.HandlerFunc(app.showCurrentUserHandler)))
-	router.Handler(http.MethodGet, "/v1/users/:id", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.showUserHandler))))
 	router.Handler(http.MethodGet, "/v1/users", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.listUsersHandler))))
+	router.Handler(http.MethodGet, "/v1/users/:id", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.showUserHandler))))
 	router.Handler(http.MethodPatch, "/v1/users/:id", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.updateUserHandler))))
 	router.Handler(http.MethodDelete, "/v1/users/:id", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.deleteUserHandler))))
 
