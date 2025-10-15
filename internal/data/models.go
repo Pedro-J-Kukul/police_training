@@ -7,26 +7,26 @@ import "database/sql"
 // Wrapper for models
 
 type Models struct {
-	User                UserModel
-	Token               TokenModel
-	Permission          PermissionModel
-	Role                RoleModel
-	RolePermission      RolePermissionModel
-	RoleUser            RoleUserModel
-	Region              RegionModel
-	Formation           FormationModel
-	Posting             PostingModel
-	Rank                RankModel
-	Officer             OfficerModel
-	TrainingType        TrainingTypeModel
-	TrainingCategory    TrainingCategoryModel
-	Workshop            WorkshopModel
-	TrainingStatus      TrainingStatusModel
-	TrainingSession     TrainingSessionModel
-	EnrollmentStatus    EnrollmentStatusModel
-	AttendanceStatus    AttendanceStatusModel
-	ProgressStatus      ProgressStatusModel
-	TrainingEnrollment  TrainingEnrollmentModel
+	User               UserModel
+	Token              TokenModel
+	Permission         PermissionModel
+	Role               RoleModel
+	RolePermission     RolePermissionModel
+	RoleUser           RoleUserModel
+	Region             RegionModel
+	Formation          FormationModel
+	Posting            PostingModel
+	Rank               RankModel
+	Officer            OfficerModel
+	TrainingType       TrainingTypeModel
+	TrainingCategory   TrainingCategoryModel
+	Workshop           WorkshopModel
+	TrainingStatus     TrainingStatusModel
+	TrainingSession    TrainingSessionModel
+	EnrollmentStatus   EnrollmentStatusModel
+	AttendanceStatus   AttendanceStatusModel
+	ProgressStatus     ProgressStatusModel
+	TrainingEnrollment TrainingEnrollmentModel
 }
 
 // NewModels returns a Models struct containing the initialized models.
