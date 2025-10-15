@@ -116,7 +116,7 @@ func ValidateUser(v *validator.Validator, user *User) {
 	}
 	v.Check(user.Gender != "", "gender", "must be provided")                     // Check if gender is not empty
 	v.Check(v.Permitted(user.Gender, "m", "f"), "gender", "must be 'm', or 'f'") // Check if gender is one of the permitted values
-	v.Check(len(user.Gender) != 1, "gender", "must only be 1 character long")
+	v.Check(len(user.Gender) == 1, "gender", "must only be 1 character long")
 }
 
 /************************************************************************************************************/
@@ -127,7 +127,7 @@ func ValidateUser(v *validator.Validator, user *User) {
 func (m *UserModel) Insert(user *User) error {
 	// SQL query to insert a new user
 	query := `
-		INSERT INTO users (first_name, last_name, email, gender, password_hash, activated, facilitator)
+		INSERT INTO users (first_name, last_name, email, gender, password_hash, is_activated, is_facilitator)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at, version`
 

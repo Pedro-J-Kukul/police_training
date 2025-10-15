@@ -8,8 +8,8 @@ CREATE TABLE "training_enrollments" (
   "completion_date" date,
   "certificate_issued" boolean DEFAULT false,
   "certificate_number" text,
-  "created_at" timestamp NOT NULL,
-  "updated_at" timestamp NOT NULL
+  "created_at" timestamp DEFAULT NOW(),
+  "updated_at" timestamp DEFAULT NOW()
 );
 
 CREATE UNIQUE INDEX idx_training_enrollments_session_officer ON "training_enrollments" ("session_id", "officer_id");

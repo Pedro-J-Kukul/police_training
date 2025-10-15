@@ -7,6 +7,6 @@ CREATE TABLE "workshops" (
   "description" text,
   "objectives" text,
   "is_active" boolean NOT NULL DEFAULT true,
-  "created_at" timestamp NOT NULL,
-  "updated_at" timestamp NOT NULL
+  "created_at" timestamp DEFAULT NOW(),
+  "updated_at" timestamp DEFAULT NOW()
 );

@@ -90,10 +90,10 @@ func (app *appDependencies) readJSON(w http.ResponseWriter, r *http.Request, dst
 		}
 	}
 
-	err = dec.Decode(&struct{}{}) // check for multiple JSON objects in the body
-	if errors.Is(err, io.EOF) {
-		return fmt.Errorf("body must only contain a single JSON value") // return error if there's more than one JSON object
-	}
+	// err = dec.Decode(&struct{}{}) // check for multiple JSON objects in the body
+	// if errors.Is(err, io.EOF) {
+	// 	return fmt.Errorf("body must only contain a single JSON value") // return error if there's more than one JSON object
+	// }
 
 	return nil
 }
