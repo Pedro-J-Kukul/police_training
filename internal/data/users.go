@@ -86,14 +86,14 @@ func (u *User) IsAnonymous() bool {
 }
 
 // ValidateEmail checks if the email is valid
-func ValidateEmail(v validator.Validator, email string) {
+func ValidateEmail(v *validator.Validator, email string) {
 	v.Check(email != "", "email", "must be provided")                                      // Check if email is not empty
 	v.Check(len(email) <= 254, "email", "must not be more than 254 bytes long")            // Check if email length is within limit
 	v.Check(v.Matches(email, validator.EmailRX), "email", "must be a valid email address") // Check if email matches the regex
 }
 
 // ValidatePasswordPlaintext checks if the plaintext password is valid
-func ValidatePasswordPlaintext(v validator.Validator, password string) {
+func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(password != "", "password", "must be provided")                                                              // Check if password is not empty
 	v.Check(len(password) >= 8, "password", "must be at least 8 characters long")                                        // Check if password length is at least 8 characters
 	v.Check(len(password) <= 72, "password", "must not be more than 72 characters long")                                 // Check if password length is within limit
@@ -104,7 +104,7 @@ func ValidatePasswordPlaintext(v validator.Validator, password string) {
 }
 
 // ValidateUser checks if the user struct is valid
-func ValidateUser(v validator.Validator, user *User) {
+func ValidateUser(v *validator.Validator, user *User) {
 	v.Check(user.FirstName != "", "first_name", "must be provided")                              // Check if first name is not empty
 	v.Check(len(user.FirstName) <= 50, "first_name", "must not be more than 50 characters long") // Check if first name length is within limit
 	v.Check(user.LastName != "", "last_name", "must be provided")                                // Check if last name is not empty
