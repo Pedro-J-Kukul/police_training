@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/Pedro-J-Kukul/police_training/internal/data"
 )
 
 const AppVersion = "1.0.0"
@@ -45,6 +47,7 @@ type appDependencies struct {
 	config serverConfig   // application configuration settings
 	logger *slog.Logger   // logger for structured logging
 	wg     sync.WaitGroup // wait group for managing goroutines
+	models data.Models
 	// quoteModel      data.QuoteModel
 	// userModel       data.UserModel
 	// tokenModel      data.TokenModel
@@ -88,6 +91,7 @@ func main() {
 		config: cfg,
 		logger: logger,
 		wg:     sync.WaitGroup{},
+		models: data.NewModels(db),
 		// userModel:       data.NewUserModel(db),
 		// tokenModel:      data.NewTokenModel(db),
 		// permissionModel: data.NewPermissionModel(db),
