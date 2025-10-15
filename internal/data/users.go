@@ -1,4 +1,4 @@
-// FileNAme: internal/data/users.go
+// FileName: internal/data/users.go
 package data
 
 import (
