@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Pedro-J-Kukul/police_training/internal/data"
+	_ "github.com/lib/pq"
 )
 
 const AppVersion = "1.0.0"
@@ -48,11 +49,6 @@ type appDependencies struct {
 	logger *slog.Logger   // logger for structured logging
 	wg     sync.WaitGroup // wait group for managing goroutines
 	models data.Models
-	// quoteModel      data.QuoteModel
-	// userModel       data.UserModel
-	// tokenModel      data.TokenModel
-	// permissionModel data.PermissionModel
-	// mailer          mailer.Mailer
 }
 
 func (app *appDependencies) version() string {
