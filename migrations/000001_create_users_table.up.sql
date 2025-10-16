@@ -8,6 +8,7 @@ CREATE TABLE "users" (
   "is_activated" bool NOT NULL DEFAULT false,
   "is_facilitator" bool NOT NULL DEFAULT false,
   "version" int NOT NULL DEFAULT 1,
+  "is_officer" bool NOT NULL DEFAULT false,
   "created_at" timestamp DEFAULT NOW(),
   "updated_at" timestamp DEFAULT NOW()
 );

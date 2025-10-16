@@ -1428,12 +1428,12 @@ func (app *appDependencies) createOfficerHandler(w http.ResponseWriter, r *http.
 	}
 
 	officer := &data.Officer{
-		ID:               input.UserID,
 		RegulationNumber: input.RegulationNumber,
 		PostingID:        input.PostingID,
 		RankID:           input.RankID,
 		FormationID:      input.FormationID,
 		RegionID:         input.RegionID,
+		UserId:           input.UserID,
 	}
 
 	v := validator.New()
