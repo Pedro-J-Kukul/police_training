@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -13,67 +14,64 @@ import (
 )
 
 /************************************************************************************************************/
-// User Declarations
+// User declarations
 /************************************************************************************************************/
 
-// Password struct to hold the hashed password
+// Password stores the hashed password and optional plaintext (used for validation during write operations).
 type Password struct {
 	hash      []byte
 	plaintext *string
 }
 
-// User struct to represent a user in the system
+// User represents an application user.
 type User struct {
-	ID          int64    `json:"id"`
-	FirstName   string   `json:"first_name"`
-	LastName    string   `json:"last_name"`
-	Email       string   `json:"email"`
-	Gender      string   `json:"gender"`
-	Password    Password `json:"-"`
-	Activated   bool     `json:"activated"`
-	Facilitator bool     `json:"facilitator"`
-	Version     int      `json:"version"`
-	CreatedAt   string   `json:"created_at"`
-	UpdatedAt   string   `json:"updated_at"`
+	ID          int64     `json:"id"`
+	FirstName   string    `json:"first_name"`
+	LastName    string    `json:"last_name"`
+	Email       string    `json:"email"`
+	Gender      string    `json:"gender"`
+	Password    Password  `json:"-"`
+	Activated   bool      `json:"activated"`
+	Facilitator bool      `json:"facilitator"`
+	Version     int       `json:"version"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// UserModel struct to interact with the users table in the database
+// UserModel wraps the database connection pool for user CRUD operations.
 type UserModel struct {
 	DB *sql.DB
 }
 
-// AnonymousUser is a predefined user instance representing an anonymous user
+// AnonymousUser is a sentinel anonymous user instance.
 var AnonymousUser = &User{}
 
 /************************************************************************************************************/
-// Password Methods
+// Password helpers
 /************************************************************************************************************/
 
-// Password Set sets the plaintext password and hashes it
-func (p *Password) Set(plaintextPassword string) error {
-	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12) // Use bcrypt to hash the password
+// Set hashes the supplied plaintext password.
+func (p *Password) Set(plaintext string) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintext), 12)
 	if err != nil {
 		return err
 	}
 
-	p.plaintext = &plaintextPassword // Store the plaintext password
-	p.hash = hash                    // Store the hashed password
-
-	return nil // Return nil if successful
+	p.hash = hash
+	p.plaintext = &plaintext
+	return nil
 }
 
-// Password Matches checks if the provided plaintext password matches the stored hash
-func (p *Password) Matches(plaintextPassword string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword)) // Compare the hash with the provided password
+// Matches verifies that the supplied plaintext password matches the stored hash.
+func (p *Password) Matches(plaintext string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintext))
 	if err != nil {
-		switch {
-		case err == bcrypt.ErrMismatchedHashAndPassword:
-			return false, nil // Password does not match
-		default:
-			return false, err // Some other error occurred
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return false, nil
 		}
+		return false, err
 	}
-	return true, nil // Password matches
+	return true, nil
 }
 
 /************************************************************************************************************/
@@ -118,7 +116,7 @@ func ValidateUser(v *validator.Validator, user *User) {
 	}
 	v.Check(user.Gender != "", "gender", "must be provided")                     // Check if gender is not empty
 	v.Check(v.Permitted(user.Gender, "m", "f"), "gender", "must be 'm', or 'f'") // Check if gender is one of the permitted values
-	v.Check(len(user.Gender) != 1, "gender", "must only be 1 character long")
+	v.Check(len(user.Gender) == 1, "gender", "must only be 1 character long")
 }
 
 /************************************************************************************************************/
@@ -129,7 +127,7 @@ func ValidateUser(v *validator.Validator, user *User) {
 func (m *UserModel) Insert(user *User) error {
 	// SQL query to insert a new user
 	query := `
-		INSERT INTO users (first_name, last_name, email, gender, password_hash, activated, facilitator)
+		INSERT INTO users (first_name, last_name, email, gender, password_hash, is_activated, is_facilitator)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at, version`
 
@@ -314,7 +312,6 @@ func (m *UserModel) GetAll(fname, lname, email, gender string, activated *bool, 
 			&user.LastName,
 			&user.Email,
 			&user.Gender,
-			&user.Password.hash,
 			&user.Activated,
 			&user.Facilitator,
 			&user.CreatedAt,
@@ -381,4 +378,20 @@ func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error
 		}
 	}
 	return &user, nil // Return the user data
+}
+
+func (m *UserModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `
+		DELETE FROM users
+		WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+	return err
 }

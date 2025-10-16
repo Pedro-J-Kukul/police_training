@@ -5,6 +5,6 @@ CREATE TABLE "officers" (
   "rank_id" bigint NOT NULL,
   "formation_id" bigint NOT NULL,
   "region_id" bigint NOT NULL,
-  "created_at" timestamp NOT NULL,
-  "updated_at" timestamp NOT NULL
+  "created_at" timestamp DEFAULT NOW(),
+  "updated_at" timestamp DEFAULT NOW()
 );

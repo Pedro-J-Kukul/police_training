@@ -15,8 +15,11 @@ import (
 /*************************************************************************************************************/
 // Declarations
 /*************************************************************************************************************/
-const ScopeActivation = "activation"         // Scope for account activation tokens
-const ScopeAuthentication = "authentication" // Scope for authentication tokens
+const (
+	ScopeActivation     = "activation"     // Scope for account activation tokens
+	ScopeAuthentication = "authentication" // Scope for authentication tokens
+	ScopePasswordReset  = "password_reset" // Scope for password reset tokens
+)
 
 // Define our token
 type Token struct {
@@ -60,7 +63,7 @@ func generateToken(userID int64, ttl time.Duration, scope string) (*Token, error
 // ValidateTokenPlaintext checks if a token is valid based on its plaintext value
 func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
 	v.Check(tokenPlaintext != "", "token", "must be provided")                // Token must be provided
-	v.Check(len(tokenPlaintext) == 26, "token", "must be 26 characters long") // Token must be 22 characters long
+	v.Check(len(tokenPlaintext) == 22, "token", "must be 22 characters long") // Token must match expected length
 }
 
 /*************************************************************************************************************/

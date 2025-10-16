@@ -74,3 +74,121 @@ func (app *appDependencies) createAuthenticationTokenHandler(w http.ResponseWrit
 		app.serverErrorResponse(w, r, err) // handle any errors
 	}
 }
+
+// createPasswordResetTokenHandler sends a password reset token to the user's email.
+func (app *appDependencies) createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Email string `json:"email"`
+	}
+
+	if err := app.readJSON(w, r, &input); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	data.ValidateEmail(v, input.Email)
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	user, err := app.models.User.GetByEmail(input.Email)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			if err := app.writeJSON(w, http.StatusAccepted, envelope{"message": "if that account exists, a password reset email has been sent"}, nil); err != nil {
+				app.serverErrorResponse(w, r, err)
+			}
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	_ = app.models.Token.DeleteAllForUser(data.ScopePasswordReset, user.ID)
+
+	token, err := app.models.Token.New(user.ID, 45*time.Minute, data.ScopePasswordReset)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if app.mailer != nil {
+		app.background(func() {
+			payload := map[string]any{
+				"resetToken": token.Plaintext,
+				"userID":     user.ID,
+			}
+			if err := app.mailer.Send(user.Email, "password_reset.tmpl", payload); err != nil {
+				app.logger.Error("failed to send password reset email", "error", err)
+			}
+		})
+	}
+
+	if err := app.writeJSON(w, http.StatusAccepted, envelope{"message": "if that account exists, a password reset email has been sent"}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// resetPasswordHandler updates a user's password using a reset token.
+func (app *appDependencies) resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Token    string `json:"token"`
+		Password string `json:"password"`
+	}
+
+	if err := app.readJSON(w, r, &input); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	data.ValidateTokenPlaintext(v, input.Token)
+	data.ValidatePasswordPlaintext(v, input.Password)
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	user, err := app.models.User.GetForToken(data.ScopePasswordReset, input.Token)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			v.AddError("token", "invalid or expired password reset token")
+			app.failedValidationResponse(w, r, v.Errors)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if err := user.Password.Set(input.Password); err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if err := app.models.User.Update(user); err != nil {
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if err := app.models.Token.DeleteAllForUser(data.ScopePasswordReset, user.ID); err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if err := app.models.Token.DeleteAllForUser(data.ScopeAuthentication, user.ID); err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"message": "password updated"}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
