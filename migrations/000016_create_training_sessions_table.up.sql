@@ -11,6 +11,6 @@ CREATE TABLE "training_sessions" (
   "max_capacity" int,
   "training_status_id" bigint NOT NULL,
   "notes" text,
-  "created_at" timestamp NOT NULL,
-  "updated_at" timestamp NOT NULL
+  "created_at" timestamp DEFAULT NOW(),
+  "updated_at" timestamp DEFAULT NOW()
 );

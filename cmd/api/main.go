@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/Pedro-J-Kukul/police_training/internal/data"
+	"github.com/Pedro-J-Kukul/police_training/internal/mailer"
+	_ "github.com/lib/pq"
 )
 
 const AppVersion = "1.0.0"
@@ -48,11 +50,7 @@ type appDependencies struct {
 	logger *slog.Logger   // logger for structured logging
 	wg     sync.WaitGroup // wait group for managing goroutines
 	models data.Models
-	// quoteModel      data.QuoteModel
-	// userModel       data.UserModel
-	// tokenModel      data.TokenModel
-	// permissionModel data.PermissionModel
-	// mailer          mailer.Mailer
+	mailer *mailer.Mailer
 }
 
 func (app *appDependencies) version() string {
@@ -90,12 +88,11 @@ func main() {
 	app := &appDependencies{
 		config: cfg,
 		logger: logger,
-		wg:     sync.WaitGroup{},
 		models: data.NewModels(db),
-		// userModel:       data.NewUserModel(db),
-		// tokenModel:      data.NewTokenModel(db),
-		// permissionModel: data.NewPermissionModel(db),
-		// mailer:          mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
+	}
+
+	if cfg.smtp.host != "" && cfg.smtp.sender != "" {
+		app.mailer = mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender)
 	}
 
 	err = app.serve() // start the HTTP server
@@ -134,13 +131,42 @@ func loadConfig() serverConfig {
 
 	// SMTP settings
 	flag.StringVar(&cfg.smtp.host, "smtp-host", "smtp.mailtrap.io", "SMTP host")                             // SMTP host
-	flag.IntVar(&cfg.smtp.port, "smtp-port", 2, "SMTP port")                                                 // SMTP port
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 2525, "SMTP port")                                              // SMTP port
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "", "SMTP username")                                 // SMTP username
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "", "SMTP password")                                 // SMTP password
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Training <noreply@example.com>", "SMTP sender address") // SMTP sender address
 
 	flag.Parse() // parse the command-line flags
-	return cfg   // return the populated configuration
+
+	if cfg.db.dsn == "" {
+		cfg.db.dsn = os.Getenv("DB_DSN")
+	}
+	if cfg.db.dsn == "" {
+		panic("db-dsn must be provided via flag or DB_DSN environment variable")
+	}
+
+	if len(cfg.cors.trustedOrigins) == 0 {
+		if origins := strings.Fields(os.Getenv("CORS_TRUSTED_ORIGINS")); len(origins) > 0 {
+			cfg.cors.trustedOrigins = origins
+		}
+	}
+
+	if cfg.smtp.host == "" {
+		cfg.smtp.host = os.Getenv("SMTP_HOST")
+	}
+	if cfg.smtp.username == "" {
+		cfg.smtp.username = os.Getenv("SMTP_USERNAME")
+	}
+	if cfg.smtp.password == "" {
+		cfg.smtp.password = os.Getenv("SMTP_PASSWORD")
+	}
+	if cfg.smtp.sender == "Training <noreply@example.com>" {
+		if sender := os.Getenv("SMTP_SENDER"); sender != "" {
+			cfg.smtp.sender = sender
+		}
+	}
+
+	return cfg // return the populated configuration
 }
 
 // setUpLogger initializes and returns a structured logger

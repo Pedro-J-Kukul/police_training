@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Pedro-J-Kukul/police_training/internal/data"
 	"github.com/Pedro-J-Kukul/police_training/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
@@ -89,10 +90,10 @@ func (app *appDependencies) readJSON(w http.ResponseWriter, r *http.Request, dst
 		}
 	}
 
-	err = dec.Decode(&struct{}{}) // check for multiple JSON objects in the body
-	if errors.Is(err, io.EOF) {
-		return fmt.Errorf("body must only contain a single JSON value") // return error if there's more than one JSON object
-	}
+	// err = dec.Decode(&struct{}{}) // check for multiple JSON objects in the body
+	// if errors.Is(err, io.EOF) {
+	// 	return fmt.Errorf("body must only contain a single JSON value") // return error if there's more than one JSON object
+	// }
 
 	return nil
 }
@@ -146,6 +147,51 @@ func (app *appDependencies) getSingleIntQueryParameter(params url.Values, key st
 	}
 
 	return i // return the valid integer value
+}
+
+// getOptionalBoolQueryParameter retrieves a boolean query parameter returning a pointer if present.
+func (app *appDependencies) getOptionalBoolQueryParameter(params url.Values, key string, v *validator.Validator) *bool {
+	value := params.Get(key)
+	if value == "" {
+		return nil
+	}
+
+	b, err := strconv.ParseBool(value)
+	if err != nil {
+		v.AddError(key, "must be true or false")
+		return nil
+	}
+
+	return &b
+}
+
+// getOptionalInt64QueryParameter retrieves an int64 query parameter returning a pointer if present.
+func (app *appDependencies) getOptionalInt64QueryParameter(params url.Values, key string, v *validator.Validator) *int64 {
+	value := params.Get(key)
+	if value == "" {
+		return nil
+	}
+
+	i, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		v.AddError(key, "must be an integer value")
+		return nil
+	}
+
+	return &i
+}
+
+// readFilters constructs a Filters struct using standard query parameters and validates it.
+func (app *appDependencies) readFilters(query url.Values, defaultSort string, defaultPageSize int, safelist []string, v *validator.Validator) data.Filters {
+	filters := data.Filters{
+		Page:         app.getSingleIntQueryParameter(query, "page", 1, v),
+		PageSize:     app.getSingleIntQueryParameter(query, "page_size", defaultPageSize, v),
+		Sort:         app.getSingleQueryParameter(query, "sort", defaultSort),
+		SortSafelist: safelist,
+	}
+
+	data.ValidateFilters(v, filters)
+	return filters
 }
 
 /************************************************************************************************************/
