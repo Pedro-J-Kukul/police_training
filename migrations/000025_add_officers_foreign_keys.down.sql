@@ -3,3 +3,4 @@ ALTER TABLE "officers" DROP CONSTRAINT IF EXISTS "officer_region";
 ALTER TABLE "officers" DROP CONSTRAINT IF EXISTS "officer_posting";
 ALTER TABLE "officers" DROP CONSTRAINT IF EXISTS "officer_rank";
 ALTER TABLE "officers" DROP CONSTRAINT IF EXISTS "officer_formation";
+ALTER TABLE "officers" DROP CONSTRAINT IF EXISTS "officer_user";

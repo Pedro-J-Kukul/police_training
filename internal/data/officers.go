@@ -23,6 +23,7 @@ type Officer struct {
 	RankID           int64     `json:"rank_id"`
 	FormationID      int64     `json:"formation_id"`
 	RegionID         int64     `json:"region_id"`
+	UserId           int64     `json:"user,omitempty"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 }
@@ -45,6 +46,8 @@ func ValidateOfficer(v *validator.Validator, officer *Officer) {
 	v.Check(officer.RankID > 0, "rank_id", "must be provided")
 	v.Check(officer.FormationID > 0, "formation_id", "must be provided")
 	v.Check(officer.RegionID > 0, "region_id", "must be provided")
+	v.Check(officer.UserId > 0, "user_id", "must reference an existing user")
+
 }
 
 /************************************************************************************************************/
@@ -54,18 +57,18 @@ func ValidateOfficer(v *validator.Validator, officer *Officer) {
 // Insert creates a new officer record.
 func (m OfficerModel) Insert(officer *Officer) error {
 	query := `
-		INSERT INTO officers (id, regulation_number, posting_id, rank_id, formation_id, region_id, created_at, updated_at)
+		INSERT INTO officers (regulation_number, posting_id, rank_id, formation_id, region_id, user_id, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING created_at, updated_at`
 
 	now := time.Now()
 	args := []any{
-		officer.ID,
 		officer.RegulationNumber,
 		officer.PostingID,
 		officer.RankID,
 		officer.FormationID,
 		officer.RegionID,
+		officer.UserId,
 		now,
 		now,
 	}

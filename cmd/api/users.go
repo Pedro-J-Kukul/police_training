@@ -247,6 +247,7 @@ func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Req
 		Password    *string `json:"password"`
 		Facilitator *bool   `json:"facilitator"`
 		Activated   *bool   `json:"activated"`
+		IsOfficer   *bool   `json:"is_officer"`
 		Version     int     `json:"version"`
 	}
 
@@ -283,6 +284,9 @@ func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Req
 	}
 	if input.Activated != nil {
 		user.Activated = *input.Activated
+	}
+	if input.IsOfficer != nil {
+		user.IsOfficer = *input.IsOfficer
 	}
 
 	v := validator.New()

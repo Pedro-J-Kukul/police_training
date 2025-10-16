@@ -34,6 +34,7 @@ type User struct {
 	Activated   bool      `json:"activated"`
 	Facilitator bool      `json:"facilitator"`
 	Version     int       `json:"version"`
+	IsOfficer   bool      `json:"is_officer"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
@@ -117,6 +118,9 @@ func ValidateUser(v *validator.Validator, user *User) {
 	v.Check(user.Gender != "", "gender", "must be provided")                     // Check if gender is not empty
 	v.Check(v.Permitted(user.Gender, "m", "f"), "gender", "must be 'm', or 'f'") // Check if gender is one of the permitted values
 	v.Check(len(user.Gender) == 1, "gender", "must only be 1 character long")
+	if user.IsOfficer {
+		v.Check(user.IsOfficer, "is_officer", "must be true or false") // Check if IsOfficer is true or false
+	}
 }
 
 /************************************************************************************************************/
@@ -127,19 +131,20 @@ func ValidateUser(v *validator.Validator, user *User) {
 func (m *UserModel) Insert(user *User) error {
 	// SQL query to insert a new user
 	query := `
-		INSERT INTO users (first_name, last_name, email, gender, password_hash, is_activated, is_facilitator)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO users (first_name, last_name, gender, email, password_hash, is_activated, is_facilitator, is_officer)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at, updated_at, version`
 
 	// Arguments for the SQL query
 	args := []any{
 		user.FirstName,
 		user.LastName,
-		user.Email,
 		user.Gender,
+		user.Email,
 		user.Password.hash,
 		user.Activated,
 		user.Facilitator,
+		user.IsOfficer,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // Context with a timeout for the database operation
@@ -163,7 +168,7 @@ func (m *UserModel) Insert(user *User) error {
 func (m *UserModel) GetByEmail(email string) (*User, error) {
 	// SQL query to select a user by email
 	query := `
-		SELECT id, first_name, last_name, email, gender, password_hash, activated, facilitator, created_at, updated_at, version
+		SELECT id, first_name, last_name, email, gender, password_hash, activated, facilitator, created_at, updated_at, version, is_officer
 		FROM users
 		WHERE email = $1`
 
@@ -202,7 +207,7 @@ func (m *UserModel) Update(user *User) error {
 	// SQL query to update a user
 	query := `
 		UPDATE users
-		SET first_name = $1, last_name = $2, email = $3, gender = $4, password_hash = $5, activated = $6, facilitator = $7, updated_at = now(), version = version + 1
+		SET first_name = $1, last_name = $2, email = $3, gender = $4, password_hash = $5, activated = $6, facilitator = $7, updated_at = now(), version = version + 1, is_officer = $10
 		WHERE id = $8 AND version = $9
 		RETURNING updated_at, version`
 
@@ -217,6 +222,7 @@ func (m *UserModel) Update(user *User) error {
 		user.Facilitator,
 		user.ID,
 		user.Version,
+		user.IsOfficer,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // Context with a timeout for the database operation
