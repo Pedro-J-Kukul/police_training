@@ -228,8 +228,8 @@ func (app *appDependencies) listUsersHandler(w http.ResponseWriter, r *http.Requ
 
 	data.ValidateFilters(v, filters)
 
-	activated := app.getOptionalBoolQueryParameter(query, "activated", v)
-	facilitator := app.getOptionalBoolQueryParameter(query, "facilitator", v)
+	activated := app.getOptionalBoolQueryParameter(query, "is_activated", v)
+	facilitator := app.getOptionalBoolQueryParameter(query, "is_facilitator", v)
 
 	if !v.IsEmpty() {
 		app.failedValidationResponse(w, r, v.Errors)

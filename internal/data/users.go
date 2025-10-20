@@ -168,7 +168,7 @@ func (m *UserModel) Insert(user *User) error {
 func (m *UserModel) GetByEmail(email string) (*User, error) {
 	// SQL query to select a user by email
 	query := `
-		SELECT id, first_name, last_name, email, gender, password_hash, activated, facilitator, created_at, updated_at, version, is_officer
+		SELECT id, first_name, last_name, email, gender, password_hash, is_activated, is_facilitator, created_at, updated_at, version, is_officer
 		FROM users
 		WHERE email = $1`
 
@@ -207,7 +207,7 @@ func (m *UserModel) Update(user *User) error {
 	// SQL query to update a user
 	query := `
 		UPDATE users
-		SET first_name = $1, last_name = $2, email = $3, gender = $4, password_hash = $5, activated = $6, facilitator = $7, updated_at = now(), version = version + 1, is_officer = $10
+		SET first_name = $1, last_name = $2, email = $3, gender = $4, password_hash = $5, is_activated = $6, is_facilitator = $7, updated_at = now(), version = version + 1, is_officer = $10
 		WHERE id = $8 AND version = $9
 		RETURNING updated_at, version`
 
@@ -248,7 +248,7 @@ func (m *UserModel) Update(user *User) error {
 func (m *UserModel) Get(id int64) (*User, error) {
 	// SQL query to select a user by ID
 	query := `
-		SELECT id, first_name, last_name, email, gender, password_hash, activated, facilitator, created_at, updated_at, version
+		SELECT id, first_name, last_name, email, gender, password_hash, is_activated, is_facilitator, created_at, updated_at, version
 		FROM users
 		WHERE id = $1`
 
@@ -286,7 +286,7 @@ func (m *UserModel) Get(id int64) (*User, error) {
 func (m *UserModel) GetAll(fname, lname, email, gender string, activated *bool, facilitator *bool, filters Filters) ([]*User, MetaData, error) {
 	// SQL query to select users with filtering, sorting, and pagination
 	query := fmt.Sprintf(`
-		SELECT COUNT(*) OVER(), id, first_name, last_name, email, gender, activated, facilitator, created_at, updated_at, version
+		SELECT COUNT(*) OVER(), id, first_name, last_name, email, gender, is_activated, is_facilitator, created_at, updated_at, version
 		FROM users
 		WHERE (to_tsvector('simple', first_name) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		AND (to_tsvector('simple', last_name) @@ plainto_tsquery('simple', $2) OR $2 = '')
@@ -345,16 +345,17 @@ func (m *UserModel) GetAll(fname, lname, email, gender string, activated *bool, 
 func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error) {
 	// SQL query to select a user based on a token
 	query := `
-		SELECT u.id, u.first_name, u.last_name, u.email, u.gender, u.password_hash, u.activated, u.facilitator, u.created_at, u.updated_at, u.version
+		SELECT u.id, u.first_name, u.last_name, u.email, u.gender, u.password_hash, u.is_activated, u.is_facilitator, u.created_at, u.updated_at, u.version
 		FROM users u
 		INNER JOIN tokens t ON u.id = t.user_id
 		WHERE t.hash = $1 AND t.scope = $2 AND t.expiry > $3`
 
 	// Arguments for the SQL query
+	tokenHash := sha256.Sum256([]byte(tokenPlaintext))
 	args := []any{
-		sha256.Sum256([]byte(tokenPlaintext)), // Hash the plaintext token using SHA-256
-		tokenScope,                            // Token scope
-		time.Now(),                            // Current time to check for expiry
+		tokenHash[:], // Convert array to slice for SQL compatibility
+		tokenScope,   // Token scope
+		time.Now(),   // Current time to check for expiry
 	}
 	var user User // Variable to hold the user data
 
