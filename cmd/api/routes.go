@@ -73,7 +73,7 @@ func (app *appDependencies) routes() http.Handler {
 	router.Handler(http.MethodGet, "/v1/enrollment/status/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_ENROLLMENT_STATUSES"}, http.HandlerFunc(app.showEnrollmentStatusHandler))))
 	router.Handler(http.MethodPatch, "/v1/enrollment/status/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_MODIFY", "CAN_MODIFY_ENROLLMENT_STATUSES"}, http.HandlerFunc(app.updateEnrollmentStatusHandler))))
 
-	// Add these new routes:
+	// Attendance Status routes (Admin only for write operations)
 	router.Handler(http.MethodPost, "/v1/attendance/status", app.requireActivatedUser(app.requirePermissions([]string{"CAN_CREATE", "CAN_CREATE_ATTENDANCE_STATUSES"}, http.HandlerFunc(app.createAttendanceStatusHandler))))
 	router.Handler(http.MethodGet, "/v1/attendance/status", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_ATTENDANCE_STATUSES"}, http.HandlerFunc(app.listAttendanceStatusesHandler))))
 	router.Handler(http.MethodGet, "/v1/attendance/status/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_ATTENDANCE_STATUSES"}, http.HandlerFunc(app.showAttendanceStatusHandler))))
