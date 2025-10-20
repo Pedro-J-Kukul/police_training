@@ -60,6 +60,13 @@ func (app *appDependencies) createAuthenticationTokenHandler(w http.ResponseWrit
 		return
 	}
 
+	// Check if the user is activated and isn't trying to bypass the flow
+	if !user.Activated {
+		v.AddError("email", "account must be activated to reset password")
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	// Check if the provided password matches the stored password
 	match, err := user.Password.Matches(incomingData.Password)
 	if err != nil {
@@ -127,6 +134,13 @@ func (app *appDependencies) createPasswordResetTokenHandler(w http.ResponseWrite
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
+		return
+	}
+
+	// Check if the user is activated and isn't trying to bypass the flow
+	if !user.Activated {
+		v.AddError("email", "account must be activated to reset password")
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
