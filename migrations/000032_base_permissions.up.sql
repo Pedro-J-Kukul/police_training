@@ -63,15 +63,25 @@ INSERT INTO "permissions" ("code") VALUES
     ('CAN_CREATE_WORKSHOPS'),
     ('CAN_READ_WORKSHOPS'),
     ('CAN_MODIFY_WORKSHOPS'),
-    ('CAN_DELETE_WORKSHOPS'),
+    ('CAN_DELETE_WORKSHOPS'), --- Domain-specific enrollments permissions
     
     ('CAN_CREATE_ENROLLMENTS'),
     ('CAN_READ_ENROLLMENTS'),
     ('CAN_MODIFY_ENROLLMENTS'),
-    ('CAN_DELETE_ENROLLMENTS'),
+    ('CAN_DELETE_ENROLLMENTS'),  --- Domain-specific enrollment_statuses permissions
 
     ('CAN_CREATE_ENROLLMENT_STATUSES'),
     ('CAN_READ_ENROLLMENT_STATUSES'),
     ('CAN_MODIFY_ENROLLMENT_STATUSES'),
-    ('CAN_DELETE_ENROLLMENT_STATUSES')
+    ('CAN_DELETE_ENROLLMENT_STATUSES'), --- Domain-specific training_sessions permissions
+
+    ('CAN_CREATE_TRAINING_SESSIONS'),
+    ('CAN_READ_TRAINING_SESSIONS'),
+    ('CAN_MODIFY_TRAINING_SESSIONS'),
+    ('CAN_DELETE_TRAINING_SESSIONS'), --- Domain-specific training_enrollments permissions
+
+    ('CAN_CREATE_TRAINING_ENROLLMENTS'),
+    ('CAN_READ_TRAINING_ENROLLMENTS'),
+    ('CAN_MODIFY_TRAINING_ENROLLMENTS'),
+    ('CAN_DELETE_TRAINING_ENROLLMENTS')
     ;

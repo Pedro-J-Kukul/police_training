@@ -115,14 +115,14 @@ func (app *appDependencies) routes() http.Handler {
 	router.Handler(http.MethodPatch, "/v1/officers/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_MODIFY", "CAN_MODIFY_OFFICERS"}, http.HandlerFunc(app.updateOfficerHandler))))
 	router.Handler(http.MethodDelete, "/v1/officers/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_DELETE", "CAN_DELETE_OFFICERS"}, http.HandlerFunc(app.deleteOfficerHandler))))
 
-	// Uncomment and update these in routes.go:
+	// Training sessions routes
 	router.Handler(http.MethodPost, "/v1/training/sessions", app.requireActivatedUser(app.requirePermissions([]string{"CAN_CREATE", "CAN_CREATE_TRAINING_SESSIONS"}, http.HandlerFunc(app.createTrainingSessionHandler))))
 	router.Handler(http.MethodGet, "/v1/training/sessions", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_TRAINING_SESSIONS"}, http.HandlerFunc(app.listTrainingSessionsHandler))))
 	router.Handler(http.MethodGet, "/v1/training/sessions/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_TRAINING_SESSIONS"}, http.HandlerFunc(app.showTrainingSessionHandler))))
 	router.Handler(http.MethodPatch, "/v1/training/sessions/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_MODIFY", "CAN_MODIFY_TRAINING_SESSIONS"}, http.HandlerFunc(app.updateTrainingSessionHandler))))
 	router.Handler(http.MethodDelete, "/v1/training/sessions/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_DELETE", "CAN_DELETE_TRAINING_SESSIONS"}, http.HandlerFunc(app.deleteTrainingSessionHandler))))
 
-	// Uncomment and update these in routes.go:
+	// Training enrollments routes
 	router.Handler(http.MethodPost, "/v1/training/enrollments", app.requireActivatedUser(app.requirePermissions([]string{"CAN_CREATE", "CAN_CREATE_TRAINING_ENROLLMENTS"}, http.HandlerFunc(app.createTrainingEnrollmentHandler))))
 	router.Handler(http.MethodGet, "/v1/training/enrollments", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_TRAINING_ENROLLMENTS"}, http.HandlerFunc(app.listTrainingEnrollmentsHandler))))
 	router.Handler(http.MethodGet, "/v1/training/enrollments/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_TRAINING_ENROLLMENTS"}, http.HandlerFunc(app.showTrainingEnrollmentHandler))))

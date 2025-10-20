@@ -1,6 +1,6 @@
 include .envrc
 
-.PHONY: run/api run/tests run/api/win psql/login psql/sudo migration/create migration/up migration/down migration/fix db/migrations/up
+.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix db/migrate/up
 run/api:
 	@echo "Starting API server on port $(PORT) in $(ENVIRONMENT) mode..."
 	@go run ./cmd/api \
@@ -36,21 +36,21 @@ psql/login:
 psql/sudo:
 	sudo -u postgres psql
 
-migration/create:
+migrate/create:
 	@if [ -z "$(name)" ]; then \
-		echo "Error: Please provide a name for the migration using 'make migration/create name=your_migration_name'"; \
+		echo "Error: Please provide a name for the migration using 'make migrate/create name=your_migration_name'"; \
 		exit 1; \
 	fi
 	@if [ ! -d "./migrations" ]; then mkdir ./migrations; fi
 	migrate create -seq -ext=.sql -dir=./migrations $(name)
 
-migration/up:
+migrate/up:
 	migrate -path ./migrations -database "$(DB_DSN)" up 
 
-migration/down:
+migrate/down:
 	migrate -path ./migrations -database "$(DB_DSN)" down 
 
-migration/fix:
+migrate/fix:
 	@echo 'Checking migration status...'
 	@migrate -path ./migrations -database "${DB_DSN}" version > /tmp/migrate_version 2>&1
 	@cat /tmp/migrate_version
