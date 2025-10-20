@@ -83,6 +83,10 @@ func (app *appDependencies) registerUserHandler(w http.ResponseWriter, r *http.R
 		app.background(func() {
 			data := map[string]any{
 				"userID":          user.ID,
+				"firstName":       user.FirstName,
+				"lastName":        user.LastName,
+				"email":           user.Email,
+				"password":        input.Password,
 				"activationToken": activationToken.Plaintext,
 			}
 			if err := app.mailer.Send(user.Email, "user_welcome.tmpl", data); err != nil {
