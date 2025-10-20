@@ -256,6 +256,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List enrollment statuses
       tags:
       - enrollment-statuses
@@ -318,6 +320,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get an enrollment status
       tags:
       - enrollment-statuses
@@ -360,6 +364,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update an enrollment status
       tags:
       - enrollment-statuses
@@ -403,6 +409,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List formations
       tags:
       - formations
@@ -436,6 +444,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new formation
       tags:
       - formations
@@ -463,6 +473,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get a formation
       tags:
       - formations
@@ -505,6 +517,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a formation
       tags:
       - formations
@@ -577,6 +591,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List officers
       tags:
       - officers
@@ -610,6 +626,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new officer
       tags:
       - officers
@@ -640,6 +658,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete an officer
       tags:
       - officers
@@ -666,6 +686,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get an officer
       tags:
       - officers
@@ -712,6 +734,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update an officer
       tags:
       - officers
@@ -755,6 +779,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List postings
       tags:
       - postings
@@ -788,6 +814,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new posting
       tags:
       - postings
@@ -815,6 +843,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get a posting
       tags:
       - postings
@@ -857,6 +887,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a posting
       tags:
       - postings
@@ -900,6 +932,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List ranks
       tags:
       - ranks
@@ -933,6 +967,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new rank
       tags:
       - ranks
@@ -960,6 +996,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get a rank
       tags:
       - ranks
@@ -1002,6 +1040,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a rank
       tags:
       - ranks
@@ -1040,6 +1080,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List regions
       tags:
       - regions
@@ -1073,6 +1115,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new region
       tags:
       - regions
@@ -1100,6 +1144,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get a region
       tags:
       - regions
@@ -1142,6 +1188,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a region
       tags:
       - regions
@@ -1255,6 +1303,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List training categories
       tags:
       - training-categories
@@ -1288,6 +1338,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new training category
       tags:
       - training-categories
@@ -1315,6 +1367,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get a training category
       tags:
       - training-categories
@@ -1357,6 +1411,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a training category
       tags:
       - training-categories
@@ -1396,6 +1452,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List training statuses
       tags:
       - training-statuses
@@ -1429,6 +1487,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new training status
       tags:
       - training-statuses
@@ -1456,6 +1516,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get a training status
       tags:
       - training-statuses
@@ -1498,6 +1560,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a training status
       tags:
       - training-statuses
@@ -1537,6 +1601,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List training types
       tags:
       - training-types
@@ -1570,6 +1636,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new training type
       tags:
       - training-types
@@ -1597,6 +1665,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get a training type
       tags:
       - training-types
@@ -1639,6 +1709,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a training type
       tags:
       - training-types
@@ -1858,6 +1930,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List workshops
       tags:
       - workshops
@@ -1891,6 +1965,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new workshop
       tags:
       - workshops
@@ -1918,6 +1994,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get a workshop
       tags:
       - workshops
@@ -1964,6 +2042,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a workshop
       tags:
       - workshops
