@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Pedro-J-Kukul/police_training/internal/data"
 	"github.com/Pedro-J-Kukul/police_training/internal/validator"
@@ -38,11 +39,42 @@ func (app *appDependencies) createTrainingEnrollmentHandler(w http.ResponseWrite
 		EnrollmentStatusID: CreateTrainingEnrollmentRequest.EnrollmentStatusID,
 		AttendanceStatusID: CreateTrainingEnrollmentRequest.AttendanceStatusID,
 		ProgressStatusID:   CreateTrainingEnrollmentRequest.ProgressStatusID,
-		CompletionDate:     CreateTrainingEnrollmentRequest.CompletionDate,
 		CertificateIssued:  CreateTrainingEnrollmentRequest.CertificateIssued,
 		CertificateNumber:  CreateTrainingEnrollmentRequest.CertificateNumber,
 	}
 
+	// Parse completion date if provided
+	if CreateTrainingEnrollmentRequest.CompletionDate != nil && *CreateTrainingEnrollmentRequest.CompletionDate != "" {
+		// Try multiple date formats
+		dateStr := *CreateTrainingEnrollmentRequest.CompletionDate
+		var parsedDate time.Time
+		var err error
+
+		// Try different formats
+		formats := []string{
+			"2006-01-02T15:04:05Z07:00", // RFC3339
+			"2006-01-02T15:04:05Z",      // RFC3339 UTC
+			"2006-01-02T15:04:05",       // Without timezone
+			"2006-01-02 15:04:05",       // SQL timestamp
+			"2006-01-02",                // Date only
+		}
+
+		for _, format := range formats {
+			if parsedDate, err = time.Parse(format, dateStr); err == nil {
+				enrollment.CompletionDate = &parsedDate
+				break
+			}
+		}
+
+		if err != nil {
+			v := validator.New()
+			v.AddError("completion_date", "must be a valid date (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ)")
+			app.failedValidationResponse(w, r, v.Errors)
+			return
+		}
+	}
+
+	// Continue with validation and insertion...
 	v := validator.New()
 	data.ValidateTrainingEnrollment(v, enrollment)
 	if !v.IsEmpty() {
