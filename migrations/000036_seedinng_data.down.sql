@@ -1,0 +1,2 @@
+-- REMOVING EVERYTHING ADDED IN THE UP MIGRATION
+TRUNCATE regions, ranks, postings, training_types, training_categories, training_status, enrollment_statuses, progress_statuses, attendance_statuses CASCADE;
