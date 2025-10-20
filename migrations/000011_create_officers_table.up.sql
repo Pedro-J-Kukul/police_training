@@ -1,4 +1,4 @@
-CREATE TABLE "officers" (
+CREATE TABLE  IF NOT EXISTS "officers" (
   "id" bigserial PRIMARY KEY,
   "regulation_number" text NOT NULL,
   "posting_id" bigint NOT NULL,
