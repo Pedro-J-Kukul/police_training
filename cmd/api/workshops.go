@@ -137,6 +137,7 @@ func (app *appDependencies) listWorkshopsHandler(w http.ResponseWriter, r *http.
 
 	categoryID := app.getOptionalInt64QueryParameter(query, "category_id", v)
 	trainingTypeID := app.getOptionalInt64QueryParameter(query, "training_type_id", v)
+	creditHours := app.getOptionalInt64QueryParameter(query, "credit_hours", v)
 	isActive := app.getOptionalBoolQueryParameter(query, "is_active", v)
 
 	if !v.IsEmpty() {
@@ -146,7 +147,7 @@ func (app *appDependencies) listWorkshopsHandler(w http.ResponseWriter, r *http.
 
 	name := likeSearch(app.getSingleQueryParameter(query, "workshop_name", ""))
 
-	workshops, metadata, err := app.models.Workshop.GetAll(name, categoryID, trainingTypeID, isActive, filters)
+	workshops, metadata, err := app.models.Workshop.GetAll(name, categoryID, trainingTypeID, creditHours, isActive, filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
