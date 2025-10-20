@@ -17,7 +17,7 @@ import (
 //	@Tags			Tokens
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		struct{Email string `json:"email"`; Password string `json:"password"`}	true	"User credentials"
+//	@Param			input	body		CreateAuthenticationTokenRequest_T	true	"User credentials"
 //	@Success		201		{object}	envelope
 //	@Failure		400		{object}	errorResponse
 //	@Failure		422		{object}	errorResponse

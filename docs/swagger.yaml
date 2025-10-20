@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  main.CreateAuthenticationTokenRequest_T:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   main.CreateEnrollmentStatusRequest_T:
     properties:
       status:
@@ -26,6 +33,11 @@ definitions:
         type: string
       user_id:
         type: integer
+    type: object
+  main.CreatePasswordResetTokenRequest_T:
+    properties:
+      email:
+        type: string
     type: object
   main.CreatePostingRequest_T:
     properties:
@@ -80,6 +92,13 @@ definitions:
       training_type_id:
         type: integer
       workshop_name:
+        type: string
+    type: object
+  main.ResetPasswordRequest_T:
+    properties:
+      password:
+        type: string
+      token:
         type: string
     type: object
   main.UpdateEnrollmentStatusRequest_T:
@@ -487,6 +506,23 @@ paths:
       summary: Update a formation
       tags:
       - formations
+  /v1/me:
+    get:
+      description: Retrieve the user record associated with the current request context
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get current user
+      tags:
+      - users
   /v1/officers:
     get:
       description: Retrieve a list of officers with optional filtering by regulation
@@ -1107,6 +1143,76 @@ paths:
       summary: Update a region
       tags:
       - regions
+  /v1/tokens/authentication:
+    post:
+      consumes:
+      - application/json
+      description: Generates an authentication token for a user based on provided
+        email and password.
+      parameters:
+      - description: User credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateAuthenticationTokenRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create Authentication Token
+      tags:
+      - Tokens
+  /v1/tokens/password-reset:
+    post:
+      consumes:
+      - application/json
+      description: Generates a password reset token and sends it to the user's email
+        address.
+      parameters:
+      - description: User email
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreatePasswordResetTokenRequest_T'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create Password Reset Token
+      tags:
+      - Tokens
   /v1/training/categories:
     get:
       description: Retrieve a list of training categories with optional filtering
@@ -1635,7 +1741,7 @@ paths:
       tags:
       - users
   /v1/users/activate:
-    post:
+    put:
       consumes:
       - application/json
       description: Activate a user account using an activation token
@@ -1668,9 +1774,18 @@ paths:
       summary: Activate a user account
       tags:
       - users
-  /v1/users/me:
-    get:
-      description: Retrieve the user record associated with the current request context
+  /v1/users/password-reset:
+    put:
+      consumes:
+      - application/json
+      description: Resets a user's password using a valid password reset token.
+      parameters:
+      - description: Password reset data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/main.ResetPasswordRequest_T'
       produces:
       - application/json
       responses:
@@ -1678,13 +1793,21 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
-      summary: Get current user
+      summary: Reset Password
       tags:
-      - users
+      - Tokens
   /v1/workshops:
     get:
       description: Retrieve a list of workshops with optional filtering by name, category,

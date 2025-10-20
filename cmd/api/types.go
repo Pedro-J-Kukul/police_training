@@ -160,3 +160,8 @@ type ResetPasswordRequest_T struct {
 	Token    string `json:"token"`
 	Password string `json:"password"`
 }
+
+type CreateAuthenticationTokenRequest_T struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

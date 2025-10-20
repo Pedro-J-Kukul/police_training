@@ -445,6 +445,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/me": {
+            "get": {
+                "description": "Retrieve the user record associated with the current request context",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get current user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/officers": {
             "get": {
                 "description": "Retrieve a list of officers with optional filtering by regulation number, posting, rank, formation, and region",
@@ -1383,6 +1409,110 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/tokens/authentication": {
+            "post": {
+                "description": "Generates an authentication token for a user based on provided email and password.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tokens"
+                ],
+                "summary": "Create Authentication Token",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateAuthenticationTokenRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tokens/password-reset": {
+            "post": {
+                "description": "Generates a password reset token and sends it to the user's email address.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tokens"
+                ],
+                "summary": "Create Password Reset Token",
+                "parameters": [
+                    {
+                        "description": "User email",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreatePasswordResetTokenRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/training/categories": {
             "get": {
                 "description": "Retrieve a list of training categories with optional filtering by name and active status",
@@ -2102,7 +2232,7 @@ const docTemplate = `{
             }
         },
         "/v1/users/activate": {
-            "post": {
+            "put": {
                 "description": "Activate a user account using an activation token",
                 "consumes": [
                     "application/json"
@@ -2153,21 +2283,47 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users/me": {
-            "get": {
-                "description": "Retrieve the user record associated with the current request context",
+        "/v1/users/password-reset": {
+            "put": {
+                "description": "Resets a user's password using a valid password reset token.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Tokens"
                 ],
-                "summary": "Get current user",
+                "summary": "Reset Password",
+                "parameters": [
+                    {
+                        "description": "Password reset data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.ResetPasswordRequest_T"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
                         }
                     },
                     "500": {
@@ -2497,6 +2653,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "main.CreateAuthenticationTokenRequest_T": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "main.CreateEnrollmentStatusRequest_T": {
             "type": "object",
             "properties": {
@@ -2536,6 +2703,14 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "main.CreatePasswordResetTokenRequest_T": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
                 }
             }
         },
@@ -2621,6 +2796,17 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "workshop_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ResetPasswordRequest_T": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }
