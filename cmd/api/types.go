@@ -83,15 +83,15 @@ type CreateWorkshopRequest_T struct {
 	IsActive       *bool   `json:"is_active"`
 }
 
-// UpdateWorkshopRequest_T represents the request payload for updating a workshop
+// Workshop Types (fix the double pointer issue)
 type UpdateWorkshopRequest_T struct {
-	WorkshopName   *string    `json:"workshop_name"`
-	CategoryID     *int64     `json:"category_id"`
-	TrainingTypeID *int64     `json:"training_type_id"`
-	CreditHours    *int64     `json:"credit_hours"`
-	Description    **string   `json:"description"`
-	Objectives     **string   `json:"objectives"`
-	IsActive       *bool      `json:"is_active"`
+	WorkshopName   *string    `json:"workshop_name,omitempty"`
+	CategoryID     *int64     `json:"category_id,omitempty"`
+	TrainingTypeID *int64     `json:"training_type_id,omitempty"`
+	CreditHours    *int64     `json:"credit_hours,omitempty"`
+	Description    *string    `json:"description,omitempty"` // Fixed: was **string
+	Objectives     *string    `json:"objectives,omitempty"`  // Fixed: was **string
+	IsActive       *bool      `json:"is_active,omitempty"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
 
@@ -196,6 +196,7 @@ type UpdateTrainingSessionRequest_T struct {
 	Notes            *string    `json:"notes"`
 }
 
+// Training Enrollment Types
 type CreateTrainingEnrollmentRequest_T struct {
 	OfficerID          int64      `json:"officer_id"`
 	SessionID          int64      `json:"session_id"`
@@ -208,12 +209,12 @@ type CreateTrainingEnrollmentRequest_T struct {
 }
 
 type UpdateTrainingEnrollmentRequest_T struct {
-	OfficerID          *int64      `json:"officer_id"`
-	SessionID          *int64      `json:"session_id"`
-	EnrollmentStatusID *int64      `json:"enrollment_status_id"`
-	AttendanceStatusID **int64     `json:"attendance_status_id,omitempty"`
-	ProgressStatusID   *int64      `json:"progress_status_id"`
-	CompletionDate     **time.Time `json:"completion_date,omitempty"`
-	CertificateIssued  *bool       `json:"certificate_issued"`
-	CertificateNumber  **string    `json:"certificate_number,omitempty"`
+	OfficerID          *int64     `json:"officer_id,omitempty"`
+	SessionID          *int64     `json:"session_id,omitempty"`
+	EnrollmentStatusID *int64     `json:"enrollment_status_id,omitempty"`
+	AttendanceStatusID *int64     `json:"attendance_status_id,omitempty"` // Fixed: was **int64
+	ProgressStatusID   *int64     `json:"progress_status_id,omitempty"`
+	CompletionDate     *time.Time `json:"completion_date,omitempty"`
+	CertificateIssued  *bool      `json:"certificate_issued,omitempty"`
+	CertificateNumber  *string    `json:"certificate_number,omitempty"`
 }

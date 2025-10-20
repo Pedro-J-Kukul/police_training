@@ -4,6 +4,7 @@ package data
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -40,8 +41,16 @@ func ValidateTrainingEnrollment(v *validator.Validator, enrollment *TrainingEnro
 	v.Check(enrollment.SessionID > 0, "session_id", "must be provided")
 	v.Check(enrollment.EnrollmentStatusID > 0, "enrollment_status_id", "must be provided")
 	v.Check(enrollment.ProgressStatusID > 0, "progress_status_id", "must be provided")
-	v.Check(len(*enrollment.CertificateNumber) <= 100, "certificate_number", "must not exceed 100 characters")
-	v.Check(enrollment.CertificateIssued || enrollment.CertificateNumber == nil, "certificate_number", "must be nil if certificate is not issued")
+
+	if enrollment.CertificateNumber != nil {
+		v.Check(len(*enrollment.CertificateNumber) <= 100, "certificate_number", "must not exceed 100 characters")
+	}
+
+	// If certificate is issued, require certificate number
+	if enrollment.CertificateIssued {
+		v.Check(enrollment.CertificateNumber != nil && *enrollment.CertificateNumber != "", "certificate_number", "must be provided when certificate is issued")
+		v.Check(enrollment.CompletionDate != nil, "completion_date", "must be provided when certificate is issued")
+	}
 }
 
 // Insert creates a new training enrollment.
@@ -51,7 +60,10 @@ func (m *TrainingEnrollmentModel) Insert(enrollment *TrainingEnrollment) error {
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at, updated_at`
 
-	args := []any{
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	if err := m.DB.QueryRowContext(ctx, query,
 		enrollment.OfficerID,
 		enrollment.SessionID,
 		enrollment.EnrollmentStatusID,
@@ -60,18 +72,21 @@ func (m *TrainingEnrollmentModel) Insert(enrollment *TrainingEnrollment) error {
 		enrollment.CompletionDate,
 		enrollment.CertificateIssued,
 		enrollment.CertificateNumber,
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
-	if err := m.DB.QueryRowContext(ctx, query, args...).Scan(&enrollment.ID, &enrollment.CreatedAt, &enrollment.UpdatedAt); err != nil {
-		return err
+	).Scan(&enrollment.ID, &enrollment.CreatedAt, &enrollment.UpdatedAt); err != nil {
+		switch {
+		case isForeignKeyViolation(err):
+			return ErrForeignKeyViolation
+		case isDuplicateKeyViolation(err):
+			return ErrDuplicateValue
+		default:
+			return err
+		}
 	}
 
 	return nil
 }
 
-// Get retruns a training enrollment by ID.
+// Get returns a training enrollment by ID.
 func (m *TrainingEnrollmentModel) Get(id int64) (*TrainingEnrollment, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
@@ -102,7 +117,7 @@ func (m *TrainingEnrollmentModel) Get(id int64) (*TrainingEnrollment, error) {
 	)
 	if err != nil {
 		switch {
-		case err == sql.ErrNoRows:
+		case errors.Is(err, sql.ErrNoRows):
 			return nil, ErrRecordNotFound
 		default:
 			return nil, err
@@ -120,7 +135,10 @@ func (m *TrainingEnrollmentModel) Update(enrollment *TrainingEnrollment) error {
 		WHERE id = $9
 		RETURNING updated_at`
 
-	args := []any{
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query,
 		enrollment.OfficerID,
 		enrollment.SessionID,
 		enrollment.EnrollmentStatusID,
@@ -130,18 +148,16 @@ func (m *TrainingEnrollmentModel) Update(enrollment *TrainingEnrollment) error {
 		enrollment.CertificateIssued,
 		enrollment.CertificateNumber,
 		enrollment.ID,
-	}
+	).Scan(&enrollment.UpdatedAt)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
-	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&enrollment.UpdatedAt)
 	if err != nil {
 		switch {
-		case err == sql.ErrNoRows:
+		case errors.Is(err, sql.ErrNoRows):
 			return ErrRecordNotFound
 		case isForeignKeyViolation(err):
 			return ErrForeignKeyViolation
+		case isDuplicateKeyViolation(err):
+			return ErrDuplicateValue
 		default:
 			return err
 		}
@@ -156,9 +172,7 @@ func (m *TrainingEnrollmentModel) Delete(id int64) error {
 		return ErrRecordNotFound
 	}
 
-	query := `
-		DELETE FROM training_enrollments
-		WHERE id = $1`
+	query := `DELETE FROM training_enrollments WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -180,36 +194,61 @@ func (m *TrainingEnrollmentModel) Delete(id int64) error {
 	return nil
 }
 
-// GetAll returns all training enrollments.
-func (m *TrainingEnrollmentModel) GetAll(officerID, sessionID, enrollmentStatusID, progressStatusID int64, certificate_issued bool, completion_date time.Time, certificate_number string, filters Filters) ([]*TrainingEnrollment, MetaData, error) {
+// GetAll returns training enrollments with filtering and pagination.
+func (m *TrainingEnrollmentModel) GetAll(officerID, sessionID, enrollmentStatusID, progressStatusID *int64, certificateIssued *bool, filters Filters) ([]*TrainingEnrollment, MetaData, error) {
 	query := fmt.Sprintf(`
 		SELECT COUNT(*) OVER(), id, officer_id, session_id, enrollment_status_id, attendance_status_id, progress_status_id, completion_date, certificate_issued, certificate_number, created_at, updated_at
 		FROM training_enrollments
-		WHERE (officer_id = $1 OR $1 = 0)
-		AND (session_id = $2 OR $2 = 0)
-		AND (enrollment_status_id = $3 OR $3 = 0)
-		AND (progress_status_id = $4 OR $4 = 0)
-		AND (certificate_issued = COALESCE(NULLIF($5::boolean, false), certificate_issued))
-		AND (completion_date = COALESCE(NULLIF($6::date, '0001-01-01'), completion_date))
-		AND (to_tsvector('simple', certificate_number) @@ plainto_tsquery('simple', $7) OR $7 = '')
+		WHERE ($1 = 0 OR officer_id = $1)
+		AND ($2 = 0 OR session_id = $2)
+		AND ($3 = 0 OR enrollment_status_id = $3)
+		AND ($4 = 0 OR progress_status_id = $4)
+		AND ($5 IS NULL OR certificate_issued = $5)
 		ORDER BY %s %s, id ASC
-		LIMIT $8 OFFSET $9`, filters.sortDirection(), filters.sortDirection())
+		LIMIT $6 OFFSET $7`, filters.sortColumn(), filters.sortDirection())
+
+	officerIDValue := int64(0)
+	if officerID != nil {
+		officerIDValue = *officerID
+	}
+	sessionIDValue := int64(0)
+	if sessionID != nil {
+		sessionIDValue = *sessionID
+	}
+	enrollmentStatusIDValue := int64(0)
+	if enrollmentStatusID != nil {
+		enrollmentStatusIDValue = *enrollmentStatusID
+	}
+	progressStatusIDValue := int64(0)
+	if progressStatusID != nil {
+		progressStatusIDValue = *progressStatusID
+	}
+
+	var certificateIssuedValue any = nil
+	if certificateIssued != nil {
+		certificateIssuedValue = *certificateIssued
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := m.DB.QueryContext(ctx, query, officerID, sessionID, enrollmentStatusID, progressStatusID, certificate_issued, completion_date, certificate_issued, filters.limit(), filters.offset())
+	rows, err := m.DB.QueryContext(ctx, query,
+		officerIDValue, sessionIDValue, enrollmentStatusIDValue,
+		progressStatusIDValue, certificateIssuedValue,
+		filters.limit(), filters.offset())
 	if err != nil {
 		return nil, MetaData{}, err
 	}
 	defer rows.Close()
 
-	enrollments := []*TrainingEnrollment{}
-	totalRecords := 0
+	var (
+		enrollments  []*TrainingEnrollment
+		totalRecords int
+	)
 
 	for rows.Next() {
 		var enrollment TrainingEnrollment
-		err := rows.Scan(
+		if err := rows.Scan(
 			&totalRecords,
 			&enrollment.ID,
 			&enrollment.OfficerID,
@@ -222,17 +261,16 @@ func (m *TrainingEnrollmentModel) GetAll(officerID, sessionID, enrollmentStatusI
 			&enrollment.CertificateNumber,
 			&enrollment.CreatedAt,
 			&enrollment.UpdatedAt,
-		)
-		if err != nil {
+		); err != nil {
 			return nil, MetaData{}, err
 		}
 		enrollments = append(enrollments, &enrollment)
 	}
-	if err = rows.Err(); err != nil {
+
+	if err := rows.Err(); err != nil {
 		return nil, MetaData{}, err
 	}
 
-	meta := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
-
-	return enrollments, meta, nil
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+	return enrollments, metadata, nil
 }
