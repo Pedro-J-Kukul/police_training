@@ -94,7 +94,7 @@ func (m TrainingCategoryModel) GetAll(name string, isActive *bool, filters Filte
 		SELECT COUNT(*) OVER(), id, name, is_active, created_at
 		FROM training_categories
 		WHERE ($1 = '' OR name ILIKE $1)
-		AND ($2 IS NULL OR is_active = $2)
+		AND ($2::boolean IS NULL OR is_active = $2::boolean)
 		ORDER BY %s %s, id ASC
 		LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 
