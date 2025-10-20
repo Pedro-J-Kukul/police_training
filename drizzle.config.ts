@@ -1,9 +1,10 @@
 // drizzle.config.ts
+import 'dotenvrc';
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   dialect: "postgresql",
   dbCredentials: {
-    url: "postgresql://postgres:postgres@localhost:5432/policetraining",
+    url: process.env.DB_DSN!,
   },
 });
