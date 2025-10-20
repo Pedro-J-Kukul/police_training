@@ -196,16 +196,16 @@ type UpdateTrainingSessionRequest_T struct {
 	Notes            *string    `json:"notes"`
 }
 
-// Training Enrollment Types
+// CreateTrainingEnrollmentRequest_T represents the request payload for creating a training enrollment
 type CreateTrainingEnrollmentRequest_T struct {
-	OfficerID          int64      `json:"officer_id"`
-	SessionID          int64      `json:"session_id"`
-	EnrollmentStatusID int64      `json:"enrollment_status_id"`
-	AttendanceStatusID *int64     `json:"attendance_status_id,omitempty"`
-	ProgressStatusID   int64      `json:"progress_status_id"`
-	CompletionDate     *time.Time `json:"completion_date,omitempty"`
-	CertificateIssued  bool       `json:"certificate_issued"`
-	CertificateNumber  *string    `json:"certificate_number,omitempty"`
+	OfficerID          int64   `json:"officer_id"`
+	SessionID          int64   `json:"session_id"`
+	EnrollmentStatusID int64   `json:"enrollment_status_id"`
+	AttendanceStatusID *int64  `json:"attendance_status_id,omitempty"`
+	ProgressStatusID   int64   `json:"progress_status_id"`
+	CompletionDate     *string `json:"completion_date,omitempty"` // Accept as string
+	CertificateIssued  bool    `json:"certificate_issued"`
+	CertificateNumber  *string `json:"certificate_number,omitempty"`
 }
 
 type UpdateTrainingEnrollmentRequest_T struct {

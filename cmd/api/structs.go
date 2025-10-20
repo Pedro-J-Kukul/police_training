@@ -89,8 +89,8 @@ var UpdateWorkshopRequest struct {
 	CategoryID     *int64     `json:"category_id"`
 	TrainingTypeID *int64     `json:"training_type_id"`
 	CreditHours    *int64     `json:"credit_hours"`
-	Description    **string   `json:"description"`
-	Objectives     **string   `json:"objectives"`
+	Description    *string    `json:"description"`
+	Objectives     *string    `json:"objectives"`
 	IsActive       *bool      `json:"is_active"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
@@ -167,14 +167,14 @@ var UpdateTrainingSessionRequest struct {
 
 // CreateTrainingEnrollmentRequest represents the request payload for creating a training enrollment
 var CreateTrainingEnrollmentRequest struct {
-	OfficerID          int64      `json:"officer_id"`
-	SessionID          int64      `json:"session_id"`
-	EnrollmentStatusID int64      `json:"enrollment_status_id"`
-	AttendanceStatusID *int64     `json:"attendance_status_id,omitempty"`
-	ProgressStatusID   int64      `json:"progress_status_id"`
-	CompletionDate     *time.Time `json:"completion_date,omitempty"`
-	CertificateIssued  bool       `json:"certificate_issued"`
-	CertificateNumber  *string    `json:"certificate_number,omitempty"`
+	OfficerID          int64   `json:"officer_id"`
+	SessionID          int64   `json:"session_id"`
+	EnrollmentStatusID int64   `json:"enrollment_status_id"`
+	AttendanceStatusID *int64  `json:"attendance_status_id,omitempty"`
+	ProgressStatusID   int64   `json:"progress_status_id"`
+	CompletionDate     *string `json:"completion_date,omitempty"`
+	CertificateIssued  bool    `json:"certificate_issued"`
+	CertificateNumber  *string `json:"certificate_number,omitempty"`
 }
 
 var UpdateTrainingEnrollmentRequest struct {
