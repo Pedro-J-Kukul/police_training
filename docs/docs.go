@@ -487,6 +487,11 @@ const docTemplate = `{
         },
         "/v1/me": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve the user record associated with the current request context",
                 "produces": [
                     "application/json"
@@ -2342,6 +2347,11 @@ const docTemplate = `{
         },
         "/v1/users": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of users with optional filters and pagination",
                 "produces": [
                     "application/json"
@@ -2522,6 +2532,11 @@ const docTemplate = `{
         },
         "/v1/users/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete a user record by ID",
                 "produces": [
                     "application/json"
@@ -2530,6 +2545,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Delete a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2564,6 +2588,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a user record",
                 "produces": [
                     "application/json"
@@ -2572,6 +2601,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Update a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
