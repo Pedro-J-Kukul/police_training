@@ -11,6 +11,18 @@ import (
 )
 
 // registerUserHandler creates a new user account and sends an activation email.
+//
+// @Summary Register a new user
+// @Description Create a new user account and send an activation email
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param user body registerUserRequest true "User registration data"
+// @Success 201 {object} envelope{user=data.User}
+// @Failure 400 {object} errorResponse
+// @Failure 422 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/users [post]
 func (app *appDependencies) registerUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		FirstName   string `json:"first_name"`
@@ -88,6 +100,17 @@ func (app *appDependencies) registerUserHandler(w http.ResponseWriter, r *http.R
 }
 
 // activateUserHandler uses an activation token to activate a pending account.
+// @Summary Activate a user account
+// @Description Activate a user account using an activation token
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param token body activateUserRequest true "Activation token"
+// @Success 200 {object} envelope{user=data.User}
+// @Failure 400 {object} errorResponse
+// @Failure 422 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/users/activate [post]
 func (app *appDependencies) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Token string `json:"token"`
@@ -140,6 +163,13 @@ func (app *appDependencies) activateUserHandler(w http.ResponseWriter, r *http.R
 }
 
 // showCurrentUserHandler returns the user record associated with the request context.
+// @Summary Get current user
+// @Description Retrieve the user record associated with the current request context
+// @Tags users
+// @Produce json
+// @Success 200 {object} envelope{user=data.User}
+// @Failure 500 {object} errorResponse
+// @Router /v1/users/me [get]
 func (app *appDependencies) showCurrentUserHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.contextGetUser(r)
 	if err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil); err != nil {
@@ -172,6 +202,13 @@ func (app *appDependencies) showUserHandler(w http.ResponseWriter, r *http.Reque
 }
 
 // listUsersHandler returns a filtered list of users.
+// @Summary List users
+// @Description Retrieve a list of users with optional filters and pagination
+// @Tags users
+// @Produce json
+// @Success 200 {object} envelope{users=[]data.User, metadata=data.MetaData}
+// @Failure 500 {object} errorResponse
+// @Router /v1/users [get]
 func (app *appDependencies) listUsersHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -221,6 +258,15 @@ func (app *appDependencies) listUsersHandler(w http.ResponseWriter, r *http.Requ
 }
 
 // updateUserHandler performs a partial update on a user record.
+// @Summary Update a user
+// @Description Perform a partial update on a user record
+// @Tags users
+// @Produce json
+// @Success 200 {object} envelope{user=data.User}
+// @Failure 400 {object} errorResponse
+// @Failure 422 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/users/{id} [patch]
 func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -314,6 +360,15 @@ func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
+// deleteUserHandler deletes a user record.
+// @Summary Delete a user
+// @Description Delete a user record by ID
+// @Tags users
+// @Produce json
+// @Success 200 {object} envelope{message=string}
+// @Failure 404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Router /v1/users/{id} [delete]
 func (app *appDependencies) deleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -351,6 +406,7 @@ func (app *appDependencies) deleteUserHandler(w http.ResponseWriter, r *http.Req
 	}
 }
 
+// deleteUserHandlerErrorHandler handles errors for deleteUserHandler.
 func (app *appDependencies) deleteUserHandlerErrorHandler(err error, w http.ResponseWriter, r *http.Request) bool {
 	if err != nil {
 		switch {
