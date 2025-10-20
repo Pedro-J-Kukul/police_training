@@ -73,6 +73,17 @@ func (app *appDependencies) routes() http.Handler {
 	router.Handler(http.MethodGet, "/v1/enrollment/status/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_ENROLLMENT_STATUSES"}, http.HandlerFunc(app.showEnrollmentStatusHandler))))
 	router.Handler(http.MethodPatch, "/v1/enrollment/status/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_MODIFY", "CAN_MODIFY_ENROLLMENT_STATUSES"}, http.HandlerFunc(app.updateEnrollmentStatusHandler))))
 
+	// Add these new routes:
+	router.Handler(http.MethodPost, "/v1/attendance/status", app.requireActivatedUser(app.requirePermissions([]string{"CAN_CREATE", "CAN_CREATE_ATTENDANCE_STATUSES"}, http.HandlerFunc(app.createAttendanceStatusHandler))))
+	router.Handler(http.MethodGet, "/v1/attendance/status", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_ATTENDANCE_STATUSES"}, http.HandlerFunc(app.listAttendanceStatusesHandler))))
+	router.Handler(http.MethodGet, "/v1/attendance/status/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_ATTENDANCE_STATUSES"}, http.HandlerFunc(app.showAttendanceStatusHandler))))
+	router.Handler(http.MethodPatch, "/v1/attendance/status/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_MODIFY", "CAN_MODIFY_ATTENDANCE_STATUSES"}, http.HandlerFunc(app.updateAttendanceStatusHandler))))
+
+	// Add these new routes:
+	router.Handler(http.MethodPost, "/v1/progress/status", app.requireActivatedUser(app.requirePermissions([]string{"CAN_CREATE", "CAN_CREATE_PROGRESS_STATUSES"}, http.HandlerFunc(app.createProgressStatusHandler))))
+	router.Handler(http.MethodGet, "/v1/progress/status", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_PROGRESS_STATUSES"}, http.HandlerFunc(app.listProgressStatusesHandler))))
+	router.Handler(http.MethodGet, "/v1/progress/status/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_PROGRESS_STATUSES"}, http.HandlerFunc(app.showProgressStatusHandler))))
+	router.Handler(http.MethodPatch, "/v1/progress/status/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_MODIFY", "CAN_MODIFY_PROGRESS_STATUSES"}, http.HandlerFunc(app.updateProgressStatusHandler))))
 	// Postings routes (Admin only for write operations)
 	router.Handler(http.MethodPost, "/v1/postings", app.requireActivatedUser(app.requirePermissions([]string{"CAN_CREATE", "CAN_CREATE_POSTINGS"}, http.HandlerFunc(app.createPostingHandler))))
 	router.Handler(http.MethodGet, "/v1/postings", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_POSTINGS"}, http.HandlerFunc(app.listPostingsHandler))))
@@ -104,16 +115,19 @@ func (app *appDependencies) routes() http.Handler {
 	router.Handler(http.MethodPatch, "/v1/officers/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_MODIFY", "CAN_MODIFY_OFFICERS"}, http.HandlerFunc(app.updateOfficerHandler))))
 	router.Handler(http.MethodDelete, "/v1/officers/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_DELETE", "CAN_DELETE_OFFICERS"}, http.HandlerFunc(app.deleteOfficerHandler))))
 
-	// // Training Sessions routes (Admin only for write operations)
-	// router.Handler(http.MethodPost, "/v1/training/sessions", app.requireRole("admin", http.HandlerFunc(app.createTrainingSessionHandler)))
-	// router.Handler(http.MethodGet, "/v1/training/sessions", app.requireActivatedUser(http.HandlerFunc(app.listTrainingSessionsHandler)))
-	// router.Handler(http.MethodGet, "/v1/training/sessions/:id", app.requireActivatedUser(http.HandlerFunc(app.showTrainingSessionHandler)))
-	// router.Handler(http.MethodPatch, "/v1/training/sessions/:id", app.requireRole("admin", http.HandlerFunc(app.updateTrainingSessionHandler)))
+	// Uncomment and update these in routes.go:
+	router.Handler(http.MethodPost, "/v1/training/sessions", app.requireActivatedUser(app.requirePermissions([]string{"CAN_CREATE", "CAN_CREATE_TRAINING_SESSIONS"}, http.HandlerFunc(app.createTrainingSessionHandler))))
+	router.Handler(http.MethodGet, "/v1/training/sessions", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_TRAINING_SESSIONS"}, http.HandlerFunc(app.listTrainingSessionsHandler))))
+	router.Handler(http.MethodGet, "/v1/training/sessions/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_TRAINING_SESSIONS"}, http.HandlerFunc(app.showTrainingSessionHandler))))
+	router.Handler(http.MethodPatch, "/v1/training/sessions/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_MODIFY", "CAN_MODIFY_TRAINING_SESSIONS"}, http.HandlerFunc(app.updateTrainingSessionHandler))))
+	router.Handler(http.MethodDelete, "/v1/training/sessions/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_DELETE", "CAN_DELETE_TRAINING_SESSIONS"}, http.HandlerFunc(app.deleteTrainingSessionHandler))))
 
-	// // Training Enrollments routes
-	// router.Handler(http.MethodPost, "/v1/training/enrollments", app.requireActivatedUser(http.HandlerFunc(app.createTrainingEnrollmentHandler)))
-	// router.Handler(http.MethodGet, "/v1/training/enrollments", app.requireActivatedUser(http.HandlerFunc(app.listTrainingEnrollmentsHandler)))
-	// router.Handler(http.MethodGet, "/v1/training/enrollments/:id", app.requireActivatedUser(http.HandlerFunc(app.showTrainingEnrollmentHandler)))
-	// router.Handler(http.MethodPatch, "/v1/training/enrollments/:id", app.requireActivatedUser(http.HandlerFunc(app.updateTrainingEnrollmentHandler)))
+	// Uncomment and update these in routes.go:
+	router.Handler(http.MethodPost, "/v1/training/enrollments", app.requireActivatedUser(app.requirePermissions([]string{"CAN_CREATE", "CAN_CREATE_TRAINING_ENROLLMENTS"}, http.HandlerFunc(app.createTrainingEnrollmentHandler))))
+	router.Handler(http.MethodGet, "/v1/training/enrollments", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_TRAINING_ENROLLMENTS"}, http.HandlerFunc(app.listTrainingEnrollmentsHandler))))
+	router.Handler(http.MethodGet, "/v1/training/enrollments/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_READ", "CAN_READ_TRAINING_ENROLLMENTS"}, http.HandlerFunc(app.showTrainingEnrollmentHandler))))
+	router.Handler(http.MethodPatch, "/v1/training/enrollments/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_MODIFY", "CAN_MODIFY_TRAINING_ENROLLMENTS"}, http.HandlerFunc(app.updateTrainingEnrollmentHandler))))
+	router.Handler(http.MethodDelete, "/v1/training/enrollments/:id", app.requireActivatedUser(app.requirePermissions([]string{"CAN_DELETE", "CAN_DELETE_TRAINING_ENROLLMENTS"}, http.HandlerFunc(app.deleteTrainingEnrollmentHandler))))
+
 	return app.recoverPanic(app.enableCORS(app.metrics(app.rateLimit(app.authenticate(router)))))
 }
