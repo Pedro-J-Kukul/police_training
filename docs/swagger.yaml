@@ -1,0 +1,1850 @@
+basePath: /v1/
+definitions:
+  main.CreateEnrollmentStatusRequest_T:
+    properties:
+      status:
+        type: string
+    type: object
+  main.CreateFormationRequest_T:
+    properties:
+      formation:
+        type: string
+      region_id:
+        type: integer
+    type: object
+  main.CreateOfficerRequest_T:
+    properties:
+      formation_id:
+        type: integer
+      posting_id:
+        type: integer
+      rank_id:
+        type: integer
+      region_id:
+        type: integer
+      regulation_number:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  main.CreatePostingRequest_T:
+    properties:
+      code:
+        type: string
+      posting:
+        type: string
+    type: object
+  main.CreateRankRequest_T:
+    properties:
+      annual_training_hours_required:
+        type: integer
+      code:
+        type: string
+      rank:
+        type: string
+    type: object
+  main.CreateRegionRequest_T:
+    properties:
+      region:
+        type: string
+    type: object
+  main.CreateTrainingCategoryRequest_T:
+    properties:
+      is_active:
+        type: boolean
+      name:
+        type: string
+    type: object
+  main.CreateTrainingStatusRequest_T:
+    properties:
+      status:
+        type: string
+    type: object
+  main.CreateTrainingTypeRequest_T:
+    properties:
+      type:
+        type: string
+    type: object
+  main.CreateWorkshopRequest_T:
+    properties:
+      category_id:
+        type: integer
+      credit_hours:
+        type: integer
+      description:
+        type: string
+      is_active:
+        type: boolean
+      objectives:
+        type: string
+      training_type_id:
+        type: integer
+      workshop_name:
+        type: string
+    type: object
+  main.UpdateEnrollmentStatusRequest_T:
+    properties:
+      status:
+        type: string
+    type: object
+  main.UpdateFormationRequest_T:
+    properties:
+      formation:
+        type: string
+      region_id:
+        type: integer
+    type: object
+  main.UpdateOfficerRequest_T:
+    properties:
+      formation_id:
+        type: integer
+      posting_id:
+        type: integer
+      rank_id:
+        type: integer
+      region_id:
+        type: integer
+      regulation_number:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  main.UpdatePostingRequest_T:
+    properties:
+      code:
+        type: string
+      posting:
+        type: string
+    type: object
+  main.UpdateRankRequest_T:
+    properties:
+      annual_training_hours_required:
+        type: integer
+      code:
+        type: string
+      rank:
+        type: string
+    type: object
+  main.UpdateRegionRequest_T:
+    properties:
+      region:
+        type: string
+    type: object
+  main.UpdateTrainingCategoryRequest_T:
+    properties:
+      is_active:
+        type: boolean
+      name:
+        type: string
+    type: object
+  main.UpdateTrainingStatusRequest_T:
+    properties:
+      status:
+        type: string
+    type: object
+  main.UpdateTrainingTypeRequest_T:
+    properties:
+      type:
+        type: string
+    type: object
+  main.UpdateWorkshopRequest_T:
+    properties:
+      category_id:
+        type: integer
+      credit_hours:
+        type: integer
+      description:
+        type: string
+      is_active:
+        type: boolean
+      objectives:
+        type: string
+      training_type_id:
+        type: integer
+      updated_at:
+        type: string
+      workshop_name:
+        type: string
+    type: object
+  main.activateUserRequest:
+    properties:
+      token:
+        type: string
+    type: object
+  main.envelope:
+    additionalProperties: {}
+    type: object
+  main.errorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  main.registerUserRequest:
+    properties:
+      email:
+        type: string
+      facilitator:
+        type: boolean
+      first_name:
+        type: string
+      gender:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:4000
+info:
+  contact: {}
+  description: This is the API server for the Police Training application.
+  title: Police Training API
+  version: 1.0.0
+paths:
+  /v1/enrollment/status:
+    get:
+      description: Retrieve a list of enrollment statuses with optional filtering
+        by status name
+      parameters:
+      - description: Filter by status name
+        in: query
+        name: status
+        type: string
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List enrollment statuses
+      tags:
+      - enrollment-statuses
+    post:
+      consumes:
+      - application/json
+      description: Create a new enrollment status
+      parameters:
+      - description: Enrollment status data
+        in: body
+        name: enrollment_status
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateEnrollmentStatusRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new enrollment status
+      tags:
+      - enrollment-statuses
+  /v1/enrollment/status/{id}:
+    get:
+      description: Retrieve an enrollment status by its ID
+      parameters:
+      - description: Enrollment status ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get an enrollment status
+      tags:
+      - enrollment-statuses
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on an enrollment status record
+      parameters:
+      - description: Enrollment status ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Enrollment status data
+        in: body
+        name: enrollment_status
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateEnrollmentStatusRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update an enrollment status
+      tags:
+      - enrollment-statuses
+  /v1/formations:
+    get:
+      description: Retrieve a list of formations with optional filtering by name and
+        region
+      parameters:
+      - description: Filter by formation name
+        in: query
+        name: formation
+        type: string
+      - description: Filter by region ID
+        in: query
+        name: region_id
+        type: integer
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List formations
+      tags:
+      - formations
+    post:
+      consumes:
+      - application/json
+      description: Create a new formation
+      parameters:
+      - description: Formation data
+        in: body
+        name: formation
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateFormationRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new formation
+      tags:
+      - formations
+  /v1/formations/{id}:
+    get:
+      description: Retrieve a formation by its ID
+      parameters:
+      - description: Formation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get a formation
+      tags:
+      - formations
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a formation record
+      parameters:
+      - description: Formation ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Formation data
+        in: body
+        name: formation
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateFormationRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update a formation
+      tags:
+      - formations
+  /v1/officers:
+    get:
+      description: Retrieve a list of officers with optional filtering by regulation
+        number, posting, rank, formation, and region
+      parameters:
+      - description: Filter by regulation number
+        in: query
+        name: regulation_number
+        type: string
+      - description: Filter by posting ID
+        in: query
+        name: posting_id
+        type: integer
+      - description: Filter by rank ID
+        in: query
+        name: rank_id
+        type: integer
+      - description: Filter by formation ID
+        in: query
+        name: formation_id
+        type: integer
+      - description: Filter by region ID
+        in: query
+        name: region_id
+        type: integer
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List officers
+      tags:
+      - officers
+    post:
+      consumes:
+      - application/json
+      description: Create a new officer
+      parameters:
+      - description: Officer data
+        in: body
+        name: officer
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateOfficerRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new officer
+      tags:
+      - officers
+  /v1/officers/{id}:
+    delete:
+      description: Delete an officer by its ID
+      parameters:
+      - description: Officer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/main.envelope'
+            - properties:
+                message:
+                  type: string
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Delete an officer
+      tags:
+      - officers
+    get:
+      description: Retrieve an officer by its ID
+      parameters:
+      - description: Officer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get an officer
+      tags:
+      - officers
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on an officer record
+      parameters:
+      - description: Officer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Officer data
+        in: body
+        name: officer
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateOfficerRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update an officer
+      tags:
+      - officers
+  /v1/postings:
+    get:
+      description: Retrieve a list of postings with optional filtering by name and
+        code
+      parameters:
+      - description: Filter by posting name
+        in: query
+        name: posting
+        type: string
+      - description: Filter by posting code
+        in: query
+        name: code
+        type: string
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List postings
+      tags:
+      - postings
+    post:
+      consumes:
+      - application/json
+      description: Create a new posting
+      parameters:
+      - description: Posting data
+        in: body
+        name: posting
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreatePostingRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new posting
+      tags:
+      - postings
+  /v1/postings/{id}:
+    get:
+      description: Retrieve a posting by its ID
+      parameters:
+      - description: Posting ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get a posting
+      tags:
+      - postings
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a posting record
+      parameters:
+      - description: Posting ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Posting data
+        in: body
+        name: posting
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdatePostingRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update a posting
+      tags:
+      - postings
+  /v1/ranks:
+    get:
+      description: Retrieve a list of ranks with optional filtering by rank name and
+        code
+      parameters:
+      - description: Filter by rank name
+        in: query
+        name: rank
+        type: string
+      - description: Filter by rank code
+        in: query
+        name: code
+        type: string
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List ranks
+      tags:
+      - ranks
+    post:
+      consumes:
+      - application/json
+      description: Create a new rank
+      parameters:
+      - description: Rank data
+        in: body
+        name: rank
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateRankRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new rank
+      tags:
+      - ranks
+  /v1/ranks/{id}:
+    get:
+      description: Retrieve a rank by its ID
+      parameters:
+      - description: Rank ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get a rank
+      tags:
+      - ranks
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a rank record
+      parameters:
+      - description: Rank ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Rank data
+        in: body
+        name: rank
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateRankRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update a rank
+      tags:
+      - ranks
+  /v1/regions:
+    get:
+      description: Retrieve a list of regions with optional filtering
+      parameters:
+      - description: Filter by region name
+        in: query
+        name: region
+        type: string
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List regions
+      tags:
+      - regions
+    post:
+      consumes:
+      - application/json
+      description: Create a new region
+      parameters:
+      - description: Region data
+        in: body
+        name: region
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateRegionRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new region
+      tags:
+      - regions
+  /v1/regions/{id}:
+    get:
+      description: Retrieve a region by its ID
+      parameters:
+      - description: Region ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get a region
+      tags:
+      - regions
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a region record
+      parameters:
+      - description: Region ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Region data
+        in: body
+        name: region
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateRegionRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update a region
+      tags:
+      - regions
+  /v1/training/categories:
+    get:
+      description: Retrieve a list of training categories with optional filtering
+        by name and active status
+      parameters:
+      - description: Filter by category name
+        in: query
+        name: name
+        type: string
+      - description: Filter by active status
+        in: query
+        name: is_active
+        type: boolean
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List training categories
+      tags:
+      - training-categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new training category
+      parameters:
+      - description: Training category data
+        in: body
+        name: training_category
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateTrainingCategoryRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new training category
+      tags:
+      - training-categories
+  /v1/training/categories/{id}:
+    get:
+      description: Retrieve a training category by its ID
+      parameters:
+      - description: Training category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get a training category
+      tags:
+      - training-categories
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a training category record
+      parameters:
+      - description: Training category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Training category data
+        in: body
+        name: training_category
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateTrainingCategoryRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update a training category
+      tags:
+      - training-categories
+  /v1/training/status:
+    get:
+      description: Retrieve a list of training statuses with optional filtering by
+        status name
+      parameters:
+      - description: Filter by status name
+        in: query
+        name: status
+        type: string
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List training statuses
+      tags:
+      - training-statuses
+    post:
+      consumes:
+      - application/json
+      description: Create a new training status
+      parameters:
+      - description: Training status data
+        in: body
+        name: training_status
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateTrainingStatusRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new training status
+      tags:
+      - training-statuses
+  /v1/training/status/{id}:
+    get:
+      description: Retrieve a training status by its ID
+      parameters:
+      - description: Training status ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get a training status
+      tags:
+      - training-statuses
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a training status record
+      parameters:
+      - description: Training status ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Training status data
+        in: body
+        name: training_status
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateTrainingStatusRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update a training status
+      tags:
+      - training-statuses
+  /v1/training/types:
+    get:
+      description: Retrieve a list of training types with optional filtering by type
+        name
+      parameters:
+      - description: Filter by training type name
+        in: query
+        name: type
+        type: string
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List training types
+      tags:
+      - training-types
+    post:
+      consumes:
+      - application/json
+      description: Create a new training type
+      parameters:
+      - description: Training type data
+        in: body
+        name: training_type
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateTrainingTypeRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new training type
+      tags:
+      - training-types
+  /v1/training/types/{id}:
+    get:
+      description: Retrieve a training type by its ID
+      parameters:
+      - description: Training type ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get a training type
+      tags:
+      - training-types
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a training type record
+      parameters:
+      - description: Training type ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Training type data
+        in: body
+        name: training_type
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateTrainingTypeRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update a training type
+      tags:
+      - training-types
+  /v1/users:
+    get:
+      description: Retrieve a list of users with optional filters and pagination
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account and send an activation email
+      parameters:
+      - description: User registration data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.registerUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Register a new user
+      tags:
+      - users
+  /v1/users/{id}:
+    delete:
+      description: Delete a user record by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/main.envelope'
+            - properties:
+                message:
+                  type: string
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Delete a user
+      tags:
+      - users
+    patch:
+      description: Perform a partial update on a user record
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update a user
+      tags:
+      - users
+  /v1/users/activate:
+    post:
+      consumes:
+      - application/json
+      description: Activate a user account using an activation token
+      parameters:
+      - description: Activation token
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/main.activateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Activate a user account
+      tags:
+      - users
+  /v1/users/me:
+    get:
+      description: Retrieve the user record associated with the current request context
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get current user
+      tags:
+      - users
+  /v1/workshops:
+    get:
+      description: Retrieve a list of workshops with optional filtering by name, category,
+        training type, and active status
+      parameters:
+      - description: Filter by workshop name
+        in: query
+        name: workshop_name
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: integer
+      - description: Filter by training type ID
+        in: query
+        name: training_type_id
+        type: integer
+      - description: Filter by active status
+        in: query
+        name: is_active
+        type: boolean
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: List workshops
+      tags:
+      - workshops
+    post:
+      consumes:
+      - application/json
+      description: Create a new workshop
+      parameters:
+      - description: Workshop data
+        in: body
+        name: workshop
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateWorkshopRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Create a new workshop
+      tags:
+      - workshops
+  /v1/workshops/{id}:
+    get:
+      description: Retrieve a workshop by its ID
+      parameters:
+      - description: Workshop ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Get a workshop
+      tags:
+      - workshops
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a workshop record
+      parameters:
+      - description: Workshop ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Workshop data
+        in: body
+        name: workshop
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateWorkshopRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      summary: Update a workshop
+      tags:
+      - workshops
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

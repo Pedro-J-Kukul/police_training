@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/Pedro-J-Kukul/police_training/internal/data"
 	"github.com/Pedro-J-Kukul/police_training/internal/validator"
@@ -19,28 +18,25 @@ func likeSearch(value string) string {
 
 /*********************** Regions ***********************/
 // createRegionHandler handles the creation of a new region.
-// @Summary Create a new region
-// @Description Create a new region
-// @Tags regions
-// @Accept json
-// @Produce json
-// @Param region body createRegionRequest true "Region data"
-// @Success 201 {object} envelope{region=data.Region}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/regions [post]
+//	@Summary		Create a new region
+//	@Description	Create a new region
+//	@Tags			regions
+//	@Accept			json
+//	@Produce		json
+//	@Param			region	body		CreateRegionRequest_T	true	"Region data"
+//	@Success		201		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/regions [post]
 func (app *appDependencies) createRegionHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Region string `json:"region"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &CreateRegionRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	region := &data.Region{Region: input.Region}
+	region := &data.Region{Region: CreateRegionRequest.Region}
 
 	v := validator.New()
 	data.ValidateRegion(v, region)
@@ -69,15 +65,16 @@ func (app *appDependencies) createRegionHandler(w http.ResponseWriter, r *http.R
 }
 
 // showRegionHandler retrieves and returns a region by its ID.
-// @Summary Get a region
-// @Description Retrieve a region by its ID
-// @Tags regions
-// @Produce json
-// @Param id path int true "Region ID"
-// @Success 200 {object} envelope{region=data.Region}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/regions/{id} [get]
+//
+//	@Summary		Get a region
+//	@Description	Retrieve a region by its ID
+//	@Tags			regions
+//	@Produce		json
+//	@Param			id	path		int	true	"Region ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/regions/{id} [get]
 func (app *appDependencies) showRegionHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -102,18 +99,19 @@ func (app *appDependencies) showRegionHandler(w http.ResponseWriter, r *http.Req
 }
 
 // listRegionsHandler returns a filtered list of regions.
-// @Summary List regions
-// @Description Retrieve a list of regions with optional filtering
-// @Tags regions
-// @Produce json
-// @Param region query string false "Filter by region name"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{regions=[]data.Region, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/regions [get]
+//
+//	@Summary		List regions
+//	@Description	Retrieve a list of regions with optional filtering
+//	@Tags			regions
+//	@Produce		json
+//	@Param			region		query		string	false	"Filter by region name"
+//	@Param			page		query		int		false	"Page number for pagination"
+//	@Param			page_size	query		int		false	"Number of items per page"
+//	@Param			sort		query		string	false	"Sort order"
+//	@Success		200			{object}	envelope
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/regions [get]
 func (app *appDependencies) listRegionsHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -138,19 +136,20 @@ func (app *appDependencies) listRegionsHandler(w http.ResponseWriter, r *http.Re
 }
 
 // updateRegionHandler performs a partial update on a region record.
-// @Summary Update a region
-// @Description Perform a partial update on a region record
-// @Tags regions
-// @Accept json
-// @Produce json
-// @Param id path int true "Region ID"
-// @Param region body updateRegionRequest true "Region data"
-// @Success 200 {object} envelope{region=data.Region}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/regions/{id} [patch]
+//
+//	@Summary		Update a region
+//	@Description	Perform a partial update on a region record
+//	@Tags			regions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int						true	"Region ID"
+//	@Param			region	body		UpdateRegionRequest_T	true	"Region data"
+//	@Success		200		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		404		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/regions/{id} [patch]
 func (app *appDependencies) updateRegionHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -169,17 +168,13 @@ func (app *appDependencies) updateRegionHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	var input struct {
-		Region *string `json:"region"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateRegionRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.Region != nil {
-		region.Region = *input.Region
+	if UpdateRegionRequest.Region != nil {
+		region.Region = *UpdateRegionRequest.Region
 	}
 
 	v := validator.New()
@@ -209,31 +204,27 @@ func (app *appDependencies) updateRegionHandler(w http.ResponseWriter, r *http.R
 
 /*********************** Formations ***********************/
 // createFormationHandler handles the creation of a new formation.
-// @Summary Create a new formation
-// @Description Create a new formation
-// @Tags formations
-// @Accept json
-// @Produce json
-// @Param formation body createFormationRequest true "Formation data"
-// @Success 201 {object} envelope{formation=data.Formation}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/formations [post]
+//	@Summary		Create a new formation
+//	@Description	Create a new formation
+//	@Tags			formations
+//	@Accept			json
+//	@Produce		json
+//	@Param			formation	body		CreateFormationRequest_T	true	"Formation data"
+//	@Success		201			{object}	envelope
+//	@Failure		400			{object}	errorResponse
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/formations [post]
 func (app *appDependencies) createFormationHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Formation string `json:"formation"`
-		RegionID  int64  `json:"region_id"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateFormationRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	formation := &data.Formation{
-		Formation: input.Formation,
-		RegionID:  input.RegionID,
+		Formation: *UpdateFormationRequest.Formation,
+		RegionID:  *UpdateFormationRequest.RegionID,
 	}
 
 	v := validator.New()
@@ -266,15 +257,16 @@ func (app *appDependencies) createFormationHandler(w http.ResponseWriter, r *htt
 }
 
 // showFormationHandler retrieves a formation by id.
-// @Summary Get a formation
-// @Description Retrieve a formation by its ID
-// @Tags formations
-// @Produce json
-// @Param id path int true "Formation ID"
-// @Success 200 {object} envelope{formation=data.Formation}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/formations/{id} [get]
+//
+//	@Summary		Get a formation
+//	@Description	Retrieve a formation by its ID
+//	@Tags			formations
+//	@Produce		json
+//	@Param			id	path		int	true	"Formation ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/formations/{id} [get]
 func (app *appDependencies) showFormationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -299,19 +291,20 @@ func (app *appDependencies) showFormationHandler(w http.ResponseWriter, r *http.
 }
 
 // listFormationsHandler returns formations filtered by name and region.
-// @Summary List formations
-// @Description Retrieve a list of formations with optional filtering by name and region
-// @Tags formations
-// @Produce json
-// @Param formation query string false "Filter by formation name"
-// @Param region_id query int false "Filter by region ID"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{formations=[]data.Formation, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/formations [get]
+//
+//	@Summary		List formations
+//	@Description	Retrieve a list of formations with optional filtering by name and region
+//	@Tags			formations
+//	@Produce		json
+//	@Param			formation	query		string	false	"Filter by formation name"
+//	@Param			region_id	query		int		false	"Filter by region ID"
+//	@Param			page		query		int		false	"Page number for pagination"
+//	@Param			page_size	query		int		false	"Number of items per page"
+//	@Param			sort		query		string	false	"Sort order"
+//	@Success		200			{object}	envelope
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/formations [get]
 func (app *appDependencies) listFormationsHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -339,19 +332,20 @@ func (app *appDependencies) listFormationsHandler(w http.ResponseWriter, r *http
 }
 
 // updateFormationHandler performs a partial update on a formation record.
-// @Summary Update a formation
-// @Description Perform a partial update on a formation record
-// @Tags formations
-// @Accept json
-// @Produce json
-// @Param id path int true "Formation ID"
-// @Param formation body updateFormationRequest true "Formation data"
-// @Success 200 {object} envelope{formation=data.Formation}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/formations/{id} [patch]
+//
+//	@Summary		Update a formation
+//	@Description	Perform a partial update on a formation record
+//	@Tags			formations
+//	@Accept			json
+//	@Produce		json
+//	@Param			id			path		int							true	"Formation ID"
+//	@Param			formation	body		UpdateFormationRequest_T	true	"Formation data"
+//	@Success		200			{object}	envelope
+//	@Failure		400			{object}	errorResponse
+//	@Failure		404			{object}	errorResponse
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/formations/{id} [patch]
 func (app *appDependencies) updateFormationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -370,21 +364,16 @@ func (app *appDependencies) updateFormationHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	var input struct {
-		Formation *string `json:"formation"`
-		RegionID  *int64  `json:"region_id"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateFormationRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.Formation != nil {
-		formation.Formation = *input.Formation
+	if UpdateFormationRequest.Formation != nil {
+		formation.Formation = *UpdateFormationRequest.Formation
 	}
-	if input.RegionID != nil {
-		formation.RegionID = *input.RegionID
+	if UpdateFormationRequest.RegionID != nil {
+		formation.RegionID = *UpdateFormationRequest.RegionID
 	}
 
 	v := validator.New()
@@ -418,31 +407,28 @@ func (app *appDependencies) updateFormationHandler(w http.ResponseWriter, r *htt
 /*********************** Postings ***********************/
 
 // createPostingHandler handles the creation of a new posting.
-// @Summary Create a new posting
-// @Description Create a new posting
-// @Tags postings
-// @Accept json
-// @Produce json
-// @Param posting body createPostingRequest true "Posting data"
-// @Success 201 {object} envelope{posting=data.Posting}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/postings [post]
+//
+//	@Summary		Create a new posting
+//	@Description	Create a new posting
+//	@Tags			postings
+//	@Accept			json
+//	@Produce		json
+//	@Param			posting	body		CreatePostingRequest_T	true	"Posting data"
+//	@Success		201		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/postings [post]
 func (app *appDependencies) createPostingHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Posting string  `json:"posting"`
-		Code    *string `json:"code"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &CreatePostingRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	posting := &data.Posting{
-		Posting: input.Posting,
-		Code:    input.Code,
+		Posting: CreatePostingRequest.Posting,
+		Code:    CreatePostingRequest.Code,
 	}
 
 	v := validator.New()
@@ -472,15 +458,16 @@ func (app *appDependencies) createPostingHandler(w http.ResponseWriter, r *http.
 }
 
 // showPostingHandler retrieves and returns a posting by its ID.
-// @Summary Get a posting
-// @Description Retrieve a posting by its ID
-// @Tags postings
-// @Produce json
-// @Param id path int true "Posting ID"
-// @Success 200 {object} envelope{posting=data.Posting}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/postings/{id} [get]
+//
+//	@Summary		Get a posting
+//	@Description	Retrieve a posting by its ID
+//	@Tags			postings
+//	@Produce		json
+//	@Param			id	path		int	true	"Posting ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/postings/{id} [get]
 func (app *appDependencies) showPostingHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -505,19 +492,20 @@ func (app *appDependencies) showPostingHandler(w http.ResponseWriter, r *http.Re
 }
 
 // listPostingsHandler returns a filtered list of postings.
-// @Summary List postings
-// @Description Retrieve a list of postings with optional filtering by name and code
-// @Tags postings
-// @Produce json
-// @Param posting query string false "Filter by posting name"
-// @Param code query string false "Filter by posting code"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{postings=[]data.Posting, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/postings [get]
+//
+//	@Summary		List postings
+//	@Description	Retrieve a list of postings with optional filtering by name and code
+//	@Tags			postings
+//	@Produce		json
+//	@Param			posting		query		string	false	"Filter by posting name"
+//	@Param			code		query		string	false	"Filter by posting code"
+//	@Param			page		query		int		false	"Page number for pagination"
+//	@Param			page_size	query		int		false	"Number of items per page"
+//	@Param			sort		query		string	false	"Sort order"
+//	@Success		200			{object}	envelope
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/postings [get]
 func (app *appDependencies) listPostingsHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -543,19 +531,20 @@ func (app *appDependencies) listPostingsHandler(w http.ResponseWriter, r *http.R
 }
 
 // updatePostingHandler performs a partial update on a posting record.
-// @Summary Update a posting
-// @Description Perform a partial update on a posting record
-// @Tags postings
-// @Accept json
-// @Produce json
-// @Param id path int true "Posting ID"
-// @Param posting body updatePostingRequest true "Posting data"
-// @Success 200 {object} envelope{posting=data.Posting}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/postings/{id} [patch]
+//
+//	@Summary		Update a posting
+//	@Description	Perform a partial update on a posting record
+//	@Tags			postings
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int						true	"Posting ID"
+//	@Param			posting	body		UpdatePostingRequest_T	true	"Posting data"
+//	@Success		200		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		404		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/postings/{id} [patch]
 func (app *appDependencies) updatePostingHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -574,21 +563,16 @@ func (app *appDependencies) updatePostingHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var input struct {
-		Posting *string  `json:"posting"`
-		Code    **string `json:"code"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdatePostingRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.Posting != nil {
-		posting.Posting = *input.Posting
+	if UpdatePostingRequest.Posting != nil {
+		posting.Posting = *UpdatePostingRequest.Posting
 	}
-	if input.Code != nil {
-		posting.Code = *input.Code
+	if UpdatePostingRequest.Code != nil {
+		posting.Code = UpdatePostingRequest.Code
 	}
 
 	v := validator.New()
@@ -619,33 +603,29 @@ func (app *appDependencies) updatePostingHandler(w http.ResponseWriter, r *http.
 /*********************** Ranks ***********************/
 
 // createRankHandler handles the creation of a new rank.
-// @Summary Create a new rank
-// @Description Create a new rank
-// @Tags ranks
-// @Accept json
-// @Produce json
-// @Param rank body createRankRequest true "Rank data"
-// @Success 201 {object} envelope{rank=data.Rank}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/ranks [post]
+//
+//	@Summary		Create a new rank
+//	@Description	Create a new rank
+//	@Tags			ranks
+//	@Accept			json
+//	@Produce		json
+//	@Param			rank	body		CreateRankRequest_T	true	"Rank data"
+//	@Success		201		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/ranks [post]
 func (app *appDependencies) createRankHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Rank                        string `json:"rank"`
-		Code                        string `json:"code"`
-		AnnualTrainingHoursRequired int    `json:"annual_training_hours_required"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &CreateRankRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	rank := &data.Rank{
-		Rank:                        input.Rank,
-		Code:                        input.Code,
-		AnnualTrainingHoursRequired: input.AnnualTrainingHoursRequired,
+		Rank:                        CreateRankRequest.Rank,
+		Code:                        CreateRankRequest.Code,
+		AnnualTrainingHoursRequired: CreateRankRequest.AnnualTrainingHoursRequired,
 	}
 
 	v := validator.New()
@@ -675,15 +655,16 @@ func (app *appDependencies) createRankHandler(w http.ResponseWriter, r *http.Req
 }
 
 // showRankHandler retrieves and returns a rank by its ID.
-// @Summary Get a rank
-// @Description Retrieve a rank by its ID
-// @Tags ranks
-// @Produce json
-// @Param id path int true "Rank ID"
-// @Success 200 {object} envelope{rank=data.Rank}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/ranks/{id} [get]
+//
+//	@Summary		Get a rank
+//	@Description	Retrieve a rank by its ID
+//	@Tags			ranks
+//	@Produce		json
+//	@Param			id	path		int	true	"Rank ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/ranks/{id} [get]
 func (app *appDependencies) showRankHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -708,19 +689,20 @@ func (app *appDependencies) showRankHandler(w http.ResponseWriter, r *http.Reque
 }
 
 // listRanksHandler returns a filtered list of ranks.
-// @Summary List ranks
-// @Description Retrieve a list of ranks with optional filtering by rank name and code
-// @Tags ranks
-// @Produce json
-// @Param rank query string false "Filter by rank name"
-// @Param code query string false "Filter by rank code"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{ranks=[]data.Rank, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/ranks [get]
+//
+//	@Summary		List ranks
+//	@Description	Retrieve a list of ranks with optional filtering by rank name and code
+//	@Tags			ranks
+//	@Produce		json
+//	@Param			rank		query		string	false	"Filter by rank name"
+//	@Param			code		query		string	false	"Filter by rank code"
+//	@Param			page		query		int		false	"Page number for pagination"
+//	@Param			page_size	query		int		false	"Number of items per page"
+//	@Param			sort		query		string	false	"Sort order"
+//	@Success		200			{object}	envelope
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/ranks [get]
 func (app *appDependencies) listRanksHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -746,19 +728,20 @@ func (app *appDependencies) listRanksHandler(w http.ResponseWriter, r *http.Requ
 }
 
 // updateRankHandler performs a partial update on a rank record.
-// @Summary Update a rank
-// @Description Perform a partial update on a rank record
-// @Tags ranks
-// @Accept json
-// @Produce json
-// @Param id path int true "Rank ID"
-// @Param rank body updateRankRequest true "Rank data"
-// @Success 200 {object} envelope{rank=data.Rank}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/ranks/{id} [patch]
+//
+//	@Summary		Update a rank
+//	@Description	Perform a partial update on a rank record
+//	@Tags			ranks
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int					true	"Rank ID"
+//	@Param			rank	body		UpdateRankRequest_T	true	"Rank data"
+//	@Success		200		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		404		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/ranks/{id} [patch]
 func (app *appDependencies) updateRankHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -777,25 +760,19 @@ func (app *appDependencies) updateRankHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var input struct {
-		Rank                        *string `json:"rank"`
-		Code                        *string `json:"code"`
-		AnnualTrainingHoursRequired *int    `json:"annual_training_hours_required"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateRankRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.Rank != nil {
-		rank.Rank = *input.Rank
+	if UpdateRankRequest.Rank != nil {
+		rank.Rank = *UpdateRankRequest.Rank
 	}
-	if input.Code != nil {
-		rank.Code = *input.Code
+	if UpdateRankRequest.Code != nil {
+		rank.Code = *UpdateRankRequest.Code
 	}
-	if input.AnnualTrainingHoursRequired != nil {
-		rank.AnnualTrainingHoursRequired = *input.AnnualTrainingHoursRequired
+	if UpdateRankRequest.AnnualTrainingHoursRequired != nil {
+		rank.AnnualTrainingHoursRequired = *UpdateRankRequest.AnnualTrainingHoursRequired
 	}
 
 	v := validator.New()
@@ -826,28 +803,26 @@ func (app *appDependencies) updateRankHandler(w http.ResponseWriter, r *http.Req
 /*********************** Training Types ***********************/
 
 // createTrainingTypeHandler handles the creation of a new training type.
-// @Summary Create a new training type
-// @Description Create a new training type
-// @Tags training-types
-// @Accept json
-// @Produce json
-// @Param training_type body createTrainingTypeRequest true "Training type data"
-// @Success 201 {object} envelope{training_type=data.TrainingType}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/types [post]
+//
+//	@Summary		Create a new training type
+//	@Description	Create a new training type
+//	@Tags			training-types
+//	@Accept			json
+//	@Produce		json
+//	@Param			training_type	body		CreateTrainingTypeRequest_T	true	"Training type data"
+//	@Success		201				{object}	envelope
+//	@Failure		400				{object}	errorResponse
+//	@Failure		422				{object}	errorResponse
+//	@Failure		500				{object}	errorResponse
+//	@Router			/v1/training/types [post]
 func (app *appDependencies) createTrainingTypeHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Type string `json:"type"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &CreateTrainingTypeRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	trainingType := &data.TrainingType{Type: input.Type}
+	trainingType := &data.TrainingType{Type: CreateTrainingTypeRequest.Type}
 
 	v := validator.New()
 	data.ValidateTrainingType(v, trainingType)
@@ -876,15 +851,16 @@ func (app *appDependencies) createTrainingTypeHandler(w http.ResponseWriter, r *
 }
 
 // showTrainingTypeHandler retrieves and returns a training type by its ID.
-// @Summary Get a training type
-// @Description Retrieve a training type by its ID
-// @Tags training-types
-// @Produce json
-// @Param id path int true "Training type ID"
-// @Success 200 {object} envelope{training_type=data.TrainingType}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/types/{id} [get]
+//
+//	@Summary		Get a training type
+//	@Description	Retrieve a training type by its ID
+//	@Tags			training-types
+//	@Produce		json
+//	@Param			id	path		int	true	"Training type ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/training/types/{id} [get]
 func (app *appDependencies) showTrainingTypeHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -909,18 +885,19 @@ func (app *appDependencies) showTrainingTypeHandler(w http.ResponseWriter, r *ht
 }
 
 // listTrainingTypesHandler returns a filtered list of training types.
-// @Summary List training types
-// @Description Retrieve a list of training types with optional filtering by type name
-// @Tags training-types
-// @Produce json
-// @Param type query string false "Filter by training type name"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{training_types=[]data.TrainingType, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/types [get]
+//
+//	@Summary		List training types
+//	@Description	Retrieve a list of training types with optional filtering by type name
+//	@Tags			training-types
+//	@Produce		json
+//	@Param			type		query		string	false	"Filter by training type name"
+//	@Param			page		query		int		false	"Page number for pagination"
+//	@Param			page_size	query		int		false	"Number of items per page"
+//	@Param			sort		query		string	false	"Sort order"
+//	@Success		200			{object}	envelope
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/training/types [get]
 func (app *appDependencies) listTrainingTypesHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -945,19 +922,20 @@ func (app *appDependencies) listTrainingTypesHandler(w http.ResponseWriter, r *h
 }
 
 // updateTrainingTypeHandler performs a partial update on a training type record.
-// @Summary Update a training type
-// @Description Perform a partial update on a training type record
-// @Tags training-types
-// @Accept json
-// @Produce json
-// @Param id path int true "Training type ID"
-// @Param training_type body updateTrainingTypeRequest true "Training type data"
-// @Success 200 {object} envelope{training_type=data.TrainingType}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/types/{id} [patch]
+//
+//	@Summary		Update a training type
+//	@Description	Perform a partial update on a training type record
+//	@Tags			training-types
+//	@Accept			json
+//	@Produce		json
+//	@Param			id				path		int							true	"Training type ID"
+//	@Param			training_type	body		UpdateTrainingTypeRequest_T	true	"Training type data"
+//	@Success		200				{object}	envelope
+//	@Failure		400				{object}	errorResponse
+//	@Failure		404				{object}	errorResponse
+//	@Failure		422				{object}	errorResponse
+//	@Failure		500				{object}	errorResponse
+//	@Router			/v1/training/types/{id} [patch]
 func (app *appDependencies) updateTrainingTypeHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -976,17 +954,13 @@ func (app *appDependencies) updateTrainingTypeHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	var input struct {
-		Type *string `json:"type"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateTrainingTypeRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.Type != nil {
-		typeRecord.Type = *input.Type
+	if UpdateTrainingTypeRequest.Type != nil {
+		typeRecord.Type = *UpdateTrainingTypeRequest.Type
 	}
 
 	v := validator.New()
@@ -1017,34 +991,31 @@ func (app *appDependencies) updateTrainingTypeHandler(w http.ResponseWriter, r *
 /*********************** Training Categories ***********************/
 
 // createTrainingCategoryHandler handles the creation of a new training category.
-// @Summary Create a new training category
-// @Description Create a new training category
-// @Tags training-categories
-// @Accept json
-// @Produce json
-// @Param training_category body createTrainingCategoryRequest true "Training category data"
-// @Success 201 {object} envelope{training_category=data.TrainingCategory}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/categories [post]
+//
+//	@Summary		Create a new training category
+//	@Description	Create a new training category
+//	@Tags			training-categories
+//	@Accept			json
+//	@Produce		json
+//	@Param			training_category	body		CreateTrainingCategoryRequest_T	true	"Training category data"
+//	@Success		201					{object}	envelope
+//	@Failure		400					{object}	errorResponse
+//	@Failure		422					{object}	errorResponse
+//	@Failure		500					{object}	errorResponse
+//	@Router			/v1/training/categories [post]
 func (app *appDependencies) createTrainingCategoryHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Name     string `json:"name"`
-		IsActive *bool  `json:"is_active"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &CreateTrainingCategoryRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	category := &data.TrainingCategory{
-		Name:     input.Name,
+		Name:     CreateTrainingCategoryRequest.Name,
 		IsActive: true,
 	}
-	if input.IsActive != nil {
-		category.IsActive = *input.IsActive
+	if CreateTrainingCategoryRequest.IsActive != nil {
+		category.IsActive = *CreateTrainingCategoryRequest.IsActive
 	}
 
 	v := validator.New()
@@ -1074,15 +1045,16 @@ func (app *appDependencies) createTrainingCategoryHandler(w http.ResponseWriter,
 }
 
 // showTrainingCategoryHandler retrieves and returns a training category by its ID.
-// @Summary Get a training category
-// @Description Retrieve a training category by its ID
-// @Tags training-categories
-// @Produce json
-// @Param id path int true "Training category ID"
-// @Success 200 {object} envelope{training_category=data.TrainingCategory}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/categories/{id} [get]
+//
+//	@Summary		Get a training category
+//	@Description	Retrieve a training category by its ID
+//	@Tags			training-categories
+//	@Produce		json
+//	@Param			id	path		int	true	"Training category ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/training/categories/{id} [get]
 func (app *appDependencies) showTrainingCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -1107,19 +1079,20 @@ func (app *appDependencies) showTrainingCategoryHandler(w http.ResponseWriter, r
 }
 
 // listTrainingCategoriesHandler returns a filtered list of training categories.
-// @Summary List training categories
-// @Description Retrieve a list of training categories with optional filtering by name and active status
-// @Tags training-categories
-// @Produce json
-// @Param name query string false "Filter by category name"
-// @Param is_active query bool false "Filter by active status"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{training_categories=[]data.TrainingCategory, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/categories [get]
+//
+//	@Summary		List training categories
+//	@Description	Retrieve a list of training categories with optional filtering by name and active status
+//	@Tags			training-categories
+//	@Produce		json
+//	@Param			name		query		string	false	"Filter by category name"
+//	@Param			is_active	query		bool	false	"Filter by active status"
+//	@Param			page		query		int		false	"Page number for pagination"
+//	@Param			page_size	query		int		false	"Number of items per page"
+//	@Param			sort		query		string	false	"Sort order"
+//	@Success		200			{object}	envelope
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/training/categories [get]
 func (app *appDependencies) listTrainingCategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -1147,19 +1120,20 @@ func (app *appDependencies) listTrainingCategoriesHandler(w http.ResponseWriter,
 }
 
 // updateTrainingCategoryHandler performs a partial update on a training category record.
-// @Summary Update a training category
-// @Description Perform a partial update on a training category record
-// @Tags training-categories
-// @Accept json
-// @Produce json
-// @Param id path int true "Training category ID"
-// @Param training_category body updateTrainingCategoryRequest true "Training category data"
-// @Success 200 {object} envelope{training_category=data.TrainingCategory}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/categories/{id} [patch]
+//
+//	@Summary		Update a training category
+//	@Description	Perform a partial update on a training category record
+//	@Tags			training-categories
+//	@Accept			json
+//	@Produce		json
+//	@Param			id					path		int								true	"Training category ID"
+//	@Param			training_category	body		UpdateTrainingCategoryRequest_T	true	"Training category data"
+//	@Success		200					{object}	envelope
+//	@Failure		400					{object}	errorResponse
+//	@Failure		404					{object}	errorResponse
+//	@Failure		422					{object}	errorResponse
+//	@Failure		500					{object}	errorResponse
+//	@Router			/v1/training/categories/{id} [patch]
 func (app *appDependencies) updateTrainingCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -1178,21 +1152,16 @@ func (app *appDependencies) updateTrainingCategoryHandler(w http.ResponseWriter,
 		return
 	}
 
-	var input struct {
-		Name     *string `json:"name"`
-		IsActive *bool   `json:"is_active"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateTrainingCategoryRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.Name != nil {
-		category.Name = *input.Name
+	if UpdateTrainingCategoryRequest.Name != nil {
+		category.Name = *UpdateTrainingCategoryRequest.Name
 	}
-	if input.IsActive != nil {
-		category.IsActive = *input.IsActive
+	if UpdateTrainingCategoryRequest.IsActive != nil {
+		category.IsActive = *UpdateTrainingCategoryRequest.IsActive
 	}
 
 	v := validator.New()
@@ -1223,44 +1192,36 @@ func (app *appDependencies) updateTrainingCategoryHandler(w http.ResponseWriter,
 /*********************** Workshops ***********************/
 
 // createWorkshopHandler handles the creation of a new workshop.
-// @Summary Create a new workshop
-// @Description Create a new workshop
-// @Tags workshops
-// @Accept json
-// @Produce json
-// @Param workshop body createWorkshopRequest true "Workshop data"
-// @Success 201 {object} envelope{workshop=data.Workshop}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/workshops [post]
+//
+//	@Summary		Create a new workshop
+//	@Description	Create a new workshop
+//	@Tags			workshops
+//	@Accept			json
+//	@Produce		json
+//	@Param			workshop	body		CreateWorkshopRequest_T	true	"Workshop data"
+//	@Success		201			{object}	envelope
+//	@Failure		400			{object}	errorResponse
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/workshops [post]
 func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		WorkshopName   string  `json:"workshop_name"`
-		CategoryID     int64   `json:"category_id"`
-		TrainingTypeID int64   `json:"training_type_id"`
-		CreditHours    int     `json:"credit_hours"`
-		Description    *string `json:"description"`
-		Objectives     *string `json:"objectives"`
-		IsActive       *bool   `json:"is_active"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &CreateWorkshopRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	workshop := &data.Workshop{
-		WorkshopName:   input.WorkshopName,
-		CategoryID:     input.CategoryID,
-		TrainingTypeID: input.TrainingTypeID,
-		CreditHours:    input.CreditHours,
-		Description:    input.Description,
-		Objectives:     input.Objectives,
+		WorkshopName:   CreateWorkshopRequest.WorkshopName,
+		CategoryID:     CreateWorkshopRequest.CategoryID,
+		TrainingTypeID: CreateWorkshopRequest.TrainingTypeID,
+		CreditHours:    CreateWorkshopRequest.CreditHours,
+		Description:    CreateWorkshopRequest.Description,
+		Objectives:     CreateWorkshopRequest.Objectives,
 		IsActive:       true,
 	}
-	if input.IsActive != nil {
-		workshop.IsActive = *input.IsActive
+	if CreateWorkshopRequest.IsActive != nil {
+		workshop.IsActive = *CreateWorkshopRequest.IsActive
 	}
 
 	v := validator.New()
@@ -1293,15 +1254,16 @@ func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http
 }
 
 // showWorkshopHandler retrieves and returns a workshop by its ID.
-// @Summary Get a workshop
-// @Description Retrieve a workshop by its ID
-// @Tags workshops
-// @Produce json
-// @Param id path int true "Workshop ID"
-// @Success 200 {object} envelope{workshop=data.Workshop}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/workshops/{id} [get]
+//
+//	@Summary		Get a workshop
+//	@Description	Retrieve a workshop by its ID
+//	@Tags			workshops
+//	@Produce		json
+//	@Param			id	path		int	true	"Workshop ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/workshops/{id} [get]
 func (app *appDependencies) showWorkshopHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -1326,21 +1288,22 @@ func (app *appDependencies) showWorkshopHandler(w http.ResponseWriter, r *http.R
 }
 
 // listWorkshopsHandler returns a filtered list of workshops.
-// @Summary List workshops
-// @Description Retrieve a list of workshops with optional filtering by name, category, training type, and active status
-// @Tags workshops
-// @Produce json
-// @Param workshop_name query string false "Filter by workshop name"
-// @Param category_id query int false "Filter by category ID"
-// @Param training_type_id query int false "Filter by training type ID"
-// @Param is_active query bool false "Filter by active status"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{workshops=[]data.Workshop, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/workshops [get]
+//
+//	@Summary		List workshops
+//	@Description	Retrieve a list of workshops with optional filtering by name, category, training type, and active status
+//	@Tags			workshops
+//	@Produce		json
+//	@Param			workshop_name		query		string	false	"Filter by workshop name"
+//	@Param			category_id			query		int		false	"Filter by category ID"
+//	@Param			training_type_id	query		int		false	"Filter by training type ID"
+//	@Param			is_active			query		bool	false	"Filter by active status"
+//	@Param			page				query		int		false	"Page number for pagination"
+//	@Param			page_size			query		int		false	"Number of items per page"
+//	@Param			sort				query		string	false	"Sort order"
+//	@Success		200					{object}	envelope
+//	@Failure		422					{object}	errorResponse
+//	@Failure		500					{object}	errorResponse
+//	@Router			/v1/workshops [get]
 func (app *appDependencies) listWorkshopsHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -1370,20 +1333,21 @@ func (app *appDependencies) listWorkshopsHandler(w http.ResponseWriter, r *http.
 }
 
 // updateWorkshopHandler performs a partial update on a workshop record.
-// @Summary Update a workshop
-// @Description Perform a partial update on a workshop record
-// @Tags workshops
-// @Accept json
-// @Produce json
-// @Param id path int true "Workshop ID"
-// @Param workshop body updateWorkshopRequest true "Workshop data"
-// @Success 200 {object} envelope{workshop=data.Workshop}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 409 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/workshops/{id} [patch]
+//
+//	@Summary		Update a workshop
+//	@Description	Perform a partial update on a workshop record
+//	@Tags			workshops
+//	@Accept			json
+//	@Produce		json
+//	@Param			id			path		int						true	"Workshop ID"
+//	@Param			workshop	body		UpdateWorkshopRequest_T	true	"Workshop data"
+//	@Success		200			{object}	envelope
+//	@Failure		400			{object}	errorResponse
+//	@Failure		404			{object}	errorResponse
+//	@Failure		409			{object}	errorResponse
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/workshops/{id} [patch]
 func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -1402,49 +1366,38 @@ func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	var input struct {
-		WorkshopName   *string    `json:"workshop_name"`
-		CategoryID     *int64     `json:"category_id"`
-		TrainingTypeID *int64     `json:"training_type_id"`
-		CreditHours    *int       `json:"credit_hours"`
-		Description    **string   `json:"description"`
-		Objectives     **string   `json:"objectives"`
-		IsActive       *bool      `json:"is_active"`
-		UpdatedAt      *time.Time `json:"updated_at"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateWorkshopRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.UpdatedAt == nil || input.UpdatedAt.IsZero() {
+	if UpdateWorkshopRequest.UpdatedAt == nil || UpdateWorkshopRequest.UpdatedAt.IsZero() {
 		app.editConflictResponse(w, r)
 		return
 	}
 
-	originalUpdatedAt := *input.UpdatedAt
+	originalUpdatedAt := *UpdateWorkshopRequest.UpdatedAt
 
-	if input.WorkshopName != nil {
-		workshop.WorkshopName = *input.WorkshopName
+	if UpdateWorkshopRequest.WorkshopName != nil {
+		workshop.WorkshopName = *UpdateWorkshopRequest.WorkshopName
 	}
-	if input.CategoryID != nil {
-		workshop.CategoryID = *input.CategoryID
+	if UpdateWorkshopRequest.CategoryID != nil {
+		workshop.CategoryID = *UpdateWorkshopRequest.CategoryID
 	}
-	if input.TrainingTypeID != nil {
-		workshop.TrainingTypeID = *input.TrainingTypeID
+	if UpdateWorkshopRequest.TrainingTypeID != nil {
+		workshop.TrainingTypeID = *UpdateWorkshopRequest.TrainingTypeID
 	}
-	if input.CreditHours != nil {
-		workshop.CreditHours = *input.CreditHours
+	if UpdateWorkshopRequest.CreditHours != nil {
+		workshop.CreditHours = *UpdateWorkshopRequest.CreditHours
 	}
-	if input.Description != nil {
-		workshop.Description = *input.Description
+	if UpdateWorkshopRequest.Description != nil {
+		workshop.Description = *UpdateWorkshopRequest.Description
 	}
-	if input.Objectives != nil {
-		workshop.Objectives = *input.Objectives
+	if UpdateWorkshopRequest.Objectives != nil {
+		workshop.Objectives = *UpdateWorkshopRequest.Objectives
 	}
-	if input.IsActive != nil {
-		workshop.IsActive = *input.IsActive
+	if UpdateWorkshopRequest.IsActive != nil {
+		workshop.IsActive = *UpdateWorkshopRequest.IsActive
 	}
 
 	v := validator.New()
@@ -1478,28 +1431,26 @@ func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http
 /*********************** Training Status ***********************/
 
 // createTrainingStatusHandler handles the creation of a new training status.
-// @Summary Create a new training status
-// @Description Create a new training status
-// @Tags training-statuses
-// @Accept json
-// @Produce json
-// @Param training_status body createTrainingStatusRequest true "Training status data"
-// @Success 201 {object} envelope{training_status=data.TrainingStatus}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/status [post]
+//
+//	@Summary		Create a new training status
+//	@Description	Create a new training status
+//	@Tags			training-statuses
+//	@Accept			json
+//	@Produce		json
+//	@Param			training_status	body		CreateTrainingStatusRequest_T	true	"Training status data"
+//	@Success		201				{object}	envelope
+//	@Failure		400				{object}	errorResponse
+//	@Failure		422				{object}	errorResponse
+//	@Failure		500				{object}	errorResponse
+//	@Router			/v1/training/status [post]
 func (app *appDependencies) createTrainingStatusHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Status string `json:"status"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &CreateTrainingStatusRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	status := &data.TrainingStatus{Status: input.Status}
+	status := &data.TrainingStatus{Status: CreateTrainingStatusRequest.Status}
 
 	v := validator.New()
 	data.ValidateTrainingStatus(v, status)
@@ -1528,15 +1479,16 @@ func (app *appDependencies) createTrainingStatusHandler(w http.ResponseWriter, r
 }
 
 // showTrainingStatusHandler retrieves and returns a training status by its ID.
-// @Summary Get a training status
-// @Description Retrieve a training status by its ID
-// @Tags training-statuses
-// @Produce json
-// @Param id path int true "Training status ID"
-// @Success 200 {object} envelope{training_status=data.TrainingStatus}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/status/{id} [get]
+//
+//	@Summary		Get a training status
+//	@Description	Retrieve a training status by its ID
+//	@Tags			training-statuses
+//	@Produce		json
+//	@Param			id	path		int	true	"Training status ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/training/status/{id} [get]
 func (app *appDependencies) showTrainingStatusHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -1561,18 +1513,19 @@ func (app *appDependencies) showTrainingStatusHandler(w http.ResponseWriter, r *
 }
 
 // getTrainingStatusesHandler returns a filtered list of training statuses.
-// @Summary List training statuses
-// @Description Retrieve a list of training statuses with optional filtering by status name
-// @Tags training-statuses
-// @Produce json
-// @Param status query string false "Filter by status name"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{training_statuses=[]data.TrainingStatus, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/status [get]
+//
+//	@Summary		List training statuses
+//	@Description	Retrieve a list of training statuses with optional filtering by status name
+//	@Tags			training-statuses
+//	@Produce		json
+//	@Param			status		query		string	false	"Filter by status name"
+//	@Param			page		query		int		false	"Page number for pagination"
+//	@Param			page_size	query		int		false	"Number of items per page"
+//	@Param			sort		query		string	false	"Sort order"
+//	@Success		200			{object}	envelope
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/training/status [get]
 func (app *appDependencies) getTrainingStatusesHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -1597,19 +1550,20 @@ func (app *appDependencies) getTrainingStatusesHandler(w http.ResponseWriter, r 
 }
 
 // updateTrainingStatusHandler performs a partial update on a training status record.
-// @Summary Update a training status
-// @Description Perform a partial update on a training status record
-// @Tags training-statuses
-// @Accept json
-// @Produce json
-// @Param id path int true "Training status ID"
-// @Param training_status body updateTrainingStatusRequest true "Training status data"
-// @Success 200 {object} envelope{training_status=data.TrainingStatus}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/training/status/{id} [patch]
+//
+//	@Summary		Update a training status
+//	@Description	Perform a partial update on a training status record
+//	@Tags			training-statuses
+//	@Accept			json
+//	@Produce		json
+//	@Param			id				path		int								true	"Training status ID"
+//	@Param			training_status	body		UpdateTrainingStatusRequest_T	true	"Training status data"
+//	@Success		200				{object}	envelope
+//	@Failure		400				{object}	errorResponse
+//	@Failure		404				{object}	errorResponse
+//	@Failure		422				{object}	errorResponse
+//	@Failure		500				{object}	errorResponse
+//	@Router			/v1/training/status/{id} [patch]
 func (app *appDependencies) updateTrainingStatusHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -1628,17 +1582,13 @@ func (app *appDependencies) updateTrainingStatusHandler(w http.ResponseWriter, r
 		return
 	}
 
-	var input struct {
-		Status *string `json:"status"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateTrainingStatusRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.Status != nil {
-		status.Status = *input.Status
+	if UpdateTrainingStatusRequest.Status != nil {
+		status.Status = *UpdateTrainingStatusRequest.Status
 	}
 
 	v := validator.New()
@@ -1669,28 +1619,26 @@ func (app *appDependencies) updateTrainingStatusHandler(w http.ResponseWriter, r
 /*********************** Enrollment Status ***********************/
 
 // createEnrollmentStatusHandler handles the creation of a new enrollment status.
-// @Summary Create a new enrollment status
-// @Description Create a new enrollment status
-// @Tags enrollment-statuses
-// @Accept json
-// @Produce json
-// @Param enrollment_status body createEnrollmentStatusRequest true "Enrollment status data"
-// @Success 201 {object} envelope{enrollment_status=data.EnrollmentStatus}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/enrollment/status [post]
+//
+//	@Summary		Create a new enrollment status
+//	@Description	Create a new enrollment status
+//	@Tags			enrollment-statuses
+//	@Accept			json
+//	@Produce		json
+//	@Param			enrollment_status	body		CreateEnrollmentStatusRequest_T	true	"Enrollment status data"
+//	@Success		201					{object}	envelope
+//	@Failure		400					{object}	errorResponse
+//	@Failure		422					{object}	errorResponse
+//	@Failure		500					{object}	errorResponse
+//	@Router			/v1/enrollment/status [post]
 func (app *appDependencies) createEnrollmentStatusHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Status string `json:"status"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &CreateEnrollmentStatusRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	status := &data.EnrollmentStatus{Status: input.Status}
+	status := &data.EnrollmentStatus{Status: CreateEnrollmentStatusRequest.Status}
 
 	v := validator.New()
 	data.ValidateEnrollmentStatus(v, status)
@@ -1719,15 +1667,16 @@ func (app *appDependencies) createEnrollmentStatusHandler(w http.ResponseWriter,
 }
 
 // showEnrollmentStatusHandler retrieves and returns an enrollment status by its ID.
-// @Summary Get an enrollment status
-// @Description Retrieve an enrollment status by its ID
-// @Tags enrollment-statuses
-// @Produce json
-// @Param id path int true "Enrollment status ID"
-// @Success 200 {object} envelope{enrollment_status=data.EnrollmentStatus}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/enrollment/status/{id} [get]
+//
+//	@Summary		Get an enrollment status
+//	@Description	Retrieve an enrollment status by its ID
+//	@Tags			enrollment-statuses
+//	@Produce		json
+//	@Param			id	path		int	true	"Enrollment status ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/enrollment/status/{id} [get]
 func (app *appDependencies) showEnrollmentStatusHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -1752,18 +1701,19 @@ func (app *appDependencies) showEnrollmentStatusHandler(w http.ResponseWriter, r
 }
 
 // listEnrollmentStatusesHandler returns a filtered list of enrollment statuses.
-// @Summary List enrollment statuses
-// @Description Retrieve a list of enrollment statuses with optional filtering by status name
-// @Tags enrollment-statuses
-// @Produce json
-// @Param status query string false "Filter by status name"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{enrollment_statuses=[]data.EnrollmentStatus, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/enrollment/status [get]
+//
+//	@Summary		List enrollment statuses
+//	@Description	Retrieve a list of enrollment statuses with optional filtering by status name
+//	@Tags			enrollment-statuses
+//	@Produce		json
+//	@Param			status		query		string	false	"Filter by status name"
+//	@Param			page		query		int		false	"Page number for pagination"
+//	@Param			page_size	query		int		false	"Number of items per page"
+//	@Param			sort		query		string	false	"Sort order"
+//	@Success		200			{object}	envelope
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/enrollment/status [get]
 func (app *appDependencies) listEnrollmentStatusesHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -1788,19 +1738,20 @@ func (app *appDependencies) listEnrollmentStatusesHandler(w http.ResponseWriter,
 }
 
 // updateEnrollmentStatusHandler performs a partial update on an enrollment status record.
-// @Summary Update an enrollment status
-// @Description Perform a partial update on an enrollment status record
-// @Tags enrollment-statuses
-// @Accept json
-// @Produce json
-// @Param id path int true "Enrollment status ID"
-// @Param enrollment_status body updateEnrollmentStatusRequest true "Enrollment status data"
-// @Success 200 {object} envelope{enrollment_status=data.EnrollmentStatus}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/enrollment/status/{id} [patch]
+//
+//	@Summary		Update an enrollment status
+//	@Description	Perform a partial update on an enrollment status record
+//	@Tags			enrollment-statuses
+//	@Accept			json
+//	@Produce		json
+//	@Param			id					path		int								true	"Enrollment status ID"
+//	@Param			enrollment_status	body		UpdateEnrollmentStatusRequest_T	true	"Enrollment status data"
+//	@Success		200					{object}	envelope
+//	@Failure		400					{object}	errorResponse
+//	@Failure		404					{object}	errorResponse
+//	@Failure		422					{object}	errorResponse
+//	@Failure		500					{object}	errorResponse
+//	@Router			/v1/enrollment/status/{id} [patch]
 func (app *appDependencies) updateEnrollmentStatusHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -1819,17 +1770,13 @@ func (app *appDependencies) updateEnrollmentStatusHandler(w http.ResponseWriter,
 		return
 	}
 
-	var input struct {
-		Status *string `json:"status"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateEnrollmentStatusRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.Status != nil {
-		status.Status = *input.Status
+	if UpdateEnrollmentStatusRequest.Status != nil {
+		status.Status = *UpdateEnrollmentStatusRequest.Status
 	}
 
 	v := validator.New()
@@ -1860,39 +1807,32 @@ func (app *appDependencies) updateEnrollmentStatusHandler(w http.ResponseWriter,
 /*********************** Officers ***********************/
 
 // createOfficerHandler handles the creation of a new officer.
-// @Summary Create a new officer
-// @Description Create a new officer
-// @Tags officers
-// @Accept json
-// @Produce json
-// @Param officer body createOfficerRequest true "Officer data"
-// @Success 201 {object} envelope{officer=data.Officer}
-// @Failure 400 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/officers [post]
+//
+//	@Summary		Create a new officer
+//	@Description	Create a new officer
+//	@Tags			officers
+//	@Accept			json
+//	@Produce		json
+//	@Param			officer	body		CreateOfficerRequest_T	true	"Officer data"
+//	@Success		201		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/officers [post]
 func (app *appDependencies) createOfficerHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		UserID           int64  `json:"user_id"`
-		RegulationNumber string `json:"regulation_number"`
-		PostingID        int64  `json:"posting_id"`
-		RankID           int64  `json:"rank_id"`
-		FormationID      int64  `json:"formation_id"`
-		RegionID         int64  `json:"region_id"`
-	}
 
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &CreateOfficerRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	officer := &data.Officer{
-		RegulationNumber: input.RegulationNumber,
-		PostingID:        input.PostingID,
-		RankID:           input.RankID,
-		FormationID:      input.FormationID,
-		RegionID:         input.RegionID,
-		UserId:           input.UserID,
+		RegulationNumber: CreateOfficerRequest.RegulationNumber,
+		PostingID:        CreateOfficerRequest.PostingID,
+		RankID:           CreateOfficerRequest.RankID,
+		FormationID:      CreateOfficerRequest.FormationID,
+		RegionID:         CreateOfficerRequest.RegionID,
+		UserId:           CreateOfficerRequest.UserID,
 	}
 
 	v := validator.New()
@@ -1925,15 +1865,16 @@ func (app *appDependencies) createOfficerHandler(w http.ResponseWriter, r *http.
 }
 
 // showOfficerHandler retrieves and returns an officer by its ID.
-// @Summary Get an officer
-// @Description Retrieve an officer by its ID
-// @Tags officers
-// @Produce json
-// @Param id path int true "Officer ID"
-// @Success 200 {object} envelope{officer=data.Officer}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/officers/{id} [get]
+//
+//	@Summary		Get an officer
+//	@Description	Retrieve an officer by its ID
+//	@Tags			officers
+//	@Produce		json
+//	@Param			id	path		int	true	"Officer ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/officers/{id} [get]
 func (app *appDependencies) showOfficerHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -1958,22 +1899,23 @@ func (app *appDependencies) showOfficerHandler(w http.ResponseWriter, r *http.Re
 }
 
 // getAllOfficersHandler returns a filtered list of officers.
-// @Summary List officers
-// @Description Retrieve a list of officers with optional filtering by regulation number, posting, rank, formation, and region
-// @Tags officers
-// @Produce json
-// @Param regulation_number query string false "Filter by regulation number"
-// @Param posting_id query int false "Filter by posting ID"
-// @Param rank_id query int false "Filter by rank ID"
-// @Param formation_id query int false "Filter by formation ID"
-// @Param region_id query int false "Filter by region ID"
-// @Param page query int false "Page number for pagination"
-// @Param page_size query int false "Number of items per page"
-// @Param sort query string false "Sort order"
-// @Success 200 {object} envelope{officers=[]data.Officer, metadata=data.MetaData}
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/officers [get]
+//
+//	@Summary		List officers
+//	@Description	Retrieve a list of officers with optional filtering by regulation number, posting, rank, formation, and region
+//	@Tags			officers
+//	@Produce		json
+//	@Param			regulation_number	query		string	false	"Filter by regulation number"
+//	@Param			posting_id			query		int		false	"Filter by posting ID"
+//	@Param			rank_id				query		int		false	"Filter by rank ID"
+//	@Param			formation_id		query		int		false	"Filter by formation ID"
+//	@Param			region_id			query		int		false	"Filter by region ID"
+//	@Param			page				query		int		false	"Page number for pagination"
+//	@Param			page_size			query		int		false	"Number of items per page"
+//	@Param			sort				query		string	false	"Sort order"
+//	@Success		200					{object}	envelope
+//	@Failure		422					{object}	errorResponse
+//	@Failure		500					{object}	errorResponse
+//	@Router			/v1/officers [get]
 func (app *appDependencies) getAllOfficersHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
@@ -2004,20 +1946,21 @@ func (app *appDependencies) getAllOfficersHandler(w http.ResponseWriter, r *http
 }
 
 // updateOfficerHandler performs a partial update on an officer record.
-// @Summary Update an officer
-// @Description Perform a partial update on an officer record
-// @Tags officers
-// @Accept json
-// @Produce json
-// @Param id path int true "Officer ID"
-// @Param officer body updateOfficerRequest true "Officer data"
-// @Success 200 {object} envelope{officer=data.Officer}
-// @Failure 400 {object} errorResponse
-// @Failure 404 {object} errorResponse
-// @Failure 409 {object} errorResponse
-// @Failure 422 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/officers/{id} [patch]
+//
+//	@Summary		Update an officer
+//	@Description	Perform a partial update on an officer record
+//	@Tags			officers
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int						true	"Officer ID"
+//	@Param			officer	body		UpdateOfficerRequest_T	true	"Officer data"
+//	@Success		200		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		404		{object}	errorResponse
+//	@Failure		409		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/officers/{id} [patch]
 func (app *appDependencies) updateOfficerHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -2036,41 +1979,32 @@ func (app *appDependencies) updateOfficerHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var input struct {
-		RegulationNumber *string    `json:"regulation_number"`
-		PostingID        *int64     `json:"posting_id"`
-		RankID           *int64     `json:"rank_id"`
-		FormationID      *int64     `json:"formation_id"`
-		RegionID         *int64     `json:"region_id"`
-		UpdatedAt        *time.Time `json:"updated_at"`
-	}
-
-	if err := app.readJSON(w, r, &input); err != nil {
+	if err := app.readJSON(w, r, &UpdateOfficerRequest); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	if input.UpdatedAt == nil || input.UpdatedAt.IsZero() {
+	if UpdateOfficerRequest.UpdatedAt == nil || UpdateOfficerRequest.UpdatedAt.IsZero() {
 		app.editConflictResponse(w, r)
 		return
 	}
 
-	originalUpdatedAt := *input.UpdatedAt
+	originalUpdatedAt := *UpdateOfficerRequest.UpdatedAt
 
-	if input.RegulationNumber != nil {
-		officer.RegulationNumber = *input.RegulationNumber
+	if UpdateOfficerRequest.RegulationNumber != nil {
+		officer.RegulationNumber = *UpdateOfficerRequest.RegulationNumber
 	}
-	if input.PostingID != nil {
-		officer.PostingID = *input.PostingID
+	if UpdateOfficerRequest.PostingID != nil {
+		officer.PostingID = *UpdateOfficerRequest.PostingID
 	}
-	if input.RankID != nil {
-		officer.RankID = *input.RankID
+	if UpdateOfficerRequest.RankID != nil {
+		officer.RankID = *UpdateOfficerRequest.RankID
 	}
-	if input.FormationID != nil {
-		officer.FormationID = *input.FormationID
+	if UpdateOfficerRequest.FormationID != nil {
+		officer.FormationID = *UpdateOfficerRequest.FormationID
 	}
-	if input.RegionID != nil {
-		officer.RegionID = *input.RegionID
+	if UpdateOfficerRequest.RegionID != nil {
+		officer.RegionID = *UpdateOfficerRequest.RegionID
 	}
 
 	v := validator.New()
@@ -2102,14 +2036,15 @@ func (app *appDependencies) updateOfficerHandler(w http.ResponseWriter, r *http.
 }
 
 // deleteOfficerHandler handles the deletion of an officer.
-// @Summary Delete an officer
-// @Description Delete an officer by its ID
-// @Tags officers
-// @Param id path int true "Officer ID"
-// @Success 200 {object} envelope{message=string}
-// @Failure 404 {object} errorResponse
-// @Failure 500 {object} errorResponse
-// @Router /v1/officers/{id} [delete]
+//
+//	@Summary		Delete an officer
+//	@Description	Delete an officer by its ID
+//	@Tags			officers
+//	@Param			id	path		int	true	"Officer ID"
+//	@Success		200	{object}	envelope{message=string}
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/officers/{id} [delete]
 func (app *appDependencies) deleteOfficerHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {

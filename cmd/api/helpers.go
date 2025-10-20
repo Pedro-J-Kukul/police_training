@@ -24,6 +24,11 @@ import (
 // envelope is a generic map for wrapping data in JSON responses
 type envelope map[string]any
 
+// errorResponse represents the structure of error responses
+type errorResponse struct {
+	Error string `json:"error"`
+}
+
 // writeJSON encodes data to a JSON body and writes it to the response writer
 func (app *appDependencies) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	// convert the data to JSON

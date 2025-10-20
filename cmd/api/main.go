@@ -61,14 +61,14 @@ func (app *appDependencies) version() string {
 /************************************************************************************************************/
 // Main Application Entry Point
 /************************************************************************************************************/
-// @title Police Training API
-// @version 1.0.0
-// @description This is the API server for the Police Training application.
-// @host localhost:4000
-// @basePath /v1/
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
+//	@title						Police Training API
+//	@version					1.0.0
+//	@description				This is the API server for the Police Training application.
+//	@host						localhost:4000
+//	@basePath					/v1/
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
 
 func main() {
 	// For application setup
