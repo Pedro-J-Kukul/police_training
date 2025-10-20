@@ -26,7 +26,7 @@ type RoleModel struct {
 // Roles type to represent a list of roles
 type Roles []string
 
-// Include - CHeck if a role exists in the Roles slice
+// Include - Check if a role exists in the Roles slice
 func (r Roles) Include(role string) bool {
 	return slices.Contains(r, role)
 }
