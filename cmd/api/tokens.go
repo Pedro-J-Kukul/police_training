@@ -62,7 +62,7 @@ func (app *appDependencies) createAuthenticationTokenHandler(w http.ResponseWrit
 
 	// Check if the user is activated and isn't trying to bypass the flow
 	if !user.Activated {
-		v.AddError("email", "account must be activated to reset password")
+		v.AddError("email", "account must be activated to login")
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}

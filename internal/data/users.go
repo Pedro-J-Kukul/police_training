@@ -475,8 +475,8 @@ func (m *UserModel) IsAllowedTo(id int64, requiredPermissions ...string) (bool, 
 		return true, nil
 	}
 
-	// Print out filtered permissions for debugging
-	fmt.Printf("Filtered Permissions: %v\n", filteredPermissions)
+	// Print out evaluated permissions for debugging
+	fmt.Printf("Evaluated Permissions: %v\n", filteredPermissions)
 
 	// SQL query to get remaining permissions the user has through their roles
 	query := `
