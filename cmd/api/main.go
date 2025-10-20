@@ -7,6 +7,7 @@ import (
 	"flag"
 	"log/slog"
 	"os"
+	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -137,6 +138,10 @@ func loadConfig() serverConfig {
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Training <noreply@example.com>", "SMTP sender address") // SMTP sender address
 
 	flag.Parse() // parse the command-line flags
+
+	// Regex cfg.smtp.sender and convert the first # to < and last # to >
+	re := regexp.MustCompile(`#(.*?)#`)
+	cfg.smtp.sender = re.ReplaceAllString(cfg.smtp.sender, "<$1>")
 
 	if cfg.db.dsn == "" {
 		cfg.db.dsn = os.Getenv("DB_DSN")

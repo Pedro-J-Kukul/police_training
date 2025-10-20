@@ -5,12 +5,12 @@ run/api:
 	@echo "Starting API server on port $(PORT) in $(ENV) mode..."
 	@go run ./cmd/api \
 		-port $(PORT) \
-		-env $(ENV) \
+		-env $(ENVIRONMENT) \
 		-db-dsn "$(DB_DSN)" \
 		-db-max-open-conns $(DB_MAX_OPEN_CONNS) \
 		-db-max-idle-conns $(DB_MAX_IDLE_CONNS) \
 		-db-max-idle-time $(DB_MAX_IDLE_TIME) \
-		-cors-trusted-origins "$(CORS_TRUSTED_ORIGINS)" \
+		-cors-trusted-origins "$(CORS_ALLOWED_ORIGINS)" \
 		-limiter-enabled=$(RATE_LIMITER_ENABLED) \
 		-limiter-rps $(RATE_LIMITER_RPS) \
 		-limiter-burst $(RATE_LIMITER_BURST) \
