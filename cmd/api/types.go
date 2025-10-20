@@ -165,3 +165,55 @@ type CreateAuthenticationTokenRequest_T struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+// CreateTrainingSessionRequest_T represents the request payload for creating a training session
+type CreateTrainingSessionRequest_T struct {
+	FormationID      int64     `json:"formation_id"`
+	RegionID         int64     `json:"region_id"`
+	FacilitatorID    int64     `json:"facilitator_id"`
+	WorkshopID       int64     `json:"workshop_id"`
+	SessionDate      time.Time `json:"session_date"`
+	StartTime        time.Time `json:"start_time"`
+	EndTime          time.Time `json:"end_time"`
+	Location         *string   `json:"location"`
+	MaxCapacity      *int64    `json:"max_capacity"`
+	TrainingStatusID int64     `json:"training_status_id"`
+	Notes            *string   `json:"notes"`
+}
+
+// UpdateTrainingSessionRequest_T represents the request payload for updating a training session
+type UpdateTrainingSessionRequest_T struct {
+	FormationID      *int64     `json:"formation_id"`
+	RegionID         *int64     `json:"region_id"`
+	FacilitatorID    *int64     `json:"facilitator_id"`
+	WorkshopID       *int64     `json:"workshop_id"`
+	SessionDate      *time.Time `json:"session_date"`
+	StartTime        *time.Time `json:"start_time"`
+	EndTime          *time.Time `json:"end_time"`
+	Location         *string    `json:"location"`
+	MaxCapacity      *int64     `json:"max_capacity"`
+	TrainingStatusID *int64     `json:"training_status_id"`
+	Notes            *string    `json:"notes"`
+}
+
+type CreateTrainingEnrollmentRequest_T struct {
+	OfficerID          int64      `json:"officer_id"`
+	SessionID          int64      `json:"session_id"`
+	EnrollmentStatusID int64      `json:"enrollment_status_id"`
+	AttendanceStatusID *int64     `json:"attendance_status_id,omitempty"`
+	ProgressStatusID   int64      `json:"progress_status_id"`
+	CompletionDate     *time.Time `json:"completion_date,omitempty"`
+	CertificateIssued  bool       `json:"certificate_issued"`
+	CertificateNumber  *string    `json:"certificate_number,omitempty"`
+}
+
+type UpdateTrainingEnrollmentRequest_T struct {
+	OfficerID          *int64      `json:"officer_id"`
+	SessionID          *int64      `json:"session_id"`
+	EnrollmentStatusID *int64      `json:"enrollment_status_id"`
+	AttendanceStatusID **int64     `json:"attendance_status_id,omitempty"`
+	ProgressStatusID   *int64      `json:"progress_status_id"`
+	CompletionDate     **time.Time `json:"completion_date,omitempty"`
+	CertificateIssued  *bool       `json:"certificate_issued"`
+	CertificateNumber  **string    `json:"certificate_number,omitempty"`
+}
