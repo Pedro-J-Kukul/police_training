@@ -119,7 +119,7 @@ func (m WorkshopModel) Get(id int64) (*Workshop, error) {
 }
 
 // GetAll returns workshops filtered by name, category, type, or active state.
-func (m WorkshopModel) GetAll(name string, categoryID, typeID, credit_hours *int64, isActive *bool, filters Filters) ([]*Workshop, MetaData, error) {
+func (m WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive *bool, filters Filters) ([]*Workshop, MetaData, error) {
 	if filters.Sort == "" {
 		filters.Sort = "workshop_name"
 	}
@@ -127,28 +127,25 @@ func (m WorkshopModel) GetAll(name string, categoryID, typeID, credit_hours *int
 	query := fmt.Sprintf(`
 		SELECT COUNT(*) OVER(), id, workshop_name, category_id, training_type_id, credit_hours, description, objectives, is_active, created_at, updated_at
 		FROM workshops
-		WHERE ($1 = '' OR workshop_name ILIKE $1)
-		AND ($2 = 0 OR category_id = $2)
-		AND ($3 = 0 OR training_type_id = $3)
-		AND ($4 IS NULL OR is_active = $4)
-		AND ($5 IS NULL OR credit_hours = $5)
+		WHERE ($1::text = '' OR workshop_name ILIKE $1::text)
+		AND ($2::bigint = 0 OR category_id = $2::bigint)
+		AND ($3::bigint = 0 OR training_type_id = $3::bigint)
+		AND ($4::boolean IS NULL OR is_active = $4::boolean)
 		ORDER BY %s %s, id ASC
-		LIMIT $5 OFFSET $6`, filters.sortColumn(), filters.sortDirection())
+		LIMIT $5::int OFFSET $6::int`, filters.sortColumn(), filters.sortDirection())
 
+	// Handle parameters with explicit types
 	categoryArg := int64(0)
 	if categoryID != nil {
 		categoryArg = *categoryID
 	}
+
 	typeArg := int64(0)
 	if typeID != nil {
 		typeArg = *typeID
 	}
-	creditHoursArg := int64(0)
-	if credit_hours != nil {
-		creditHoursArg = *credit_hours
-	}
 
-	var activeArg any = nil
+	var activeArg interface{} = nil
 	if isActive != nil {
 		activeArg = *isActive
 	}
@@ -156,7 +153,7 @@ func (m WorkshopModel) GetAll(name string, categoryID, typeID, credit_hours *int
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := m.DB.QueryContext(ctx, query, name, categoryArg, typeArg, activeArg, creditHoursArg, filters.limit(), filters.offset())
+	rows, err := m.DB.QueryContext(ctx, query, name, categoryArg, typeArg, activeArg, filters.limit(), filters.offset())
 	if err != nil {
 		return nil, MetaData{}, err
 	}
