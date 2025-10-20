@@ -77,7 +77,7 @@ type CreateWorkshopRequest_T struct {
 	WorkshopName   string  `json:"workshop_name"`
 	CategoryID     int64   `json:"category_id"`
 	TrainingTypeID int64   `json:"training_type_id"`
-	CreditHours    int     `json:"credit_hours"`
+	CreditHours    int64   `json:"credit_hours"`
 	Description    *string `json:"description"`
 	Objectives     *string `json:"objectives"`
 	IsActive       *bool   `json:"is_active"`
@@ -88,7 +88,7 @@ type UpdateWorkshopRequest_T struct {
 	WorkshopName   *string    `json:"workshop_name"`
 	CategoryID     *int64     `json:"category_id"`
 	TrainingTypeID *int64     `json:"training_type_id"`
-	CreditHours    *int       `json:"credit_hours"`
+	CreditHours    *int64     `json:"credit_hours"`
 	Description    **string   `json:"description"`
 	Objectives     **string   `json:"objectives"`
 	IsActive       *bool      `json:"is_active"`
