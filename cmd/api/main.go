@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"expvar"
 	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 	"regexp"
@@ -147,6 +148,13 @@ func loadConfig() serverConfig {
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Training <noreply@example.com>", "SMTP sender address") // SMTP sender address
 
 	flag.Parse() // parse the command-line flags
+
+	// Print out all the flag values for debugging
+	if cfg.env == "development" {
+		flag.VisitAll(func(f *flag.Flag) {
+			fmt.Printf("Flag %s: %v\n", f.Name, f.Value)
+		})
+	}
 
 	// Regex cfg.smtp.sender and convert the first # to < and last # to >
 	re := regexp.MustCompile(`#(.*?)#`)
