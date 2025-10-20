@@ -294,8 +294,8 @@ func (m *UserModel) GetAll(fname, lname, email, gender string, activated *bool, 
 		AND (to_tsvector('simple', last_name) @@ plainto_tsquery('simple', $2) OR $2 = '')
 		AND (to_tsvector('simple', email) @@ plainto_tsquery('simple', $3) OR $3 = '')
 		AND (gender = $4 OR $4 = '')
-		AND (activated = $5 OR $5 IS NULL)
-		AND (facilitator = $6 OR $6 IS NULL)
+		AND (is_activated = $5 OR $5 IS NULL)
+		AND (is_facilitator = $6 OR $6 IS NULL)
 		ORDER BY %s %s, id ASC
 		LIMIT $7 OFFSET $8`, filters.sortColumn(), filters.sortDirection())
 
