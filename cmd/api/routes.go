@@ -6,6 +6,9 @@ import (
 	"expvar"
 	"net/http"
 
+	_ "github.com/Pedro-J-Kukul/police_training/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
+
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,6 +20,9 @@ func (app *appDependencies) routes() http.Handler {
 	router.NotFound = http.HandlerFunc(app.notFoundResponse)
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
+	router.Handler(http.MethodGet, "/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:1323/swagger/doc.json"), //The url pointing to API definition
+	))
 	// Health and observability
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthCheckHandler)
 	router.Handler(http.MethodGet, "/v1/observability/metrics", expvar.Handler())
