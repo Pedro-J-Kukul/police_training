@@ -149,3 +149,14 @@ type registerUserRequest struct {
 type activateUserRequest struct {
 	Token string `json:"token"`
 }
+
+// CreatePasswordResetTokenRequest_T represents the request payload for creating a password reset token
+type CreatePasswordResetTokenRequest_T struct {
+	Email string `json:"email"`
+}
+
+// ResetPasswordRequest_T represents the request payload for resetting a user's password
+type ResetPasswordRequest_T struct {
+	Token    string `json:"token"`
+	Password string `json:"password"`
+}

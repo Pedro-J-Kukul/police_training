@@ -111,7 +111,7 @@ func (app *appDependencies) registerUserHandler(w http.ResponseWriter, r *http.R
 //	@Failure		400		{object}	errorResponse
 //	@Failure		422		{object}	errorResponse
 //	@Failure		500		{object}	errorResponse
-//	@Router			/v1/users/activate [post]
+//	@Router			/v1/users/activate [put]
 func (app *appDependencies) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Token string `json:"token"`
@@ -171,7 +171,7 @@ func (app *appDependencies) activateUserHandler(w http.ResponseWriter, r *http.R
 //	@Produce		json
 //	@Success		200	{object}	envelope
 //	@Failure		500	{object}	errorResponse
-//	@Router			/v1/users/me [get]
+//	@Router			/v1/me [get]
 func (app *appDependencies) showCurrentUserHandler(w http.ResponseWriter, r *http.Request) {
 	user := app.contextGetUser(r)
 	if err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil); err != nil {

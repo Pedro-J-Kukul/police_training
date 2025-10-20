@@ -11,6 +11,18 @@ import (
 )
 
 // createAuthenticationTokenHandler handles the creation of authentication tokens.
+//
+//	@Summary		Create Authentication Token
+//	@Description	Generates an authentication token for a user based on provided email and password.
+//	@Tags			Tokens
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		struct{Email string `json:"email"`; Password string `json:"password"`}	true	"User credentials"
+//	@Success		201		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/tokens/authentication [post]
 func (app *appDependencies) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
 	// incomingData struct to hold the incoming JSON data
 	var incomingData struct {
@@ -76,6 +88,18 @@ func (app *appDependencies) createAuthenticationTokenHandler(w http.ResponseWrit
 }
 
 // createPasswordResetTokenHandler sends a password reset token to the user's email.
+//
+//	@Summary		Create Password Reset Token
+//	@Description	Generates a password reset token and sends it to the user's email address.
+//	@Tags			Tokens
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		CreatePasswordResetTokenRequest_T	true	"User email"
+//	@Success		202		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/tokens/password-reset [post]
 func (app *appDependencies) createPasswordResetTokenHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email string `json:"email"`
@@ -132,6 +156,18 @@ func (app *appDependencies) createPasswordResetTokenHandler(w http.ResponseWrite
 }
 
 // resetPasswordHandler updates a user's password using a reset token.
+//
+//	@Summary		Reset Password
+//	@Description	Resets a user's password using a valid password reset token.
+//	@Tags			Tokens
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		ResetPasswordRequest_T	true	"Password reset data"
+//	@Success		200		{object}	envelope
+//	@Failure		400		{object}	errorResponse
+//	@Failure		422		{object}	errorResponse
+//	@Failure		500		{object}	errorResponse
+//	@Router			/v1/users/password-reset [put]
 func (app *appDependencies) resetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Token    string `json:"token"`
