@@ -73,6 +73,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new enrollment status",
                 "consumes": [
                     "application/json"

@@ -289,6 +289,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a new enrollment status
       tags:
       - enrollment-statuses

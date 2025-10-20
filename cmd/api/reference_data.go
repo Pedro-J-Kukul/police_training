@@ -23,6 +23,7 @@ func likeSearch(value string) string {
 //	@Tags			regions
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			region	body		CreateRegionRequest_T	true	"Region data"
 //	@Success		201		{object}	envelope
 //	@Failure		400		{object}	errorResponse
@@ -70,6 +71,7 @@ func (app *appDependencies) createRegionHandler(w http.ResponseWriter, r *http.R
 //	@Description	Retrieve a region by its ID
 //	@Tags			regions
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Region ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -104,6 +106,7 @@ func (app *appDependencies) showRegionHandler(w http.ResponseWriter, r *http.Req
 //	@Description	Retrieve a list of regions with optional filtering
 //	@Tags			regions
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			region		query		string	false	"Filter by region name"
 //	@Param			page		query		int		false	"Page number for pagination"
 //	@Param			page_size	query		int		false	"Number of items per page"
@@ -142,6 +145,7 @@ func (app *appDependencies) listRegionsHandler(w http.ResponseWriter, r *http.Re
 //	@Tags			regions
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id		path		int						true	"Region ID"
 //	@Param			region	body		UpdateRegionRequest_T	true	"Region data"
 //	@Success		200		{object}	envelope
@@ -209,6 +213,7 @@ func (app *appDependencies) updateRegionHandler(w http.ResponseWriter, r *http.R
 //	@Tags			formations
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			formation	body		CreateFormationRequest_T	true	"Formation data"
 //	@Success		201			{object}	envelope
 //	@Failure		400			{object}	errorResponse
@@ -262,6 +267,7 @@ func (app *appDependencies) createFormationHandler(w http.ResponseWriter, r *htt
 //	@Description	Retrieve a formation by its ID
 //	@Tags			formations
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Formation ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -296,6 +302,7 @@ func (app *appDependencies) showFormationHandler(w http.ResponseWriter, r *http.
 //	@Description	Retrieve a list of formations with optional filtering by name and region
 //	@Tags			formations
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			formation	query		string	false	"Filter by formation name"
 //	@Param			region_id	query		int		false	"Filter by region ID"
 //	@Param			page		query		int		false	"Page number for pagination"
@@ -338,6 +345,7 @@ func (app *appDependencies) listFormationsHandler(w http.ResponseWriter, r *http
 //	@Tags			formations
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id			path		int							true	"Formation ID"
 //	@Param			formation	body		UpdateFormationRequest_T	true	"Formation data"
 //	@Success		200			{object}	envelope
@@ -413,6 +421,7 @@ func (app *appDependencies) updateFormationHandler(w http.ResponseWriter, r *htt
 //	@Tags			postings
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			posting	body		CreatePostingRequest_T	true	"Posting data"
 //	@Success		201		{object}	envelope
 //	@Failure		400		{object}	errorResponse
@@ -463,6 +472,7 @@ func (app *appDependencies) createPostingHandler(w http.ResponseWriter, r *http.
 //	@Description	Retrieve a posting by its ID
 //	@Tags			postings
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Posting ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -497,6 +507,7 @@ func (app *appDependencies) showPostingHandler(w http.ResponseWriter, r *http.Re
 //	@Description	Retrieve a list of postings with optional filtering by name and code
 //	@Tags			postings
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			posting		query		string	false	"Filter by posting name"
 //	@Param			code		query		string	false	"Filter by posting code"
 //	@Param			page		query		int		false	"Page number for pagination"
@@ -537,6 +548,7 @@ func (app *appDependencies) listPostingsHandler(w http.ResponseWriter, r *http.R
 //	@Tags			postings
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id		path		int						true	"Posting ID"
 //	@Param			posting	body		UpdatePostingRequest_T	true	"Posting data"
 //	@Success		200		{object}	envelope
@@ -609,6 +621,7 @@ func (app *appDependencies) updatePostingHandler(w http.ResponseWriter, r *http.
 //	@Tags			ranks
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			rank	body		CreateRankRequest_T	true	"Rank data"
 //	@Success		201		{object}	envelope
 //	@Failure		400		{object}	errorResponse
@@ -660,6 +673,7 @@ func (app *appDependencies) createRankHandler(w http.ResponseWriter, r *http.Req
 //	@Description	Retrieve a rank by its ID
 //	@Tags			ranks
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Rank ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -694,6 +708,7 @@ func (app *appDependencies) showRankHandler(w http.ResponseWriter, r *http.Reque
 //	@Description	Retrieve a list of ranks with optional filtering by rank name and code
 //	@Tags			ranks
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			rank		query		string	false	"Filter by rank name"
 //	@Param			code		query		string	false	"Filter by rank code"
 //	@Param			page		query		int		false	"Page number for pagination"
@@ -734,6 +749,7 @@ func (app *appDependencies) listRanksHandler(w http.ResponseWriter, r *http.Requ
 //	@Tags			ranks
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id		path		int					true	"Rank ID"
 //	@Param			rank	body		UpdateRankRequest_T	true	"Rank data"
 //	@Success		200		{object}	envelope
@@ -809,6 +825,7 @@ func (app *appDependencies) updateRankHandler(w http.ResponseWriter, r *http.Req
 //	@Tags			training-types
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			training_type	body		CreateTrainingTypeRequest_T	true	"Training type data"
 //	@Success		201				{object}	envelope
 //	@Failure		400				{object}	errorResponse
@@ -856,6 +873,7 @@ func (app *appDependencies) createTrainingTypeHandler(w http.ResponseWriter, r *
 //	@Description	Retrieve a training type by its ID
 //	@Tags			training-types
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Training type ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -890,6 +908,7 @@ func (app *appDependencies) showTrainingTypeHandler(w http.ResponseWriter, r *ht
 //	@Description	Retrieve a list of training types with optional filtering by type name
 //	@Tags			training-types
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			type		query		string	false	"Filter by training type name"
 //	@Param			page		query		int		false	"Page number for pagination"
 //	@Param			page_size	query		int		false	"Number of items per page"
@@ -928,6 +947,7 @@ func (app *appDependencies) listTrainingTypesHandler(w http.ResponseWriter, r *h
 //	@Tags			training-types
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id				path		int							true	"Training type ID"
 //	@Param			training_type	body		UpdateTrainingTypeRequest_T	true	"Training type data"
 //	@Success		200				{object}	envelope
@@ -997,6 +1017,7 @@ func (app *appDependencies) updateTrainingTypeHandler(w http.ResponseWriter, r *
 //	@Tags			training-categories
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			training_category	body		CreateTrainingCategoryRequest_T	true	"Training category data"
 //	@Success		201					{object}	envelope
 //	@Failure		400					{object}	errorResponse
@@ -1050,6 +1071,7 @@ func (app *appDependencies) createTrainingCategoryHandler(w http.ResponseWriter,
 //	@Description	Retrieve a training category by its ID
 //	@Tags			training-categories
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Training category ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -1084,6 +1106,7 @@ func (app *appDependencies) showTrainingCategoryHandler(w http.ResponseWriter, r
 //	@Description	Retrieve a list of training categories with optional filtering by name and active status
 //	@Tags			training-categories
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			name		query		string	false	"Filter by category name"
 //	@Param			is_active	query		bool	false	"Filter by active status"
 //	@Param			page		query		int		false	"Page number for pagination"
@@ -1126,6 +1149,7 @@ func (app *appDependencies) listTrainingCategoriesHandler(w http.ResponseWriter,
 //	@Tags			training-categories
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id					path		int								true	"Training category ID"
 //	@Param			training_category	body		UpdateTrainingCategoryRequest_T	true	"Training category data"
 //	@Success		200					{object}	envelope
@@ -1198,6 +1222,7 @@ func (app *appDependencies) updateTrainingCategoryHandler(w http.ResponseWriter,
 //	@Tags			workshops
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			workshop	body		CreateWorkshopRequest_T	true	"Workshop data"
 //	@Success		201			{object}	envelope
 //	@Failure		400			{object}	errorResponse
@@ -1259,6 +1284,7 @@ func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http
 //	@Description	Retrieve a workshop by its ID
 //	@Tags			workshops
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Workshop ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -1293,6 +1319,7 @@ func (app *appDependencies) showWorkshopHandler(w http.ResponseWriter, r *http.R
 //	@Description	Retrieve a list of workshops with optional filtering by name, category, training type, and active status
 //	@Tags			workshops
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			workshop_name		query		string	false	"Filter by workshop name"
 //	@Param			category_id			query		int		false	"Filter by category ID"
 //	@Param			training_type_id	query		int		false	"Filter by training type ID"
@@ -1339,6 +1366,7 @@ func (app *appDependencies) listWorkshopsHandler(w http.ResponseWriter, r *http.
 //	@Tags			workshops
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id			path		int						true	"Workshop ID"
 //	@Param			workshop	body		UpdateWorkshopRequest_T	true	"Workshop data"
 //	@Success		200			{object}	envelope
@@ -1437,6 +1465,7 @@ func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http
 //	@Tags			training-statuses
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			training_status	body		CreateTrainingStatusRequest_T	true	"Training status data"
 //	@Success		201				{object}	envelope
 //	@Failure		400				{object}	errorResponse
@@ -1484,6 +1513,7 @@ func (app *appDependencies) createTrainingStatusHandler(w http.ResponseWriter, r
 //	@Description	Retrieve a training status by its ID
 //	@Tags			training-statuses
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Training status ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -1518,6 +1548,7 @@ func (app *appDependencies) showTrainingStatusHandler(w http.ResponseWriter, r *
 //	@Description	Retrieve a list of training statuses with optional filtering by status name
 //	@Tags			training-statuses
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			status		query		string	false	"Filter by status name"
 //	@Param			page		query		int		false	"Page number for pagination"
 //	@Param			page_size	query		int		false	"Number of items per page"
@@ -1556,6 +1587,7 @@ func (app *appDependencies) getTrainingStatusesHandler(w http.ResponseWriter, r 
 //	@Tags			training-statuses
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id				path		int								true	"Training status ID"
 //	@Param			training_status	body		UpdateTrainingStatusRequest_T	true	"Training status data"
 //	@Success		200				{object}	envelope
@@ -1625,6 +1657,7 @@ func (app *appDependencies) updateTrainingStatusHandler(w http.ResponseWriter, r
 //	@Tags			enrollment-statuses
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			enrollment_status	body		CreateEnrollmentStatusRequest_T	true	"Enrollment status data"
 //	@Success		201					{object}	envelope
 //	@Failure		400					{object}	errorResponse
@@ -1672,6 +1705,7 @@ func (app *appDependencies) createEnrollmentStatusHandler(w http.ResponseWriter,
 //	@Description	Retrieve an enrollment status by its ID
 //	@Tags			enrollment-statuses
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Enrollment status ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -1706,6 +1740,7 @@ func (app *appDependencies) showEnrollmentStatusHandler(w http.ResponseWriter, r
 //	@Description	Retrieve a list of enrollment statuses with optional filtering by status name
 //	@Tags			enrollment-statuses
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			status		query		string	false	"Filter by status name"
 //	@Param			page		query		int		false	"Page number for pagination"
 //	@Param			page_size	query		int		false	"Number of items per page"
@@ -1744,6 +1779,7 @@ func (app *appDependencies) listEnrollmentStatusesHandler(w http.ResponseWriter,
 //	@Tags			enrollment-statuses
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id					path		int								true	"Enrollment status ID"
 //	@Param			enrollment_status	body		UpdateEnrollmentStatusRequest_T	true	"Enrollment status data"
 //	@Success		200					{object}	envelope
@@ -1813,6 +1849,7 @@ func (app *appDependencies) updateEnrollmentStatusHandler(w http.ResponseWriter,
 //	@Tags			officers
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			officer	body		CreateOfficerRequest_T	true	"Officer data"
 //	@Success		201		{object}	envelope
 //	@Failure		400		{object}	errorResponse
@@ -1870,6 +1907,7 @@ func (app *appDependencies) createOfficerHandler(w http.ResponseWriter, r *http.
 //	@Description	Retrieve an officer by its ID
 //	@Tags			officers
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Officer ID"
 //	@Success		200	{object}	envelope
 //	@Failure		404	{object}	errorResponse
@@ -1904,6 +1942,7 @@ func (app *appDependencies) showOfficerHandler(w http.ResponseWriter, r *http.Re
 //	@Description	Retrieve a list of officers with optional filtering by regulation number, posting, rank, formation, and region
 //	@Tags			officers
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			regulation_number	query		string	false	"Filter by regulation number"
 //	@Param			posting_id			query		int		false	"Filter by posting ID"
 //	@Param			rank_id				query		int		false	"Filter by rank ID"
@@ -1952,6 +1991,7 @@ func (app *appDependencies) getAllOfficersHandler(w http.ResponseWriter, r *http
 //	@Tags			officers
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Param			id		path		int						true	"Officer ID"
 //	@Param			officer	body		UpdateOfficerRequest_T	true	"Officer data"
 //	@Success		200		{object}	envelope
@@ -2040,6 +2080,7 @@ func (app *appDependencies) updateOfficerHandler(w http.ResponseWriter, r *http.
 //	@Summary		Delete an officer
 //	@Description	Delete an officer by its ID
 //	@Tags			officers
+//	@Security		ApiKeyAuth
 //	@Param			id	path		int	true	"Officer ID"
 //	@Success		200	{object}	envelope{message=string}
 //	@Failure		404	{object}	errorResponse
