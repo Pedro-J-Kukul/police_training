@@ -1,25 +1,31 @@
 // Filename: internal/mailer/templates/user_welcome.templates
 // Description: email server template to send to new users
 
-{{ define "subject" }} Welcome to the Quote of the Day Community! {{ end }}
+{{ define "subject" }} Welcome to the Police Training System {{ end }}
 
 {{ define "plainBody" }}
 
 Hi,
 
-Thanks for signing up for a Quote of the Day Community account. We're excited to have you on board!
+You have been registered as a user on the Police Training System.
 
-For future reference, you user ID number is {{ .userID }}
+Your login credentials are:
+Email: {{.userEmail}}
+Password: {{.userPassword}}
 
-Please send a request to the `PUT /v1/users/activated` endpoint with 
-the  following JSON body to activate your account:
+IMPORTANT: Please change your password after your first login for security purposes.
 
+For your reference, your user ID number is {{.userID}}.
+
+Please send a request to the PUT /v1/users/activated endpoint with the following JSON body to activate your account:
 {"token": "{{.activationToken}}"}
+
 Please note that this is a one-time use token and it will expire in 3 days.
 
-Thanks,
+If you have any questions or need assistance, please contact your system administrator.
 
-The Team
+Best regards,
+Police Training System Administration
 {{ end }}
 
 {{ define "htmlBody" }}
@@ -32,20 +38,37 @@ The Team
 </head>
 
 <body>
-    <p>Hi,</p>
-    <p>Thanks for signing up for a Quote of the Day Community account. We're excited 
-       to have you on board!</p>
-    <p>For future reference, your user ID number is {{.userID}}.</p>
-    <p>Please send a request to the <code>PUT /v1/users/activated</code> 
-       endpoint with the following JSON body to activate your account:</p>
-    <pre><code>
-    {"token": "{{.activationToken}}"}
-    </code></pre>
-    <p>Please note that this is a one-time use token and it will 
-       expire in 3 days.</p>
-       
-    <p>Thanks,</p>
-    <p>The Team</p>
+    <div class="container">
+        <h2>Welcome to the Police Training System</h2>
+        
+        <p>Hi, {{.firstName}} {{.lastName}}</p>
+        
+        <p>You have been registered as a user on the Police Training System.</p>
+        
+        <div class="credentials">
+            <h3>Your Login Credentials</h3>
+            <p><strong>Email:</strong> {{.email}}</p>
+            <p><strong>Password:</strong> {{.password}}</p>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ IMPORTANT:</strong> Please change your password after your first login for security purposes.</p>
+        </div>
+        
+        <p>For your reference, your user ID number is <strong>{{.userID}}</strong>.</p>
+        
+        <h3>Account Activation</h3>
+        <p>Please send a request to the <code>PUT /v1/users/activated</code> endpoint with the following JSON body to activate your account:</p>
+        
+        <pre><code>{"token": "{{.activationToken}}"}</code></pre>
+        
+        <p><strong>Note:</strong> This is a one-time use token and it will expire in 3 days.</p>
+        
+        <p>If you have any questions or need assistance, please contact your system administrator.</p>
+        
+        <p>Best regards,<br>
+        <strong>Police Training System Administration</strong></p>
+    </div>
 </body>
 
 </html>
