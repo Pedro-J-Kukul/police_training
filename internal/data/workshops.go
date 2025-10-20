@@ -21,7 +21,7 @@ type Workshop struct {
 	WorkshopName   string    `json:"workshop_name"`
 	CategoryID     int64     `json:"category_id"`
 	TrainingTypeID int64     `json:"training_type_id"`
-	CreditHours    int       `json:"credit_hours"`
+	CreditHours    int64     `json:"credit_hours"`
 	Description    *string   `json:"description,omitempty"`
 	Objectives     *string   `json:"objectives,omitempty"`
 	IsActive       bool      `json:"is_active"`
@@ -119,7 +119,7 @@ func (m WorkshopModel) Get(id int64) (*Workshop, error) {
 }
 
 // GetAll returns workshops filtered by name, category, type, or active state.
-func (m WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive *bool, filters Filters) ([]*Workshop, MetaData, error) {
+func (m WorkshopModel) GetAll(name string, categoryID, typeID, credit_hours *int64, isActive *bool, filters Filters) ([]*Workshop, MetaData, error) {
 	if filters.Sort == "" {
 		filters.Sort = "workshop_name"
 	}
@@ -131,6 +131,7 @@ func (m WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive *
 		AND ($2 = 0 OR category_id = $2)
 		AND ($3 = 0 OR training_type_id = $3)
 		AND ($4 IS NULL OR is_active = $4)
+		AND ($5 IS NULL OR credit_hours = $5)
 		ORDER BY %s %s, id ASC
 		LIMIT $5 OFFSET $6`, filters.sortColumn(), filters.sortDirection())
 
@@ -142,6 +143,10 @@ func (m WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive *
 	if typeID != nil {
 		typeArg = *typeID
 	}
+	creditHoursArg := int64(0)
+	if credit_hours != nil {
+		creditHoursArg = *credit_hours
+	}
 
 	var activeArg any = nil
 	if isActive != nil {
@@ -151,7 +156,7 @@ func (m WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive *
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := m.DB.QueryContext(ctx, query, name, categoryArg, typeArg, activeArg, filters.limit(), filters.offset())
+	rows, err := m.DB.QueryContext(ctx, query, name, categoryArg, typeArg, activeArg, creditHoursArg, filters.limit(), filters.offset())
 	if err != nil {
 		return nil, MetaData{}, err
 	}
