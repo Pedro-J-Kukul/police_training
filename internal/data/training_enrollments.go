@@ -203,7 +203,7 @@ func (m *TrainingEnrollmentModel) GetAll(officerID, sessionID, enrollmentStatusI
 		AND ($2 = 0 OR session_id = $2)
 		AND ($3 = 0 OR enrollment_status_id = $3)
 		AND ($4 = 0 OR progress_status_id = $4)
-		AND ($5 IS NULL OR certificate_issued = $5)
+		AND ($5::boolean IS NULL OR certificate_issued = $5)
 		ORDER BY %s %s, id ASC
 		LIMIT $6 OFFSET $7`, filters.sortColumn(), filters.sortDirection())
 
