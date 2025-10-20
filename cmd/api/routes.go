@@ -30,8 +30,9 @@ func (app *appDependencies) routes() http.Handler {
 	// Authentication and user lifecycle
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activate", app.activateUserHandler)
-	router.Handler(http.MethodPost, "/v1/tokens/authentication", app.requireActivatedUser(http.HandlerFunc(app.createAuthenticationTokenHandler)))
-	router.Handler(http.MethodPost, "/v1/tokens/password-reset", app.requireActivatedUser(http.HandlerFunc(app.createPasswordResetTokenHandler)))
+	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/tokens/password-reset", app.createPasswordResetTokenHandler)
+	router.HandlerFunc(http.MethodPut, "/v1/users/password-reset", app.resetPasswordHandler)
 
 	// Authenticated user endpoints
 	router.Handler(http.MethodGet, "/v1/me", app.requireActivatedUser(http.HandlerFunc(app.showCurrentUserHandler))) // this static route was conflicting with /v1/users/:id
