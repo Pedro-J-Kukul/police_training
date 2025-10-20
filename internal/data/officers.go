@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Pedro-J-Kukul/police_training/internal/validator"
+	"github.com/lib/pq"
 )
 
 /************************************************************************************************************/
@@ -21,6 +22,7 @@ type Officer struct {
 	RegulationNumber string    `json:"regulation_number"`
 	PostingID        int64     `json:"posting_id"`
 	RankID           int64     `json:"rank_id"`
+	UserID           int64     `json:"user_id"`
 	FormationID      int64     `json:"formation_id"`
 	RegionID         int64     `json:"region_id"`
 	UserId           int64     `json:"user,omitempty"`
@@ -275,4 +277,118 @@ func (m OfficerModel) Delete(id int64) error {
 	}
 
 	return nil
+}
+
+// GetByUserID retrieves an officer by user_id (more convenient than officer_id)
+func (m OfficerModel) GetByUserID(userID int64) (*Officer, error) {
+	if userID < 1 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+		SELECT id, user_id, regulation_number, posting_id, rank_id, formation_id, region_id, created_at, updated_at
+		FROM officers
+		WHERE user_id = $1`
+
+	var officer Officer
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, userID).Scan(
+		&officer.ID,
+		&officer.UserID,
+		&officer.RegulationNumber,
+		&officer.PostingID,
+		&officer.RankID,
+		&officer.FormationID,
+		&officer.RegionID,
+		&officer.CreatedAt,
+		&officer.UpdatedAt,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &officer, nil
+}
+
+// GetAllByUserIDs - Enhanced GetAll that works with user_ids
+func (m OfficerModel) GetAllByUserIDs(userIDs []int64, regulationNumber string, postingID, rankID, formationID, regionID *int64, filters Filters) ([]*Officer, MetaData, error) {
+	query := fmt.Sprintf(`
+		SELECT COUNT(*) OVER(), o.id, o.user_id, o.regulation_number, o.posting_id, o.rank_id, o.formation_id, o.region_id, o.created_at, o.updated_at
+		FROM officers o
+		WHERE ($1 = '' OR o.regulation_number ILIKE $1)
+		AND ($2 = 0 OR o.posting_id = $2)
+		AND ($3 = 0 OR o.rank_id = $3)
+		AND ($4 = 0 OR o.formation_id = $4)
+		AND ($5 = 0 OR o.region_id = $5)
+		AND (CARDINALITY($6::bigint[]) = 0 OR o.user_id = ANY($6::bigint[]))
+		ORDER BY %s %s, o.id ASC
+		LIMIT $7 OFFSET $8`, filters.sortColumn(), filters.sortDirection())
+
+	// Handle optional parameters
+	postingArg := int64(0)
+	if postingID != nil {
+		postingArg = *postingID
+	}
+	rankArg := int64(0)
+	if rankID != nil {
+		rankArg = *rankID
+	}
+	formationArg := int64(0)
+	if formationID != nil {
+		formationArg = *formationID
+	}
+	regionArg := int64(0)
+	if regionID != nil {
+		regionArg = *regionID
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query,
+		regulationNumber, postingArg, rankArg, formationArg, regionArg,
+		pq.Array(userIDs), filters.limit(), filters.offset())
+	if err != nil {
+		return nil, MetaData{}, err
+	}
+	defer rows.Close()
+
+	var (
+		officers     []*Officer
+		totalRecords int
+	)
+
+	for rows.Next() {
+		var officer Officer
+		if err := rows.Scan(
+			&totalRecords,
+			&officer.ID,
+			&officer.UserID,
+			&officer.RegulationNumber,
+			&officer.PostingID,
+			&officer.RankID,
+			&officer.FormationID,
+			&officer.RegionID,
+			&officer.CreatedAt,
+			&officer.UpdatedAt,
+		); err != nil {
+			return nil, MetaData{}, err
+		}
+		officers = append(officers, &officer)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, MetaData{}, err
+	}
+
+	metadata := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+	return officers, metadata, nil
 }
