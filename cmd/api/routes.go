@@ -35,9 +35,9 @@ func (app *appDependencies) routes() http.Handler {
 	router.HandlerFunc(http.MethodPut, "/v1/users/password-reset", app.resetPasswordHandler)
 
 	// Authenticated user endpoints
-	router.Handler(http.MethodGet, "/v1/users/me", app.requireActivatedUser(http.HandlerFunc(app.showCurrentUserHandler)))
+	router.Handler(http.MethodGet, "/v1/me", app.requireActivatedUser(http.HandlerFunc(app.showCurrentUserHandler))) // this static route was conflicting with /v1/users/:id
 	router.Handler(http.MethodGet, "/v1/users", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.listUsersHandler))))
-	// router.Handler(http.MethodGet, "/v1/users/:id", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.showUserHandler))))
+	router.Handler(http.MethodGet, "/v1/users/:id", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.showUserHandler))))
 	router.Handler(http.MethodPatch, "/v1/users/:id", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.updateUserHandler))))
 	router.Handler(http.MethodDelete, "/v1/users/:id", app.requireActivatedUser(app.requireRole("admin", http.HandlerFunc(app.deleteUserHandler))))
 
