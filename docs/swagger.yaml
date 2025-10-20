@@ -536,6 +536,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get current user
       tags:
       - users
@@ -1728,6 +1730,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: List users
       tags:
       - users
@@ -1767,6 +1771,12 @@ paths:
   /v1/users/{id}:
     delete:
       description: Delete a user record by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -1787,11 +1797,19 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete a user
       tags:
       - users
     patch:
       description: Perform a partial update on a user record
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -1811,6 +1829,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a user
       tags:
       - users

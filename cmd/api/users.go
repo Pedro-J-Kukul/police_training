@@ -173,6 +173,7 @@ func (app *appDependencies) activateUserHandler(w http.ResponseWriter, r *http.R
 //	@Description	Retrieve the user record associated with the current request context
 //	@Tags			users
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Success		200	{object}	envelope
 //	@Failure		500	{object}	errorResponse
 //	@Router			/v1/me [get]
@@ -213,6 +214,7 @@ func (app *appDependencies) showUserHandler(w http.ResponseWriter, r *http.Reque
 //	@Description	Retrieve a list of users with optional filters and pagination
 //	@Tags			users
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Success		200	{object}	envelope
 //	@Failure		500	{object}	errorResponse
 //	@Router			/v1/users [get]
@@ -270,6 +272,8 @@ func (app *appDependencies) listUsersHandler(w http.ResponseWriter, r *http.Requ
 //	@Description	Perform a partial update on a user record
 //	@Tags			users
 //	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			id	path		int	true	"User ID"
 //	@Success		200	{object}	envelope
 //	@Failure		400	{object}	errorResponse
 //	@Failure		422	{object}	errorResponse
@@ -374,6 +378,8 @@ func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Req
 //	@Description	Delete a user record by ID
 //	@Tags			users
 //	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			id	path		int	true	"User ID"
 //	@Success		200	{object}	envelope{message=string}
 //	@Failure		404	{object}	errorResponse
 //	@Failure		500	{object}	errorResponse

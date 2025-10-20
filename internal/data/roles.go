@@ -40,7 +40,7 @@ func (m RoleModel) GetAllForUser(userID int64) (Roles, error) {
 	query := `
 		SELECT r.role
 		FROM roles r
-		INNER JOIN user_roles ur ON ur.role_id = r.id
+		INNER JOIN roles_users ur ON ur.role_id = r.id
 		INNER JOIN users u ON ur.user_id = u.id
 		WHERE ur.user_id = $1`
 
@@ -74,7 +74,7 @@ func (m RoleModel) AssignToUser(userID int64, roles ...string) error {
 
 	// Query to insert roles for a user
 	query := `
-		INSERT INTO user_roles (user_id, role_id)
+		INSERT INTO roles (user_id, role_id)
 		SELECT $1, r.id
 		FROM roles r
 		WHERE r.role = ANY($2)`
