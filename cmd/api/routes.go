@@ -60,6 +60,8 @@ func (app *appDependencies) routes() http.Handler {
 	router.Handler(http.MethodGet, "/v1/training/types", app.requireActivatedUser(http.HandlerFunc(app.listTrainingTypesHandler)))
 	router.Handler(http.MethodGet, "/v1/training/types/:id", app.requireActivatedUser(http.HandlerFunc(app.showTrainingTypeHandler)))
 	router.Handler(http.MethodPatch, "/v1/training/types/:id", app.requireRole("admin", http.HandlerFunc(app.updateTrainingTypeHandler)))
+
+	// Training Status routes
 	router.Handler(http.MethodPost, "/v1/training/status", app.requireActivatedUser(http.HandlerFunc(app.createTrainingStatusHandler)))
 	router.Handler(http.MethodGet, "/v1/training/status/:id", app.requireActivatedUser(http.HandlerFunc(app.showTrainingStatusHandler)))
 	router.Handler(http.MethodPatch, "/v1/training/status/:id", app.requireActivatedUser(http.HandlerFunc(app.updateTrainingStatusHandler)))
@@ -101,5 +103,17 @@ func (app *appDependencies) routes() http.Handler {
 	router.Handler(http.MethodGet, "/v1/officers/:id", app.requireActivatedUser(http.HandlerFunc(app.showOfficerHandler)))
 	router.Handler(http.MethodPatch, "/v1/officers/:id", app.requireRole("admin", http.HandlerFunc(app.updateOfficerHandler)))
 	router.Handler(http.MethodDelete, "/v1/officers/:id", app.requireRole("admin", http.HandlerFunc(app.deleteOfficerHandler)))
+
+	// // Training Sessions routes (Admin only for write operations)
+	// router.Handler(http.MethodPost, "/v1/training/sessions", app.requireRole("admin", http.HandlerFunc(app.createTrainingSessionHandler)))
+	// router.Handler(http.MethodGet, "/v1/training/sessions", app.requireActivatedUser(http.HandlerFunc(app.listTrainingSessionsHandler)))
+	// router.Handler(http.MethodGet, "/v1/training/sessions/:id", app.requireActivatedUser(http.HandlerFunc(app.showTrainingSessionHandler)))
+	// router.Handler(http.MethodPatch, "/v1/training/sessions/:id", app.requireRole("admin", http.HandlerFunc(app.updateTrainingSessionHandler)))
+
+	// // Training Enrollments routes
+	// router.Handler(http.MethodPost, "/v1/training/enrollments", app.requireActivatedUser(http.HandlerFunc(app.createTrainingEnrollmentHandler)))
+	// router.Handler(http.MethodGet, "/v1/training/enrollments", app.requireActivatedUser(http.HandlerFunc(app.listTrainingEnrollmentsHandler)))
+	// router.Handler(http.MethodGet, "/v1/training/enrollments/:id", app.requireActivatedUser(http.HandlerFunc(app.showTrainingEnrollmentHandler)))
+	// router.Handler(http.MethodPatch, "/v1/training/enrollments/:id", app.requireActivatedUser(http.HandlerFunc(app.updateTrainingEnrollmentHandler)))
 	return app.recoverPanic(app.enableCORS(app.metrics(app.rateLimit(app.authenticate(router)))))
 }
