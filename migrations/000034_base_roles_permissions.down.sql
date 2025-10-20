@@ -16,11 +16,9 @@ WHERE ("permission_id", "role_id") IN (
     (
         (SELECT id FROM "permissions" WHERE "code" = 'CAN_DELETE'),
         (SELECT id FROM "roles" WHERE "role" = 'ADMIN')
-    )
-
-    ---- User-level permissions
-    ,
+    ),
     (
+     ---- User-level permissions
         (SELECT id FROM "permissions" WHERE "code" = 'CAN_READ'),
         (SELECT id FROM "roles" WHERE "role" = 'USER')
     ),
@@ -36,9 +34,8 @@ WHERE ("permission_id", "role_id") IN (
         (SELECT id FROM "permissions" WHERE "code" = 'CAN_DELETE_SELF'),
         (SELECT id FROM "roles" WHERE "role" = 'USER')
     ),
-
-    --- Trainer-level permissions
     (
+      --- Trainer-level permissions
         (SELECT id FROM "permissions" WHERE "code" = 'CAN_READ_TRAININGS'),
         (SELECT id FROM "roles" WHERE "role" = 'TRAINER')
     ),
@@ -54,8 +51,8 @@ WHERE ("permission_id", "role_id") IN (
         (SELECT id FROM "permissions" WHERE "code" = 'CAN_CREATE_WORKSHOPS'),
         (SELECT id FROM "roles" WHERE "role" = 'TRAINER')
     ),
-    --- Content-creator-level permissions
     (
+      --- Content-creator-level permissions
         (SELECT id FROM "permissions" WHERE "code" = 'CAN_CREATE_WORKSHOPS'),
         (SELECT id FROM "roles" WHERE "role" = 'CONTENT_CREATOR')
     ),
@@ -87,15 +84,15 @@ WHERE ("permission_id", "role_id") IN (
         (SELECT id FROM "permissions" WHERE "code" = 'CAN_DELETE_TRAININGS'),
         (SELECT id FROM "roles" WHERE "role" = 'CONTENT_CREATOR')
     ),
-    --- Officer-level permissions
     (
+      --- Officer-level permissions
         (SELECT id FROM "permissions" WHERE "code" = 'CAN_READ_WORKSHOPS'),
         (SELECT id FROM "roles" WHERE "role" = 'OFFICER')
     ),
     (
         (SELECT id FROM "permissions" WHERE "code" = 'CAN_READ_TRAININGS'),
         (SELECT id FROM "roles" WHERE "role" = 'OFFICER')
-    ),
+    )
     --- Anonymous-level permissions
     --- Nothing
 );
