@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/v1/enrollment/status": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of enrollment statuses with optional filtering by status name",
                 "produces": [
                     "application/json"
@@ -73,6 +78,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new enrollment status",
                 "consumes": [
                     "application/json"
@@ -125,6 +135,11 @@ const docTemplate = `{
         },
         "/v1/enrollment/status/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve an enrollment status by its ID",
                 "produces": [
                     "application/json"
@@ -164,6 +179,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on an enrollment status record",
                 "consumes": [
                     "application/json"
@@ -229,6 +249,11 @@ const docTemplate = `{
         },
         "/v1/formations": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of formations with optional filtering by name and region",
                 "produces": [
                     "application/json"
@@ -291,6 +316,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new formation",
                 "consumes": [
                     "application/json"
@@ -343,6 +373,11 @@ const docTemplate = `{
         },
         "/v1/formations/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a formation by its ID",
                 "produces": [
                     "application/json"
@@ -382,6 +417,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a formation record",
                 "consumes": [
                     "application/json"
@@ -473,6 +513,11 @@ const docTemplate = `{
         },
         "/v1/officers": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of officers with optional filtering by regulation number, posting, rank, formation, and region",
                 "produces": [
                     "application/json"
@@ -553,6 +598,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new officer",
                 "consumes": [
                     "application/json"
@@ -605,6 +655,11 @@ const docTemplate = `{
         },
         "/v1/officers/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve an officer by its ID",
                 "produces": [
                     "application/json"
@@ -644,6 +699,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete an officer by its ID",
                 "tags": [
                     "officers"
@@ -692,6 +752,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on an officer record",
                 "consumes": [
                     "application/json"
@@ -763,6 +828,11 @@ const docTemplate = `{
         },
         "/v1/postings": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of postings with optional filtering by name and code",
                 "produces": [
                     "application/json"
@@ -825,6 +895,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new posting",
                 "consumes": [
                     "application/json"
@@ -877,6 +952,11 @@ const docTemplate = `{
         },
         "/v1/postings/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a posting by its ID",
                 "produces": [
                     "application/json"
@@ -916,6 +996,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a posting record",
                 "consumes": [
                     "application/json"
@@ -981,6 +1066,11 @@ const docTemplate = `{
         },
         "/v1/ranks": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of ranks with optional filtering by rank name and code",
                 "produces": [
                     "application/json"
@@ -1043,6 +1133,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new rank",
                 "consumes": [
                     "application/json"
@@ -1095,6 +1190,11 @@ const docTemplate = `{
         },
         "/v1/ranks/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a rank by its ID",
                 "produces": [
                     "application/json"
@@ -1134,6 +1234,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a rank record",
                 "consumes": [
                     "application/json"
@@ -1199,6 +1304,11 @@ const docTemplate = `{
         },
         "/v1/regions": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of regions with optional filtering",
                 "produces": [
                     "application/json"
@@ -1255,6 +1365,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new region",
                 "consumes": [
                     "application/json"
@@ -1307,6 +1422,11 @@ const docTemplate = `{
         },
         "/v1/regions/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a region by its ID",
                 "produces": [
                     "application/json"
@@ -1346,6 +1466,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a region record",
                 "consumes": [
                     "application/json"
@@ -1515,6 +1640,11 @@ const docTemplate = `{
         },
         "/v1/training/categories": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of training categories with optional filtering by name and active status",
                 "produces": [
                     "application/json"
@@ -1577,6 +1707,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new training category",
                 "consumes": [
                     "application/json"
@@ -1629,6 +1764,11 @@ const docTemplate = `{
         },
         "/v1/training/categories/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a training category by its ID",
                 "produces": [
                     "application/json"
@@ -1668,6 +1808,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a training category record",
                 "consumes": [
                     "application/json"
@@ -1733,6 +1878,11 @@ const docTemplate = `{
         },
         "/v1/training/status": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of training statuses with optional filtering by status name",
                 "produces": [
                     "application/json"
@@ -1789,6 +1939,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new training status",
                 "consumes": [
                     "application/json"
@@ -1841,6 +1996,11 @@ const docTemplate = `{
         },
         "/v1/training/status/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a training status by its ID",
                 "produces": [
                     "application/json"
@@ -1880,6 +2040,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a training status record",
                 "consumes": [
                     "application/json"
@@ -1945,6 +2110,11 @@ const docTemplate = `{
         },
         "/v1/training/types": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of training types with optional filtering by type name",
                 "produces": [
                     "application/json"
@@ -2001,6 +2171,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new training type",
                 "consumes": [
                     "application/json"
@@ -2053,6 +2228,11 @@ const docTemplate = `{
         },
         "/v1/training/types/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a training type by its ID",
                 "produces": [
                     "application/json"
@@ -2092,6 +2272,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a training type record",
                 "consumes": [
                     "application/json"
@@ -2417,6 +2602,11 @@ const docTemplate = `{
         },
         "/v1/workshops": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of workshops with optional filtering by name, category, training type, and active status",
                 "produces": [
                     "application/json"
@@ -2491,6 +2681,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new workshop",
                 "consumes": [
                     "application/json"
@@ -2543,6 +2738,11 @@ const docTemplate = `{
         },
         "/v1/workshops/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a workshop by its ID",
                 "produces": [
                     "application/json"
@@ -2582,6 +2782,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a workshop record",
                 "consumes": [
                     "application/json"

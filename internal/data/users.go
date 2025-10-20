@@ -190,6 +190,7 @@ func (m *UserModel) GetByEmail(email string) (*User, error) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 		&user.Version,
+		&user.IsOfficer,
 	)
 	if err != nil {
 		switch {
