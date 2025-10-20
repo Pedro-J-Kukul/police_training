@@ -94,7 +94,7 @@ func (m AttendanceStatusModel) GetAll(name string, countsAsPresent *bool, filter
 		SELECT COUNT(*) OVER(), id, status, counts_as_present, created_at
 		FROM attendance_statuses
 		WHERE ($1 = '' OR status ILIKE $1)
-		AND ($2 IS NULL OR counts_as_present = $2)
+		AND ($2::boolean IS NULL OR counts_as_present = $2)
 		ORDER BY %s %s, id ASC
 		LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 
