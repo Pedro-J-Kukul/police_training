@@ -2,7 +2,7 @@ include .envrc
 
 .PHONY: run/api run/tests run/api/win psql/login psql/sudo migration/create migration/up migration/down migration/fix db/migrations/up
 run/api:
-	@echo "Starting API server on port $(PORT) in $(ENV) mode..."
+	@echo "Starting API server on port $(PORT) in $(ENVIRONMENT) mode..."
 	@go run ./cmd/api \
 		-port $(PORT) \
 		-env $(ENVIRONMENT) \
