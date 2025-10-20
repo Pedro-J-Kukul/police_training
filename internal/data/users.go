@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Pedro-J-Kukul/police_training/internal/validator"
+	"github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -402,4 +403,109 @@ func (m *UserModel) Delete(id int64) error {
 
 	_, err := m.DB.ExecContext(ctx, query, id)
 	return err
+}
+
+// Check if a user has all required permissions through their roles
+func (m *UserModel) IsAllowedTo(id int64, requiredPermissions ...string) (bool, error) {
+	// First, check which superuser permissions the user has
+	superuserQuery := `
+		SELECT DISTINCT p.code
+		FROM roles_users ru
+		INNER JOIN roles r ON ru.role_id = r.id
+		INNER JOIN roles_permissions rp ON r.id = rp.role_id
+		INNER JOIN permissions p ON rp.permission_id = p.id
+		WHERE ru.user_id = $1 AND p.code IN ('CAN_READ', 'CAN_CREATE', 'CAN_DELETE', 'CAN_MODIFY')`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, superuserQuery, id)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	// Create boolean map of superuser permissions
+	superuserPermissions := map[string]bool{
+		"CAN_READ":   false,
+		"CAN_CREATE": false,
+		"CAN_DELETE": false,
+		"CAN_MODIFY": false,
+	}
+
+	for rows.Next() {
+		var permission string
+		if err := rows.Scan(&permission); err != nil {
+			return false, err
+		}
+		superuserPermissions[permission] = true
+	}
+	if err := rows.Err(); err != nil {
+		return false, err
+	}
+
+	// Print superuser permissions for debugging
+	fmt.Printf("Superuser Permissions: %v\n", superuserPermissions)
+
+	// Filter out scoped permissions if user has corresponding superuser permission
+	var filteredPermissions []string
+	for _, perm := range requiredPermissions {
+		// Skip scoped permissions if user has corresponding superuser permission
+		switch {
+		case perm == "CAN_READ" || (len(perm) > 9 && perm[:9] == "CAN_READ_"):
+			IsAllowedToDoThis(superuserPermissions, perm, "CAN_READ", &filteredPermissions)
+
+		case perm == "CAN_CREATE" || (len(perm) > 11 && perm[:11] == "CAN_CREATE_"):
+			IsAllowedToDoThis(superuserPermissions, perm, "CAN_CREATE", &filteredPermissions)
+
+		case perm == "CAN_DELETE" || (len(perm) > 11 && perm[:11] == "CAN_DELETE_"):
+			IsAllowedToDoThis(superuserPermissions, perm, "CAN_DELETE", &filteredPermissions)
+
+		case perm == "CAN_MODIFY" || (len(perm) > 11 && perm[:11] == "CAN_MODIFY_"):
+			IsAllowedToDoThis(superuserPermissions, perm, "CAN_MODIFY", &filteredPermissions)
+
+		default:
+			print("should almost never trigger")
+			filteredPermissions = append(filteredPermissions, perm)
+		}
+	}
+
+	// If all permissions were filtered out (user has all required superuser permissions), return true
+	if len(filteredPermissions) == 0 {
+		return true, nil
+	}
+
+	// Print out filtered permissions for debugging
+	fmt.Printf("Filtered Permissions: %v\n", filteredPermissions)
+
+	// SQL query to get remaining permissions the user has through their roles
+	query := `
+		SELECT COUNT(DISTINCT p.code)
+		FROM roles_users ru
+		INNER JOIN roles r ON ru.role_id = r.id
+		INNER JOIN roles_permissions rp ON r.id = rp.role_id
+		INNER JOIN permissions p ON rp.permission_id = p.id
+		WHERE ru.user_id = $1 AND p.code = ANY($2)`
+
+	var count int
+	err = m.DB.QueryRowContext(ctx, query, id, pq.Array(filteredPermissions)).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	// Return true only if the user has ALL remaining required permissions
+	return count == len(filteredPermissions), nil
+}
+
+func IsAllowedToDoThis(superuserPermissions map[string]bool, perm string, target string, filteredPermissions *[]string) {
+
+	// Superuser overrides
+	if superuserPermissions[target] && perm == target {
+		*filteredPermissions = append(*filteredPermissions, perm)
+	}
+
+	// Scoped permissions
+	if !superuserPermissions[target] && perm != target {
+		*filteredPermissions = append(*filteredPermissions, perm)
+	}
 }
