@@ -65,7 +65,7 @@ func (app *appDependencies) version() string {
 //	@version					1.0.0
 //	@description				This is the API server for the Police Training application.
 //	@host						localhost:4000
-//	@basePath					/v1/
+//	@basePath					/
 //	@securityDefinitions.apikey	ApiKeyAuth
 //	@in							header
 //	@name						Authorization

@@ -2813,7 +2813,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0.0",
 	Host:             "localhost:4000",
-	BasePath:         "/v1/",
+	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Police Training API",
 	Description:      "This is the API server for the Police Training application.",

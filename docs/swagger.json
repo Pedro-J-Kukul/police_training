@@ -7,7 +7,7 @@
         "version": "1.0.0"
     },
     "host": "localhost:4000",
-    "basePath": "/v1/",
+    "basePath": "/",
     "paths": {
         "/v1/enrollment/status": {
             "get": {

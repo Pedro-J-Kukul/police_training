@@ -67,3 +67,7 @@ migration/fix:
 		echo "No dirty migration found"; \
 	fi
 	@rm -f /tmp/migrate_version
+
+swagger/docs:
+	@echo "Generating Swagger documentation..."
+	@swag init -g ./cmd/api/main.go
