@@ -20,8 +20,8 @@ func (app *appDependencies) routes() http.Handler {
 	router.NotFound = http.HandlerFunc(app.notFoundResponse)
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
-	router.Handler(http.MethodGet, "/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:1323/swagger/doc.json"), //The url pointing to API definition
+	router.Handler(http.MethodGet, "/swagger/:any", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"), //The url pointing to API definition
 	))
 	// Health and observability
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthCheckHandler)
