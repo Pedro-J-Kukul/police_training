@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  main.CreateAttendanceStatusRequest_T:
+    properties:
+      counts_as_present:
+        type: boolean
+      status:
+        type: string
+    type: object
   main.CreateAuthenticationTokenRequest_T:
     properties:
       email:
@@ -46,6 +53,11 @@ definitions:
       posting:
         type: string
     type: object
+  main.CreateProgressStatusRequest_T:
+    properties:
+      status:
+        type: string
+    type: object
   main.CreateRankRequest_T:
     properties:
       annual_training_hours_required:
@@ -66,6 +78,51 @@ definitions:
         type: boolean
       name:
         type: string
+    type: object
+  main.CreateTrainingEnrollmentRequest_T:
+    properties:
+      attendance_status_id:
+        type: integer
+      certificate_issued:
+        type: boolean
+      certificate_number:
+        type: string
+      completion_date:
+        description: Accept as string
+        type: string
+      enrollment_status_id:
+        type: integer
+      officer_id:
+        type: integer
+      progress_status_id:
+        type: integer
+      session_id:
+        type: integer
+    type: object
+  main.CreateTrainingSessionRequest_T:
+    properties:
+      end_time:
+        type: string
+      facilitator_id:
+        type: integer
+      formation_id:
+        type: integer
+      location:
+        type: string
+      max_capacity:
+        type: integer
+      notes:
+        type: string
+      region_id:
+        type: integer
+      session_date:
+        type: string
+      start_time:
+        type: string
+      training_status_id:
+        type: integer
+      workshop_id:
+        type: integer
     type: object
   main.CreateTrainingStatusRequest_T:
     properties:
@@ -99,6 +156,13 @@ definitions:
       password:
         type: string
       token:
+        type: string
+    type: object
+  main.UpdateAttendanceStatusRequest_T:
+    properties:
+      counts_as_present:
+        type: boolean
+      status:
         type: string
     type: object
   main.UpdateEnrollmentStatusRequest_T:
@@ -135,6 +199,11 @@ definitions:
       posting:
         type: string
     type: object
+  main.UpdateProgressStatusRequest_T:
+    properties:
+      status:
+        type: string
+    type: object
   main.UpdateRankRequest_T:
     properties:
       annual_training_hours_required:
@@ -156,6 +225,51 @@ definitions:
       name:
         type: string
     type: object
+  main.UpdateTrainingEnrollmentRequest_T:
+    properties:
+      attendance_status_id:
+        description: 'Fixed: was **int64'
+        type: integer
+      certificate_issued:
+        type: boolean
+      certificate_number:
+        type: string
+      completion_date:
+        type: string
+      enrollment_status_id:
+        type: integer
+      officer_id:
+        type: integer
+      progress_status_id:
+        type: integer
+      session_id:
+        type: integer
+    type: object
+  main.UpdateTrainingSessionRequest_T:
+    properties:
+      end_time:
+        type: string
+      facilitator_id:
+        type: integer
+      formation_id:
+        type: integer
+      location:
+        type: string
+      max_capacity:
+        type: integer
+      notes:
+        type: string
+      region_id:
+        type: integer
+      session_date:
+        type: string
+      start_time:
+        type: string
+      training_status_id:
+        type: integer
+      workshop_id:
+        type: integer
+    type: object
   main.UpdateTrainingStatusRequest_T:
     properties:
       status:
@@ -173,10 +287,12 @@ definitions:
       credit_hours:
         type: integer
       description:
+        description: 'Fixed: was **string'
         type: string
       is_active:
         type: boolean
       objectives:
+        description: 'Fixed: was **string'
         type: string
       training_type_id:
         type: integer
@@ -220,6 +336,158 @@ info:
   title: Police Training API
   version: 1.0.0
 paths:
+  /v1/attendance/status:
+    get:
+      description: Retrieve a list of attendance statuses with optional filtering
+      parameters:
+      - description: Filter by status name
+        in: query
+        name: status
+        type: string
+      - description: Filter by counts as present flag
+        in: query
+        name: counts_as_present
+        type: boolean
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List attendance statuses
+      tags:
+      - attendance-statuses
+    post:
+      consumes:
+      - application/json
+      description: Create a new attendance status
+      parameters:
+      - description: Attendance status data
+        in: body
+        name: attendance_status
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateAttendanceStatusRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new attendance status
+      tags:
+      - attendance-statuses
+  /v1/attendance/status/{id}:
+    get:
+      description: Retrieve an attendance status by its ID
+      parameters:
+      - description: Attendance status ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get an attendance status
+      tags:
+      - attendance-statuses
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on an attendance status record
+      parameters:
+      - description: Attendance status ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Attendance status data
+        in: body
+        name: attendance_status
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateAttendanceStatusRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update an attendance status
+      tags:
+      - attendance-statuses
   /v1/enrollment/status:
     get:
       description: Retrieve a list of enrollment statuses with optional filtering
@@ -894,6 +1162,154 @@ paths:
       summary: Update a posting
       tags:
       - postings
+  /v1/progress/status:
+    get:
+      description: Retrieve a list of progress statuses with optional filtering
+      parameters:
+      - description: Filter by status name
+        in: query
+        name: status
+        type: string
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List progress statuses
+      tags:
+      - progress-statuses
+    post:
+      consumes:
+      - application/json
+      description: Create a new progress status
+      parameters:
+      - description: Progress status data
+        in: body
+        name: progress_status
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateProgressStatusRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new progress status
+      tags:
+      - progress-statuses
+  /v1/progress/status/{id}:
+    get:
+      description: Retrieve a progress status by its ID
+      parameters:
+      - description: Progress status ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a progress status
+      tags:
+      - progress-statuses
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a progress status record
+      parameters:
+      - description: Progress status ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Progress status data
+        in: body
+        name: progress_status
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateProgressStatusRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a progress status
+      tags:
+      - progress-statuses
   /v1/ranks:
     get:
       description: Retrieve a list of ranks with optional filtering by rank name and
@@ -1418,6 +1834,408 @@ paths:
       summary: Update a training category
       tags:
       - training-categories
+  /v1/training/enrollments:
+    get:
+      description: Retrieve a list of training enrollments with optional filtering
+      parameters:
+      - description: Filter by officer ID
+        in: query
+        name: officer_id
+        type: integer
+      - description: Filter by session ID
+        in: query
+        name: session_id
+        type: integer
+      - description: Filter by enrollment status ID
+        in: query
+        name: enrollment_status_id
+        type: integer
+      - description: Filter by progress status ID
+        in: query
+        name: progress_status_id
+        type: integer
+      - description: Filter by certificate issued status
+        in: query
+        name: certificate_issued
+        type: boolean
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List training enrollments
+      tags:
+      - training-enrollments
+    post:
+      consumes:
+      - application/json
+      description: Create a new training enrollment
+      parameters:
+      - description: Training enrollment data
+        in: body
+        name: training_enrollment
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateTrainingEnrollmentRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new training enrollment
+      tags:
+      - training-enrollments
+  /v1/training/enrollments/{id}:
+    delete:
+      description: Delete a training enrollment by its ID
+      parameters:
+      - description: Training enrollment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/main.envelope'
+            - properties:
+                message:
+                  type: string
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a training enrollment
+      tags:
+      - training-enrollments
+    get:
+      description: Retrieve a training enrollment by its ID
+      parameters:
+      - description: Training enrollment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a training enrollment
+      tags:
+      - training-enrollments
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a training enrollment record
+      parameters:
+      - description: Training enrollment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Training enrollment data
+        in: body
+        name: training_enrollment
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateTrainingEnrollmentRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a training enrollment
+      tags:
+      - training-enrollments
+  /v1/training/sessions:
+    get:
+      description: Retrieve a list of training sessions with optional filtering
+      parameters:
+      - description: Filter by formation ID
+        in: query
+        name: formation_id
+        type: integer
+      - description: Filter by region ID
+        in: query
+        name: region_id
+        type: integer
+      - description: Filter by facilitator ID
+        in: query
+        name: facilitator_id
+        type: integer
+      - description: Filter by workshop ID
+        in: query
+        name: workshop_id
+        type: integer
+      - description: Filter by training status ID
+        in: query
+        name: training_status_id
+        type: integer
+      - description: Filter by location
+        in: query
+        name: location
+        type: string
+      - description: Filter by notes
+        in: query
+        name: notes
+        type: string
+      - description: Filter by session date (YYYY-MM-DD)
+        in: query
+        name: session_date
+        type: string
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List training sessions
+      tags:
+      - training-sessions
+    post:
+      consumes:
+      - application/json
+      description: Create a new training session
+      parameters:
+      - description: Training session data
+        in: body
+        name: training_session
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateTrainingSessionRequest_T'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new training session
+      tags:
+      - training-sessions
+  /v1/training/sessions/{id}:
+    delete:
+      description: Delete a training session by its ID
+      parameters:
+      - description: Training session ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/main.envelope'
+            - properties:
+                message:
+                  type: string
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a training session
+      tags:
+      - training-sessions
+    get:
+      description: Retrieve a training session by its ID
+      parameters:
+      - description: Training session ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a training session
+      tags:
+      - training-sessions
+    patch:
+      consumes:
+      - application/json
+      description: Perform a partial update on a training session record
+      parameters:
+      - description: Training session ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Training session data
+        in: body
+        name: training_session
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateTrainingSessionRequest_T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a training session
+      tags:
+      - training-sessions
   /v1/training/status:
     get:
       description: Retrieve a list of training statuses with optional filtering by
