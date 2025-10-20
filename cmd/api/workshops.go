@@ -197,13 +197,15 @@ func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	if UpdateWorkshopRequest.UpdatedAt == nil || UpdateWorkshopRequest.UpdatedAt.IsZero() {
-		app.editConflictResponse(w, r)
-		return
+	// Store original updated_at for optimistic locking
+	originalUpdatedAt := workshop.UpdatedAt
+
+	// Check if updated_at was provided for optimistic locking
+	if UpdateWorkshopRequest.UpdatedAt != nil {
+		originalUpdatedAt = *UpdateWorkshopRequest.UpdatedAt
 	}
 
-	originalUpdatedAt := *UpdateWorkshopRequest.UpdatedAt
-
+	// Update fields if provided
 	if UpdateWorkshopRequest.WorkshopName != nil {
 		workshop.WorkshopName = *UpdateWorkshopRequest.WorkshopName
 	}
@@ -217,10 +219,10 @@ func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http
 		workshop.CreditHours = *UpdateWorkshopRequest.CreditHours
 	}
 	if UpdateWorkshopRequest.Description != nil {
-		workshop.Description = *UpdateWorkshopRequest.Description
+		workshop.Description = UpdateWorkshopRequest.Description
 	}
 	if UpdateWorkshopRequest.Objectives != nil {
-		workshop.Objectives = *UpdateWorkshopRequest.Objectives
+		workshop.Objectives = UpdateWorkshopRequest.Objectives
 	}
 	if UpdateWorkshopRequest.IsActive != nil {
 		workshop.IsActive = *UpdateWorkshopRequest.IsActive
@@ -240,9 +242,8 @@ func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http
 		case errors.Is(err, data.ErrForeignKeyViolation):
 			v.AddError("category_id", "must reference valid category and training type")
 			app.failedValidationResponse(w, r, v.Errors)
-		case errors.Is(err, data.ErrDuplicateValue):
-			v.AddError("workshop_name", "a workshop with this name already exists")
-			app.failedValidationResponse(w, r, v.Errors)
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
