@@ -1596,3 +1596,396 @@ func (app *appDependencies) updateEnrollmentStatusHandler(w http.ResponseWriter,
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+/*********************** Attendance Status ***********************/
+
+// createAttendanceStatusHandler handles the creation of a new attendance status.
+//
+//	@Summary		Create a new attendance status
+//	@Description	Create a new attendance status
+//	@Tags			attendance-statuses
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			attendance_status	body		CreateAttendanceStatusRequest_T	true	"Attendance status data"
+//	@Success		201					{object}	envelope
+//	@Failure		400					{object}	errorResponse
+//	@Failure		422					{object}	errorResponse
+//	@Failure		500					{object}	errorResponse
+//	@Router			/v1/attendance/status [post]
+func (app *appDependencies) createAttendanceStatusHandler(w http.ResponseWriter, r *http.Request) {
+	if err := app.readJSON(w, r, &CreateAttendanceStatusRequest); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	status := &data.AttendanceStatus{
+		Status:          CreateAttendanceStatusRequest.Status,
+		CountsAsPresent: CreateAttendanceStatusRequest.CountsAsPresent,
+	}
+
+	v := validator.New()
+	data.ValidateAttendanceStatus(v, status)
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	if err := app.models.AttendanceStatus.Insert(status); err != nil {
+		switch {
+		case errors.Is(err, data.ErrDuplicateValue):
+			v.AddError("status", "an attendance status with this name already exists")
+			app.failedValidationResponse(w, r, v.Errors)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/attendance/status/%d", status.ID))
+
+	if err := app.writeJSON(w, http.StatusCreated, envelope{"attendance_status": status}, headers); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// showAttendanceStatusHandler retrieves and returns an attendance status by its ID.
+//
+//	@Summary		Get an attendance status
+//	@Description	Retrieve an attendance status by its ID
+//	@Tags			attendance-statuses
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			id	path		int	true	"Attendance status ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/attendance/status/{id} [get]
+func (app *appDependencies) showAttendanceStatusHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	status, err := app.models.AttendanceStatus.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"attendance_status": status}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// listAttendanceStatusesHandler returns a filtered list of attendance statuses.
+//
+//	@Summary		List attendance statuses
+//	@Description	Retrieve a list of attendance statuses with optional filtering
+//	@Tags			attendance-statuses
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			status				query		string	false	"Filter by status name"
+//	@Param			counts_as_present	query		bool	false	"Filter by counts as present flag"
+//	@Param			page				query		int		false	"Page number for pagination"
+//	@Param			page_size			query		int		false	"Number of items per page"
+//	@Param			sort				query		string	false	"Sort order"
+//	@Success		200					{object}	envelope
+//	@Failure		422					{object}	errorResponse
+//	@Failure		500					{object}	errorResponse
+//	@Router			/v1/attendance/status [get]
+func (app *appDependencies) listAttendanceStatusesHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	v := validator.New()
+
+	filters := app.readFilters(query, "status", 20, []string{"status", "-status", "id", "-id", "created_at", "-created_at"}, v)
+
+	countsAsPresent := app.getOptionalBoolQueryParameter(query, "counts_as_present", v)
+
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	name := likeSearch(app.getSingleQueryParameter(query, "status", ""))
+
+	statuses, metadata, err := app.models.AttendanceStatus.GetAll(name, countsAsPresent, filters)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"attendance_statuses": statuses, "metadata": metadata}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// updateAttendanceStatusHandler performs a partial update on an attendance status record.
+//
+//	@Summary		Update an attendance status
+//	@Description	Perform a partial update on an attendance status record
+//	@Tags			attendance-statuses
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			id					path		int								true	"Attendance status ID"
+//	@Param			attendance_status	body		UpdateAttendanceStatusRequest_T	true	"Attendance status data"
+//	@Success		200					{object}	envelope
+//	@Failure		400					{object}	errorResponse
+//	@Failure		404					{object}	errorResponse
+//	@Failure		422					{object}	errorResponse
+//	@Failure		500					{object}	errorResponse
+//	@Router			/v1/attendance/status/{id} [patch]
+func (app *appDependencies) updateAttendanceStatusHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	status, err := app.models.AttendanceStatus.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if err := app.readJSON(w, r, &UpdateAttendanceStatusRequest); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if UpdateAttendanceStatusRequest.Status != nil {
+		status.Status = *UpdateAttendanceStatusRequest.Status
+	}
+	if UpdateAttendanceStatusRequest.CountsAsPresent != nil {
+		status.CountsAsPresent = *UpdateAttendanceStatusRequest.CountsAsPresent
+	}
+
+	v := validator.New()
+	data.ValidateAttendanceStatus(v, status)
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	if err := app.models.AttendanceStatus.Update(status); err != nil {
+		switch {
+		case errors.Is(err, data.ErrDuplicateValue):
+			v.AddError("status", "an attendance status with this name already exists")
+			app.failedValidationResponse(w, r, v.Errors)
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"attendance_status": status}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+/*********************** Progress Status ***********************/
+
+// createProgressStatusHandler handles the creation of a new progress status.
+//
+//	@Summary		Create a new progress status
+//	@Description	Create a new progress status
+//	@Tags			progress-statuses
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			progress_status	body		CreateProgressStatusRequest_T	true	"Progress status data"
+//	@Success		201				{object}	envelope
+//	@Failure		400				{object}	errorResponse
+//	@Failure		422				{object}	errorResponse
+//	@Failure		500				{object}	errorResponse
+//	@Router			/v1/progress/status [post]
+func (app *appDependencies) createProgressStatusHandler(w http.ResponseWriter, r *http.Request) {
+	if err := app.readJSON(w, r, &CreateProgressStatusRequest); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	status := &data.ProgressStatus{Status: CreateProgressStatusRequest.Status}
+
+	v := validator.New()
+	data.ValidateProgressStatus(v, status)
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	if err := app.models.ProgressStatus.Insert(status); err != nil {
+		switch {
+		case errors.Is(err, data.ErrDuplicateValue):
+			v.AddError("status", "a progress status with this name already exists")
+			app.failedValidationResponse(w, r, v.Errors)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/progress/status/%d", status.ID))
+
+	if err := app.writeJSON(w, http.StatusCreated, envelope{"progress_status": status}, headers); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// showProgressStatusHandler retrieves and returns a progress status by its ID.
+//
+//	@Summary		Get a progress status
+//	@Description	Retrieve a progress status by its ID
+//	@Tags			progress-statuses
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			id	path		int	true	"Progress status ID"
+//	@Success		200	{object}	envelope
+//	@Failure		404	{object}	errorResponse
+//	@Failure		500	{object}	errorResponse
+//	@Router			/v1/progress/status/{id} [get]
+func (app *appDependencies) showProgressStatusHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	status, err := app.models.ProgressStatus.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"progress_status": status}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// listProgressStatusesHandler returns a filtered list of progress statuses.
+//
+//	@Summary		List progress statuses
+//	@Description	Retrieve a list of progress statuses with optional filtering
+//	@Tags			progress-statuses
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			status		query		string	false	"Filter by status name"
+//	@Param			page		query		int		false	"Page number for pagination"
+//	@Param			page_size	query		int		false	"Number of items per page"
+//	@Param			sort		query		string	false	"Sort order"
+//	@Success		200			{object}	envelope
+//	@Failure		422			{object}	errorResponse
+//	@Failure		500			{object}	errorResponse
+//	@Router			/v1/progress/status [get]
+func (app *appDependencies) listProgressStatusesHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	v := validator.New()
+
+	filters := app.readFilters(query, "status", 20, []string{"status", "-status", "id", "-id", "created_at", "-created_at"}, v)
+
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	name := likeSearch(app.getSingleQueryParameter(query, "status", ""))
+
+	statuses, metadata, err := app.models.ProgressStatus.GetAll(name, filters)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"progress_statuses": statuses, "metadata": metadata}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// updateProgressStatusHandler performs a partial update on a progress status record.
+//
+//	@Summary		Update a progress status
+//	@Description	Perform a partial update on a progress status record
+//	@Tags			progress-statuses
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			id				path		int							true	"Progress status ID"
+//	@Param			progress_status	body		UpdateProgressStatusRequest_T	true	"Progress status data"
+//	@Success		200				{object}	envelope
+//	@Failure		400				{object}	errorResponse
+//	@Failure		404				{object}	errorResponse
+//	@Failure		422				{object}	errorResponse
+//	@Failure		500				{object}	errorResponse
+//	@Router			/v1/progress/status/{id} [patch]
+func (app *appDependencies) updateProgressStatusHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	status, err := app.models.ProgressStatus.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if err := app.readJSON(w, r, &UpdateProgressStatusRequest); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if UpdateProgressStatusRequest.Status != nil {
+		status.Status = *UpdateProgressStatusRequest.Status
+	}
+
+	v := validator.New()
+	data.ValidateProgressStatus(v, status)
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	if err := app.models.ProgressStatus.Update(status); err != nil {
+		switch {
+		case errors.Is(err, data.ErrDuplicateValue):
+			v.AddError("status", "a progress status with this name already exists")
+			app.failedValidationResponse(w, r, v.Errors)
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	if err := app.writeJSON(w, http.StatusOK, envelope{"progress_status": status}, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

@@ -187,3 +187,23 @@ var UpdateTrainingEnrollmentRequest struct {
 	CertificateIssued  *bool      `json:"certificate_issued,omitempty"`
 	CertificateNumber  *string    `json:"certificate_number,omitempty"`
 }
+
+// Attendance Status Request Variables
+var CreateAttendanceStatusRequest struct {
+	Status          string `json:"status"`
+	CountsAsPresent bool   `json:"counts_as_present"`
+}
+
+var UpdateAttendanceStatusRequest struct {
+	Status          *string `json:"status,omitempty"`
+	CountsAsPresent *bool   `json:"counts_as_present,omitempty"`
+}
+
+// Progress Status Request Variables
+var CreateProgressStatusRequest struct {
+	Status string `json:"status"`
+}
+
+var UpdateProgressStatusRequest struct {
+	Status *string `json:"status,omitempty"`
+}

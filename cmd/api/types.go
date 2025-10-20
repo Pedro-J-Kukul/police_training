@@ -218,3 +218,23 @@ type UpdateTrainingEnrollmentRequest_T struct {
 	CertificateIssued  *bool      `json:"certificate_issued,omitempty"`
 	CertificateNumber  *string    `json:"certificate_number,omitempty"`
 }
+
+// Attendance Status Types
+type CreateAttendanceStatusRequest_T struct {
+	Status          string `json:"status"`
+	CountsAsPresent bool   `json:"counts_as_present"`
+}
+
+type UpdateAttendanceStatusRequest_T struct {
+	Status          *string `json:"status,omitempty"`
+	CountsAsPresent *bool   `json:"counts_as_present,omitempty"`
+}
+
+// Progress Status Types
+type CreateProgressStatusRequest_T struct {
+	Status string `json:"status"`
+}
+
+type UpdateProgressStatusRequest_T struct {
+	Status *string `json:"status,omitempty"`
+}
