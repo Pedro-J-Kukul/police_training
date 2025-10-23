@@ -25,12 +25,13 @@ import (
 //	@Router			/v1/users [post]
 func (app *appDependencies) registerUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		FirstName   string `json:"first_name"`
-		LastName    string `json:"last_name"`
-		Email       string `json:"email"`
-		Gender      string `json:"gender"`
-		Password    string `json:"password"`
-		Facilitator bool   `json:"facilitator"`
+		FirstName     string `json:"first_name"`
+		LastName      string `json:"last_name"`
+		Email         string `json:"email"`
+		Gender        string `json:"gender"`
+		Password      string `json:"password"`
+		IsFacilitator bool   `json:"is_facilitator"`
+		IsOfficer     bool   `json:"is_officer"`
 	}
 
 	if err := app.readJSON(w, r, &input); err != nil {
@@ -39,12 +40,13 @@ func (app *appDependencies) registerUserHandler(w http.ResponseWriter, r *http.R
 	}
 
 	user := &data.User{
-		FirstName:   input.FirstName,
-		LastName:    input.LastName,
-		Email:       input.Email,
-		Gender:      input.Gender,
-		Activated:   false,
-		Facilitator: input.Facilitator,
+		FirstName:     input.FirstName,
+		LastName:      input.LastName,
+		Email:         input.Email,
+		Gender:        input.Gender,
+		IsActivated:   false,
+		IsFacilitator: input.IsFacilitator,
+		IsOfficer:     input.IsOfficer,
 	}
 
 	if err := user.Password.Set(input.Password); err != nil {
@@ -72,10 +74,9 @@ func (app *appDependencies) registerUserHandler(w http.ResponseWriter, r *http.R
 
 	// Always clear existing activation tokens and send a new one.
 	_ = app.models.Token.DeleteAllForUser(data.ScopeActivation, user.ID)
-
 	activationToken, err := app.models.Token.New(user.ID, 72*time.Hour, data.ScopeActivation)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.serverErrorResponse(w, r, err) // Log the error and return a server error response
 		return
 	}
 
@@ -145,7 +146,7 @@ func (app *appDependencies) activateUserHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	user.Activated = true
+	user.IsActivated = true
 
 	if err := app.models.User.Update(user); err != nil {
 		switch {
@@ -234,8 +235,10 @@ func (app *appDependencies) listUsersHandler(w http.ResponseWriter, r *http.Requ
 
 	data.ValidateFilters(v, filters)
 
-	activated := app.getOptionalBoolQueryParameter(query, "is_activated", v)
-	facilitator := app.getOptionalBoolQueryParameter(query, "is_facilitator", v)
+	isActivated := app.getOptionalBoolQueryParameter(query, "is_activated", v)
+	isFacilitator := app.getOptionalBoolQueryParameter(query, "is_facilitator", v)
+	isOfficer := app.getOptionalBoolQueryParameter(query, "is_officer", v)
+	isDeleted := app.getOptionalBoolQueryParameter(query, "is_deleted", v)
 
 	if !v.IsEmpty() {
 		app.failedValidationResponse(w, r, v.Errors)
@@ -247,8 +250,7 @@ func (app *appDependencies) listUsersHandler(w http.ResponseWriter, r *http.Requ
 		app.getSingleQueryParameter(query, "last_name", ""),
 		app.getSingleQueryParameter(query, "email", ""),
 		app.getSingleQueryParameter(query, "gender", ""),
-		activated,
-		facilitator,
+		isActivated, isFacilitator, isOfficer, isDeleted,
 		filters,
 	)
 	if err != nil {
@@ -298,15 +300,15 @@ func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	var input struct {
-		FirstName   *string `json:"first_name"`
-		LastName    *string `json:"last_name"`
-		Email       *string `json:"email"`
-		Gender      *string `json:"gender"`
-		Password    *string `json:"password"`
-		Facilitator *bool   `json:"facilitator"`
-		Activated   *bool   `json:"activated"`
-		IsOfficer   *bool   `json:"is_officer"`
-		Version     int     `json:"version"`
+		FirstName     *string `json:"first_name"`
+		LastName      *string `json:"last_name"`
+		Email         *string `json:"email"`
+		Gender        *string `json:"gender"`
+		Password      *string `json:"password"`
+		IsFacilitator *bool   `json:"is_facilitator"`
+		IsActivated   *bool   `json:"is_activated"`
+		IsOfficer     *bool   `json:"is_officer"`
+		Version       int     `json:"version"`
 	}
 
 	if err := app.readJSON(w, r, &input); err != nil {
@@ -337,11 +339,11 @@ func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Req
 			return
 		}
 	}
-	if input.Facilitator != nil {
-		user.Facilitator = *input.Facilitator
+	if input.IsFacilitator != nil {
+		user.IsFacilitator = *input.IsFacilitator
 	}
-	if input.Activated != nil {
-		user.Activated = *input.Activated
+	if input.IsActivated != nil {
+		user.IsActivated = *input.IsActivated
 	}
 	if input.IsOfficer != nil {
 		user.IsOfficer = *input.IsOfficer
@@ -355,10 +357,59 @@ func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	if err := app.models.User.Update(user); err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	payload := envelope{"user": user}
+
+	if err := app.writeJSON(w, http.StatusOK, payload, nil); err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// updatePasswordHandler updates a user's password.
+func (app *appDependencies) updatePasswordHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	user, err := app.models.User.Get(id)
+	if err != nil {
 		switch {
-		case errors.Is(err, data.ErrDuplicateEmail):
-			v.AddError("email", "a user with this email already exists")
-			app.failedValidationResponse(w, r, v.Errors)
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	var input struct {
+		Password string `json:"password"`
+	}
+
+	if err := app.readJSON(w, r, &input); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := user.Password.Set(input.Password); err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	data.ValidateUser(v, user)
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	if err := app.models.User.Update(user); err != nil {
+		switch {
 		case errors.Is(err, data.ErrEditConflict):
 			app.editConflictResponse(w, r)
 		default:
@@ -367,7 +418,9 @@ func (app *appDependencies) updateUserHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil); err != nil {
+	payload := envelope{"user": user}
+
+	if err := app.writeJSON(w, http.StatusOK, payload, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
@@ -391,13 +444,7 @@ func (app *appDependencies) deleteUserHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// Delete the officer as well
-	err = app.models.Officer.Delete(id)
-	e := app.deleteUserHandlerErrorHandler(err, w, r)
-	if e == true {
-		return
-	}
-
+	err = app.models.User.SoftDelete(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
@@ -408,21 +455,18 @@ func (app *appDependencies) deleteUserHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// Delete the user
-	err = app.models.User.Delete(id)
-
-	e = app.deleteUserHandlerErrorHandler(err, w, r)
-	if e == true {
-		return
-	}
-
-	if err := app.writeJSON(w, http.StatusOK, envelope{"message": "user successfully deleted"}, nil); err != nil {
-		app.serverErrorResponse(w, r, err)
-	}
+	app.writeJSON(w, http.StatusOK, envelope{"message": "user successfully deactivated"}, nil)
 }
 
-// deleteUserHandlerErrorHandler handles errors for deleteUserHandler.
-func (app *appDependencies) deleteUserHandlerErrorHandler(err error, w http.ResponseWriter, r *http.Request) bool {
+// restoreUserHandler restores a soft-deleted user record.
+func (app *appDependencies) restoreUserHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err = app.models.User.Restore(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
@@ -430,8 +474,30 @@ func (app *appDependencies) deleteUserHandlerErrorHandler(err error, w http.Resp
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
-		return true
+		return
 	}
 
-	return false
+	app.writeJSON(w, http.StatusOK, envelope{"message": "user successfully restored"}, nil)
+}
+
+// Permanently delete a user record.
+func (app *appDependencies) hardDeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err = app.models.User.HardDelete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, envelope{"message": "user successfully deleted"}, nil)
 }

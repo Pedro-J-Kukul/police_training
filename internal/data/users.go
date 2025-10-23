@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/Pedro-J-Kukul/police_training/internal/validator"
-	"github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -26,18 +25,19 @@ type Password struct {
 
 // User represents an application user.
 type User struct {
-	ID          int64     `json:"id"`
-	FirstName   string    `json:"first_name"`
-	LastName    string    `json:"last_name"`
-	Email       string    `json:"email"`
-	Gender      string    `json:"gender"`
-	Password    Password  `json:"-"`
-	Activated   bool      `json:"activated"`
-	Facilitator bool      `json:"facilitator"`
-	Version     int       `json:"version"`
-	IsOfficer   bool      `json:"is_officer"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID            int64     `json:"id"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
+	Email         string    `json:"email"`
+	Gender        string    `json:"gender"`
+	Password      Password  `json:"-"`
+	IsActivated   bool      `json:"is_activated"`
+	IsFacilitator bool      `json:"is_facilitator"`
+	IsOfficer     bool      `json:"is_officer"`
+	IsDeleted     bool      `json:"is_deleted"`
+	Version       int       `json:"version"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // UserModel wraps the database connection pool for user CRUD operations.
@@ -143,8 +143,8 @@ func (m *UserModel) Insert(user *User) error {
 		user.Gender,
 		user.Email,
 		user.Password.hash,
-		user.Activated,
-		user.Facilitator,
+		user.IsActivated,
+		user.IsFacilitator,
 		user.IsOfficer,
 	}
 
@@ -169,7 +169,7 @@ func (m *UserModel) Insert(user *User) error {
 func (m *UserModel) GetByEmail(email string) (*User, error) {
 	// SQL query to select a user by email
 	query := `
-		SELECT id, first_name, last_name, email, gender, password_hash, is_activated, is_facilitator, created_at, updated_at, version, is_officer
+		SELECT id, first_name, last_name, email, gender, password_hash, is_activated, is_facilitator, is_officer, is_deleted, created_at, updated_at, version, is_officer
 		FROM users
 		WHERE email = $1`
 
@@ -186,12 +186,13 @@ func (m *UserModel) GetByEmail(email string) (*User, error) {
 		&user.Email,
 		&user.Gender,
 		&user.Password.hash,
-		&user.Activated,
-		&user.Facilitator,
+		&user.IsActivated,
+		&user.IsFacilitator,
+		&user.IsOfficer,
+		&user.IsDeleted,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 		&user.Version,
-		&user.IsOfficer,
 	)
 	if err != nil {
 		switch {
@@ -209,8 +210,10 @@ func (m *UserModel) Update(user *User) error {
 	// SQL query to update a user
 	query := `
 		UPDATE users
-		SET first_name = $1, last_name = $2, email = $3, gender = $4, password_hash = $5, is_activated = $6, is_facilitator = $7, updated_at = now(), version = version + 1, is_officer = $10
-		WHERE id = $8 AND version = $9
+		SET first_name = $1, last_name = $2, email = $3, gender = $4, 
+		    password_hash = $5, is_activated = $6, is_facilitator = $7, 
+		    is_officer = $8, updated_at = now(), version = version + 1
+		WHERE id = $9 AND version = $10
 		RETURNING updated_at, version`
 
 	// Arguments for the SQL query
@@ -220,8 +223,8 @@ func (m *UserModel) Update(user *User) error {
 		user.Email,
 		user.Gender,
 		user.Password.hash,
-		user.Activated,
-		user.Facilitator,
+		user.IsActivated,
+		user.IsFacilitator,
 		user.ID,
 		user.Version,
 		user.IsOfficer,
@@ -246,11 +249,108 @@ func (m *UserModel) Update(user *User) error {
 	return nil // Everything went well
 }
 
+// UpdatePassword updates a user's password securely.
+func (m *UserModel) UpdatePassword(id int64, newPlaintext string) error {
+	var password Password
+	if err := password.Set(newPlaintext); err != nil {
+		return err
+	}
+
+	query := `
+		UPDATE users
+		SET password_hash = $1, updated_at = now(), version = version + 1
+		WHERE id = $2
+		RETURNING updated_at, version`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var updatedAt time.Time
+	var version int
+	err := m.DB.QueryRowContext(ctx, query, password.hash, id).Scan(&updatedAt, &version)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ErrRecordNotFound
+		}
+		return err
+	}
+	return nil
+}
+
+// SoftDelete marks a user as deleted without removing their record.
+func (m *UserModel) SoftDelete(id int64) error {
+	query := `
+		UPDATE users
+		SET is_deleted = TRUE, updated_at = now(), version = version + 1
+		WHERE id = $1 AND is_deleted = FALSE
+		RETURNING id`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var returnedID int64
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&returnedID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ErrRecordNotFound
+		}
+		return err
+	}
+
+	return nil
+}
+
+// Restore revokes the soft deletion of a user.
+func (m *UserModel) Restore(id int64) error {
+	query := `
+		UPDATE users
+		SET is_deleted = FALSE, updated_at = now(), version = version + 1
+		WHERE id = $1 AND is_deleted = TRUE
+		RETURNING id`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var returnedID int64
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&returnedID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ErrRecordNotFound
+		}
+		return err
+	}
+
+	return nil
+}
+
+// HardDelete permanently removes a user from the database.
+func (m *UserModel) HardDelete(id int64) error {
+	query := `
+		DELETE FROM users
+		WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrRecordNotFound
+	}
+	return nil
+}
+
 // Get retrieves a user by their ID
 func (m *UserModel) Get(id int64) (*User, error) {
 	// SQL query to select a user by ID
 	query := `
-		SELECT id, first_name, last_name, email, gender, password_hash, is_activated, is_facilitator, created_at, updated_at, version
+		SELECT id, first_name, last_name, email, gender, password_hash, is_activated, is_facilitator, is_officer, is_deleted, created_at, updated_at, version
 		FROM users
 		WHERE id = $1`
 
@@ -267,8 +367,10 @@ func (m *UserModel) Get(id int64) (*User, error) {
 		&user.Email,
 		&user.Gender,
 		&user.Password.hash,
-		&user.Activated,
-		&user.Facilitator,
+		&user.IsActivated,
+		&user.IsFacilitator,
+		&user.IsOfficer,
+		&user.IsDeleted,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 		&user.Version,
@@ -285,25 +387,27 @@ func (m *UserModel) Get(id int64) (*User, error) {
 }
 
 // GetAll retrieves all users from the database
-func (m *UserModel) GetAll(fname, lname, email, gender string, activated *bool, facilitator *bool, filters Filters) ([]*User, MetaData, error) {
+func (m *UserModel) GetAll(fname, lname, email, gender string, activated *bool, facilitator *bool, officer *bool, deleted *bool, filters Filters) ([]*User, MetaData, error) {
 	// SQL query to select users with filtering, sorting, and pagination
 	query := fmt.Sprintf(`
-		SELECT COUNT(*) OVER(), id, first_name, last_name, email, gender, is_activated, is_facilitator, created_at, updated_at, version
+		SELECT COUNT(*) OVER(), id, first_name, last_name, email, gender, is_activated, is_facilitator, is_officer, is_deleted, created_at, updated_at, version
 		FROM users
 		WHERE (to_tsvector('simple', first_name) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		AND (to_tsvector('simple', last_name) @@ plainto_tsquery('simple', $2) OR $2 = '')
 		AND (to_tsvector('simple', email) @@ plainto_tsquery('simple', $3) OR $3 = '')
-		AND (gender = $4 OR $4 = '')
-		AND (is_activated = $5 OR $5 IS NULL)
-		AND (is_facilitator = $6 OR $6 IS NULL)
+		AND (to_tsvector('simple', gender) @@ plainto_tsquery('simple', $4) OR $4 = '')
+		AND (is_activated:boolean = $5 OR $5 IS NULL)
+		AND (is_facilitator:boolean = $6 OR $6 IS NULL)
+		AND (is_officer:boolean = $7 OR $7 IS NULL)
+		AND (is_deleted:boolean = $8 OR $8 IS NULL)
 		ORDER BY %s %s, id ASC
-		LIMIT $7 OFFSET $8`, filters.sortColumn(), filters.sortDirection())
+		LIMIT $9 OFFSET $10`, filters.sortColumn(), filters.sortDirection())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // Context with a timeout for the database operation
 	defer cancel()                                                          // Ensure the context is cancelled to free resources
 
 	// execute the query
-	rows, err := m.DB.QueryContext(ctx, query, fname, lname, email, gender, activated, facilitator, filters.limit(), filters.offset())
+	rows, err := m.DB.QueryContext(ctx, query, fname, lname, email, gender, activated, facilitator, officer, deleted, filters.limit(), filters.offset())
 	if err != nil {
 		return nil, MetaData{}, err // Return any error encountered while executing the query
 	}
@@ -320,8 +424,10 @@ func (m *UserModel) GetAll(fname, lname, email, gender string, activated *bool, 
 			&user.LastName,
 			&user.Email,
 			&user.Gender,
-			&user.Activated,
-			&user.Facilitator,
+			&user.IsActivated,
+			&user.IsFacilitator,
+			&user.IsOfficer,
+			&user.IsDeleted,
 			&user.CreatedAt,
 			&user.UpdatedAt,
 			&user.Version,
@@ -347,7 +453,7 @@ func (m *UserModel) GetAll(fname, lname, email, gender string, activated *bool, 
 func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error) {
 	// SQL query to select a user based on a token
 	query := `
-		SELECT u.id, u.first_name, u.last_name, u.email, u.gender, u.password_hash, u.is_activated, u.is_facilitator, u.created_at, u.updated_at, u.version
+		SELECT u.id, u.first_name, u.last_name, u.email, u.gender, u.password_hash, u.is_activated, u.is_facilitator, u.is_officer, u.is_deleted, u.created_at, u.updated_at, u.version
 		FROM users u
 		INNER JOIN tokens t ON u.id = t.user_id
 		WHERE t.hash = $1 AND t.scope = $2 AND t.expiry > $3`
@@ -372,8 +478,10 @@ func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error
 		&user.Email,
 		&user.Gender,
 		&user.Password.hash,
-		&user.Activated,
-		&user.Facilitator,
+		&user.IsActivated,
+		&user.IsFacilitator,
+		&user.IsOfficer,
+		&user.IsDeleted,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 		&user.Version,
@@ -387,125 +495,4 @@ func (m *UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error
 		}
 	}
 	return &user, nil // Return the user data
-}
-
-func (m *UserModel) Delete(id int64) error {
-	if id < 1 {
-		return ErrRecordNotFound
-	}
-
-	query := `
-		DELETE FROM users
-		WHERE id = $1`
-
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
-	_, err := m.DB.ExecContext(ctx, query, id)
-	return err
-}
-
-// Check if a user has all required permissions through their roles
-func (m *UserModel) IsAllowedTo(id int64, requiredPermissions ...string) (bool, error) {
-	// First, check which superuser permissions the user has
-	superuserQuery := `
-		SELECT DISTINCT p.code
-		FROM roles_users ru
-		INNER JOIN roles r ON ru.role_id = r.id
-		INNER JOIN roles_permissions rp ON r.id = rp.role_id
-		INNER JOIN permissions p ON rp.permission_id = p.id
-		WHERE ru.user_id = $1 AND p.code IN ('CAN_READ', 'CAN_CREATE', 'CAN_DELETE', 'CAN_MODIFY')`
-
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
-	rows, err := m.DB.QueryContext(ctx, superuserQuery, id)
-	if err != nil {
-		return false, err
-	}
-	defer rows.Close()
-
-	// Create boolean map of superuser permissions
-	superuserPermissions := map[string]bool{
-		"CAN_READ":   false,
-		"CAN_CREATE": false,
-		"CAN_DELETE": false,
-		"CAN_MODIFY": false,
-	}
-
-	for rows.Next() {
-		var permission string
-		if err := rows.Scan(&permission); err != nil {
-			return false, err
-		}
-		superuserPermissions[permission] = true
-	}
-	if err := rows.Err(); err != nil {
-		return false, err
-	}
-
-	// Print superuser permissions for debugging
-	fmt.Printf("Superuser Permissions: %v\n", superuserPermissions)
-
-	// Filter out scoped permissions if user has corresponding superuser permission
-	var filteredPermissions []string
-	for _, perm := range requiredPermissions {
-		// Skip scoped permissions if user has corresponding superuser permission
-		switch {
-		case perm == "CAN_READ" || (len(perm) > 9 && perm[:9] == "CAN_READ_"):
-			IsAllowedToDoThis(superuserPermissions, perm, "CAN_READ", &filteredPermissions)
-
-		case perm == "CAN_CREATE" || (len(perm) > 11 && perm[:11] == "CAN_CREATE_"):
-			IsAllowedToDoThis(superuserPermissions, perm, "CAN_CREATE", &filteredPermissions)
-
-		case perm == "CAN_DELETE" || (len(perm) > 11 && perm[:11] == "CAN_DELETE_"):
-			IsAllowedToDoThis(superuserPermissions, perm, "CAN_DELETE", &filteredPermissions)
-
-		case perm == "CAN_MODIFY" || (len(perm) > 11 && perm[:11] == "CAN_MODIFY_"):
-			IsAllowedToDoThis(superuserPermissions, perm, "CAN_MODIFY", &filteredPermissions)
-
-		default:
-			print("should almost never trigger")
-			filteredPermissions = append(filteredPermissions, perm)
-		}
-	}
-
-	// If all permissions were filtered out (user has all required superuser permissions), return true
-	if len(filteredPermissions) == 0 {
-		return true, nil
-	}
-
-	// Print out evaluated permissions for debugging
-	fmt.Printf("Evaluated Permissions: %v\n", filteredPermissions)
-
-	// SQL query to get remaining permissions the user has through their roles
-	query := `
-		SELECT COUNT(DISTINCT p.code)
-		FROM roles_users ru
-		INNER JOIN roles r ON ru.role_id = r.id
-		INNER JOIN roles_permissions rp ON r.id = rp.role_id
-		INNER JOIN permissions p ON rp.permission_id = p.id
-		WHERE ru.user_id = $1 AND p.code = ANY($2)`
-
-	var count int
-	err = m.DB.QueryRowContext(ctx, query, id, pq.Array(filteredPermissions)).Scan(&count)
-	if err != nil {
-		return false, err
-	}
-
-	// Return true only if the user has ALL remaining required permissions
-	return count == len(filteredPermissions), nil
-}
-
-func IsAllowedToDoThis(superuserPermissions map[string]bool, perm string, target string, filteredPermissions *[]string) {
-
-	// Superuser overrides
-	if superuserPermissions[target] && perm == target {
-		*filteredPermissions = append(*filteredPermissions, perm)
-	}
-
-	// Scoped permissions
-	if !superuserPermissions[target] && perm != target {
-		*filteredPermissions = append(*filteredPermissions, perm)
-	}
 }
