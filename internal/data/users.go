@@ -130,7 +130,6 @@ func ValidateUser(v *validator.Validator, user *User) {
 
 // Insert adds a new user to the database
 func (m *UserModel) Insert(user *User) error {
-=
 	query := `
         INSERT INTO users (first_name, last_name, gender, email, password_hash, is_activated, is_facilitator, is_officer)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
