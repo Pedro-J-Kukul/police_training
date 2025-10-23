@@ -189,7 +189,7 @@ func (app *appDependencies) requireActivatedUser(next http.Handler) http.Handler
 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := app.contextGetUser(r) // Get the user from the context
 
-		if !user.Activated { // Check if the user is not activated
+		if !user.IsActivated { // Check if the user is not activated
 			app.inactiveAccountResponse(w, r) // Send a 403 Forbidden response
 			return                            // Return to avoid further processing
 		}
@@ -203,24 +203,57 @@ func (app *appDependencies) requireActivatedUser(next http.Handler) http.Handler
 // Permissions
 /************************************************************************************************************/
 // requireRole is a middleware that ensures the user has a specific role.
-func (app *appDependencies) requirePermissions(requiredPermissions []string, next http.Handler) http.Handler {
-	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user := app.contextGetUser(r) // Get the user from the context
+func (app *appDependencies) requirePermissions(requiredPermissions ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			user := app.contextGetUser(r) // Get the user from the context
 
-		hasPermissions, err := app.models.User.IsAllowedTo(user.ID, requiredPermissions...)
+			// Check if the user has all required permissions
+			hasPermissions, err := app.models.Role.HasAllPermissions(user.ID, requiredPermissions...)
+			if err != nil {
+				app.serverErrorResponse(w, r, err) // Send a 500 Internal Server Error response for errors
+				return
+			}
 
-		if !hasPermissions {
-			app.notPermittedResponse(w, r) // Send a 403 Forbidden response if not permitted
-			return                         // Return to avoid further processing
-		}
-		if err != nil {
-			app.serverErrorResponse(w, r, err) // Send a 500 Internal Server Error response for errors
-			return                             // Return to avoid further processing
-		}
+			if !hasPermissions {
+				app.notPermittedResponse(w, r) // Send a 403 Forbidden response if not permitted
+				return
+			}
 
-		next.ServeHTTP(w, r) // Call the next handler in the chain
-	})
-	return app.requireActivatedUser(fn) // Ensure the user is activated before checking roles
+			next.ServeHTTP(w, r) // Call the next handler in the chain
+		})
+		return app.requireActivatedUser(fn) // Ensure the user is activated before checking permissions
+	}
+}
+
+func (app *appDependencies) requireAnyPermission(requiredPermissions ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			user := app.contextGetUser(r) // Get the user from the context
+
+			// Check each permission until we find one the user has
+			hasPermission := false
+			for _, perm := range requiredPermissions {
+				allowed, err := app.models.Role.HasPermission(user.ID, perm)
+				if err != nil {
+					app.serverErrorResponse(w, r, err)
+					return
+				}
+				if allowed {
+					hasPermission = true
+					break
+				}
+			}
+
+			if !hasPermission {
+				app.notPermittedResponse(w, r) // Send a 403 Forbidden response if not permitted
+				return
+			}
+
+			next.ServeHTTP(w, r) // Call the next handler in the chain
+		})
+		return app.requireActivatedUser(fn) // Ensure the user is activated before checking permissions
+	}
 }
 
 /************************************************************************************************************/

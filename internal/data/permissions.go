@@ -40,7 +40,7 @@ func (m PermissionModel) GetAllForRole(roleID int64) (Permissions, error) {
 	query := `
 		SELECT p.code
 		FROM permissions p
-		INNER JOIN role_permissions rp ON rp.permission_id = p.id
+		INNER JOIN roles_permissions rp ON rp.permission_id = p.id
 		INNER JOIN roles r ON rp.role_id = r.id
 		WHERE rp.role_id = $1`
 
@@ -75,7 +75,7 @@ func (m PermissionModel) AssignToRole(roleID int64, codes ...string) error {
 
 	// Prepare the SQL statement for inserting role-permission associations
 	query := `
-		INSERT INTO role_permissions (role_id, permission_id)
+		INSERT INTO roles_permissions (role_id, permission_id)
 		SELECT $1, p.id
 		FROM permissions p
 		WHERE p.code = ANY($2)

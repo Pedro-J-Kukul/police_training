@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"slices"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 /************************************************************************************************************/
@@ -89,4 +91,79 @@ func (m RoleModel) AssignToUser(userID int64, roles ...string) error {
 	}
 
 	return nil // Return nil error on successful assignment
+}
+
+// GetAllPermissionsForUser - Retrieve all permission codes associated with a specific user
+func (m RoleModel) GetAllPermissionsForUser(userID int64) (Permissions, error) {
+	query := `
+		SELECT DISTINCT p.code
+		FROM permissions p
+		INNER JOIN roles_permissions rp ON rp.permission_id = p.id
+		INNER JOIN roles_users ru ON ru.role_id = rp.role_id
+		WHERE ru.user_id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var permissions Permissions
+	for rows.Next() {
+		var code string
+		if err := rows.Scan(&code); err != nil {
+			return nil, err
+		}
+		permissions = append(permissions, code)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return permissions, nil
+}
+
+// HasPermission - Check if a user has a specific permission
+func (m RoleModel) HasPermission(userID int64, permissionCode string) (bool, error) {
+	query := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM permissions p
+			INNER JOIN roles_permissions rp ON rp.permission_id = p.id
+			INNER JOIN roles_users ru ON ru.role_id = rp.role_id
+			WHERE ru.user_id = $1 AND p.code = $2
+		)`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var exists bool
+	err := m.DB.QueryRowContext(ctx, query, userID, permissionCode).Scan(&exists)
+	return exists, err
+}
+
+// HasAllPermissions - Check if a user has all the required permissions
+func (m RoleModel) HasAllPermissions(userID int64, permissionCodes ...string) (bool, error) {
+	query := `
+		SELECT COUNT(DISTINCT p.code)
+		FROM permissions p
+		INNER JOIN roles_permissions rp ON rp.permission_id = p.id
+		INNER JOIN roles_users ru ON ru.role_id = rp.role_id
+		WHERE ru.user_id = $1 AND p.code = ANY($2)`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var count int
+	err := m.DB.QueryRowContext(ctx, query, userID, pq.Array(permissionCodes)).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	// User has all permissions if the count matches the number of required permissions
+	return count == len(permissionCodes), nil
 }
