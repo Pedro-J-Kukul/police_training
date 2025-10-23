@@ -1,0 +1,1 @@
+TRUNCATE regions, ranks, postings, formations CASCADE;
