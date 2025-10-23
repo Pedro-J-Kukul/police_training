@@ -111,10 +111,14 @@ func (app *appDependencies) routes() http.Handler {
 
 	// Officer routes
 	router.Handler(http.MethodPost, "/v1/officers", app.requirePermissions("officers:create")(http.HandlerFunc(app.createOfficerHandler)))
-	router.Handler(http.MethodGet, "/v1/officers", app.requirePermissions("officers:view")(http.HandlerFunc(app.getAllOfficersHandler)))
+	router.Handler(http.MethodGet, "/v1/officers", app.requirePermissions("officers:view")(http.HandlerFunc(app.listOfficersHandler)))
 	router.Handler(http.MethodGet, "/v1/officers/:id", app.requirePermissions("officers:view")(http.HandlerFunc(app.showOfficerHandler)))
+	router.Handler(http.MethodGet, "/v1/officers/:id/details", app.requirePermissions("officers:view")(http.HandlerFunc(app.showOfficerWithDetailsHandler)))
 	router.Handler(http.MethodPatch, "/v1/officers/:id", app.requirePermissions("officers:edit")(http.HandlerFunc(app.updateOfficerHandler)))
 	router.Handler(http.MethodDelete, "/v1/officers/:id", app.requirePermissions("officers:delete")(http.HandlerFunc(app.deleteOfficerHandler)))
+
+	// User-Officer relationship routes
+	router.Handler(http.MethodGet, "/v1/users/:id/officer", app.requirePermissions("officers:view")(http.HandlerFunc(app.getUserOfficerHandler)))
 
 	// Training sessions routes
 	router.Handler(http.MethodPost, "/v1/training/sessions", app.requirePermissions("training:sessions:create")(http.HandlerFunc(app.createTrainingSessionHandler)))

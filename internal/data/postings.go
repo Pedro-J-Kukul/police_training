@@ -17,13 +17,12 @@ import (
 
 // Posting struct to represent a posting in the system
 type Posting struct {
-	ID        int64     `json:"id"`
-	Posting   string    `json:"posting"`
-	Code      *string   `json:"code,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	ID      int64  `json:"id"`
+	Posting string `json:"posting"`
+	Code    string `json:"code,omitempty"`
 }
 
-// PostingModel struct to interact with the postings table in the database
+// *PostingModel struct to interact with the postings table in the database
 type PostingModel struct {
 	DB *sql.DB
 }
@@ -32,24 +31,20 @@ type PostingModel struct {
 func ValidatePosting(v *validator.Validator, posting *Posting) {
 	v.Check(posting.Posting != "", "posting", "must be provided")
 	v.Check(len(posting.Posting) <= 150, "posting", "must not exceed 150 characters")
-	if posting.Code != nil {
-		v.Check(len(*posting.Code) <= 20, "code", "must not exceed 20 characters")
-	}
+	v.Check(len(posting.Code) <= 20, "code", "must not exceed 20 characters")
 }
 
 // Insert creates a new posting.
-func (m PostingModel) Insert(posting *Posting) error {
+func (m *PostingModel) Insert(posting *Posting) error {
 	query := `
-		INSERT INTO postings (posting, code, created_at)
-		VALUES ($1, $2, $3)
-		RETURNING id, created_at`
-
-	now := time.Now()
+		INSERT INTO postings (posting, code)
+		VALUES ($1, $2)
+		RETURNING id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	if err := m.DB.QueryRowContext(ctx, query, posting.Posting, posting.Code, now).Scan(&posting.ID, &posting.CreatedAt); err != nil {
+	if err := m.DB.QueryRowContext(ctx, query, posting.Posting, posting.Code).Scan(&posting.ID); err != nil {
 		switch {
 		case isDuplicateKeyViolation(err):
 			return ErrDuplicateValue
@@ -62,19 +57,19 @@ func (m PostingModel) Insert(posting *Posting) error {
 }
 
 // Get retrieves a posting by id.
-func (m PostingModel) Get(id int64) (*Posting, error) {
+func (m *PostingModel) Get(id int64) (*Posting, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
 	}
 
-	query := `SELECT id, posting, code, created_at FROM postings WHERE id = $1`
+	query := `SELECT id, posting, code FROM postings WHERE id = $1`
 
 	var posting Posting
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, id).Scan(&posting.ID, &posting.Posting, &posting.Code, &posting.CreatedAt)
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&posting.ID, &posting.Posting, &posting.Code)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -88,13 +83,13 @@ func (m PostingModel) Get(id int64) (*Posting, error) {
 }
 
 // GetAll returns postings filtered by name or code.
-func (m PostingModel) GetAll(name string, code string, filters Filters) ([]*Posting, MetaData, error) {
+func (m *PostingModel) GetAll(name string, code string, filters Filters) ([]*Posting, MetaData, error) {
 	if filters.Sort == "" {
 		filters.Sort = "posting"
 	}
 
 	query := fmt.Sprintf(`
-		SELECT COUNT(*) OVER(), id, posting, code, created_at
+		SELECT COUNT(*) OVER(), id, posting, code
 		FROM postings
 		WHERE ($1 = '' OR posting ILIKE $1)
 		AND ($2 = '' OR code ILIKE $2)
@@ -117,7 +112,7 @@ func (m PostingModel) GetAll(name string, code string, filters Filters) ([]*Post
 
 	for rows.Next() {
 		var posting Posting
-		if err := rows.Scan(&totalRecords, &posting.ID, &posting.Posting, &posting.Code, &posting.CreatedAt); err != nil {
+		if err := rows.Scan(&totalRecords, &posting.ID, &posting.Posting, &posting.Code); err != nil {
 			return nil, MetaData{}, err
 		}
 		postings = append(postings, &posting)
@@ -132,7 +127,7 @@ func (m PostingModel) GetAll(name string, code string, filters Filters) ([]*Post
 }
 
 // Update modifies an existing posting.
-func (m PostingModel) Update(posting *Posting) error {
+func (m *PostingModel) Update(posting *Posting) error {
 	query := `
 		UPDATE postings
 		SET posting = $1, code = $2

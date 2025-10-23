@@ -26,14 +26,14 @@ var UpdateFormationRequest struct {
 
 // CreatePostingRequest represents the request payload for creating a posting
 var CreatePostingRequest struct {
-	Posting string  `json:"posting"`
-	Code    *string `json:"code"`
+	Posting string `json:"posting"`
+	Code    string `json:"code"`
 }
 
 // UpdatePostingRequest represents the request payload for updating a posting
 var UpdatePostingRequest struct {
-	Posting *string `json:"posting"`
-	Code    *string `json:"code"`
+	Posting string `json:"posting"`
+	Code    string `json:"code"`
 }
 
 // CreateRankRequest represents the request payload for creating a rank

@@ -580,13 +580,8 @@ func (app *appDependencies) updatePostingHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	if UpdatePostingRequest.Posting != nil {
-		posting.Posting = *UpdatePostingRequest.Posting
-	}
-	if UpdatePostingRequest.Code != nil {
-		posting.Code = UpdatePostingRequest.Code
-	}
-
+	posting.Posting = UpdatePostingRequest.Posting
+	posting.Code = UpdatePostingRequest.Code
 	v := validator.New()
 	data.ValidatePosting(v, posting)
 	if !v.IsEmpty() {
