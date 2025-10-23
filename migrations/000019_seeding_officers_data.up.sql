@@ -72,5 +72,4 @@ INSERT INTO postings (posting, code) VALUES
 ('Officer Commanding/ Commander', ''),
 ('Regional Commander', ''),
 ('Special Assignment', ''),
-('Other', '')
-ON CONFLICT (code) DO NOTHING;
+('Other', '');

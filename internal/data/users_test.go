@@ -62,6 +62,11 @@ func cleanupTestData(t *testing.T, db *sql.DB) {
 	if err != nil {
 		t.Logf("Warning: Failed to cleanup users: %v", err)
 	}
+
+	_, err = db.Exec("TRUNCATE TABLE officers RESTART IDENTITY CASCADE")
+	if err != nil {
+		t.Logf("Warning: Failed to cleanup officers: %v", err)
+	}
 }
 
 func TestPasswordSetAndMatch(t *testing.T) {
