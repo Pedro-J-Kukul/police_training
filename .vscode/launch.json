@@ -1,0 +1,54 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Police Training API",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/cmd/api",
+            "env": {
+                "GO_ENV": "development",
+                "DATABASE_DSN": "postgres://postgres:password@localhost/police_training?sslmode=disable",
+                "PORT": "4000"
+            },
+            "args": [],
+            "showLog": true
+        },
+        {
+            "name": "Test Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${fileDirname}",
+            "args": [
+                "-v"
+            ],
+            "showLog": true
+        },
+        {
+            "name": "Debug Specific Test",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${fileDirname}",
+            "args": [
+                "-test.run",
+                "TestInsertAndGetUser"
+            ],
+            "showLog": true
+        },
+        {
+            "name": "Run Tests with Coverage",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/internal/...",
+            "args": [
+                "-v",
+                "-coverprofile=${workspaceFolder}/coverage.out"
+            ],
+            "showLog": true
+        }
+    ]
+}
