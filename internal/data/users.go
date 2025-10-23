@@ -130,24 +130,22 @@ func ValidateUser(v *validator.Validator, user *User) {
 
 // Insert adds a new user to the database
 func (m *UserModel) Insert(user *User) error {
-	// SQL query to insert a new user
 	query := `
-		INSERT INTO users (first_name, last_name, gender, email, password_hash, is_activated, is_facilitator, is_officer)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING id, created_at, updated_at, version`
+        INSERT INTO users (first_name, last_name, gender, email, password_hash, is_activated, is_facilitator, is_officer)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id, created_at, updated_at, version`
 
-	// Arguments for the SQL query
+	// Arguments for the SQL query - FIXED ORDER
 	args := []any{
-		user.FirstName,
-		user.LastName,
-		user.Gender,
-		user.Email,
-		user.Password.hash,
-		user.IsActivated,
-		user.IsFacilitator,
-		user.IsOfficer,
+		user.FirstName,     // $1 - first_name
+		user.LastName,      // $2 - last_name
+		user.Gender,        // $3 - gender
+		user.Email,         // $4 - email
+		user.Password.hash, // $5 - password_hash
+		user.IsActivated,   // $6 - is_activated
+		user.IsFacilitator, // $7 - is_facilitator
+		user.IsOfficer,     // $8 - is_officer
 	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // Context with a timeout for the database operation
 	defer cancel()                                                          // Ensure the context is cancelled to free resources
 
@@ -169,7 +167,7 @@ func (m *UserModel) Insert(user *User) error {
 func (m *UserModel) GetByEmail(email string) (*User, error) {
 	// SQL query to select a user by email
 	query := `
-		SELECT id, first_name, last_name, email, gender, password_hash, is_activated, is_facilitator, is_officer, is_deleted, created_at, updated_at, version, is_officer
+		SELECT id, first_name, last_name, email, gender, password_hash, is_activated, is_facilitator, is_officer, is_deleted, created_at, updated_at, version
 		FROM users
 		WHERE email = $1`
 
@@ -218,16 +216,16 @@ func (m *UserModel) Update(user *User) error {
 
 	// Arguments for the SQL query
 	args := []any{
-		user.FirstName,
-		user.LastName,
-		user.Email,
-		user.Gender,
-		user.Password.hash,
-		user.IsActivated,
-		user.IsFacilitator,
-		user.ID,
-		user.Version,
-		user.IsOfficer,
+		user.FirstName,     // $1
+		user.LastName,      // $2
+		user.Email,         // $3
+		user.Gender,        // $4
+		user.Password.hash, // $5
+		user.IsActivated,   // $6
+		user.IsFacilitator, // $7
+		user.IsOfficer,     // $8
+		user.ID,            // $9
+		user.Version,       // $10
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // Context with a timeout for the database operation

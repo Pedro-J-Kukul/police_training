@@ -2,6 +2,8 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -10,12 +12,56 @@ import (
 
 var testDB *sql.DB
 
-func setupTestDB(t *testing.T) *sql.DB {
-	db, err := sql.Open("postgres", "postgres://police:police@localhost/police_training_testing?sslmode=disable")
-	if err != nil {
-		t.Fatalf("failed to connect test db: %v", err)
+func TestMain(m *testing.M) {
+	// Try multiple environment variable names for flexibility
+	dbDSN := os.Getenv("TEST_DATABASE_DSN")
+	if dbDSN == "" {
+		dbDSN = os.Getenv("TEST_DB_DSN")
 	}
-	return db
+	if dbDSN == "" {
+		// Fallback to match your .envrc
+		dbDSN = "postgres://police:police@localhost/police_training_testing?sslmode=disable"
+	}
+
+	var err error
+	testDB, err = sql.Open("postgres", dbDSN)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to open database connection: %v", err))
+	}
+
+	// Test the connection
+	if err = testDB.Ping(); err != nil {
+		panic(fmt.Sprintf("Could not connect to test database: %v\nUsing DSN: %s", err, dbDSN))
+	}
+
+	code := m.Run()
+	testDB.Close()
+	os.Exit(code)
+}
+
+func setupTestDB(t *testing.T) *sql.DB {
+	return testDB
+}
+
+// Helper function to clean up test data
+func cleanupTestData(t *testing.T, db *sql.DB) {
+	t.Helper()
+
+	// Clean up in reverse order of dependencies
+	_, err := db.Exec("TRUNCATE TABLE tokens CASCADE")
+	if err != nil {
+		t.Logf("Warning: Failed to cleanup tokens: %v", err)
+	}
+
+	_, err = db.Exec("TRUNCATE TABLE roles_users CASCADE")
+	if err != nil {
+		t.Logf("Warning: Failed to cleanup roles_users: %v", err)
+	}
+
+	_, err = db.Exec("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
+	if err != nil {
+		t.Logf("Warning: Failed to cleanup users: %v", err)
+	}
 }
 
 func TestPasswordSetAndMatch(t *testing.T) {
@@ -38,13 +84,17 @@ func TestPasswordSetAndMatch(t *testing.T) {
 
 func TestInsertGetUpdateDeleteUser(t *testing.T) {
 	db := setupTestDB(t)
-	defer db.Close()
+
+	// Clean up before and after test
+	cleanupTestData(t, db)
+	defer cleanupTestData(t, db)
+
 	model := UserModel{DB: db}
 
 	user := &User{
 		FirstName:     "Alice",
 		LastName:      "Walker",
-		Email:         "alice@example.com",
+		Email:         fmt.Sprintf("alice-%d@example.com", time.Now().UnixNano()),
 		Gender:        "f",
 		IsActivated:   true,
 		IsFacilitator: false,
@@ -67,11 +117,17 @@ func TestInsertGetUpdateDeleteUser(t *testing.T) {
 		t.Errorf("expected %v, got %v", user.Email, fetched.Email)
 	}
 
-	// Update
+	// Update - Store the current version
+	originalVersion := user.Version
 	user.FirstName = "Alicia"
 	err = model.Update(user)
 	if err != nil {
 		t.Fatalf("Update() failed: %v", err)
+	}
+
+	// Verify the version was updated
+	if user.Version <= originalVersion {
+		t.Error("Expected version to be incremented after update")
 	}
 
 	// Soft delete
@@ -95,21 +151,28 @@ func TestInsertGetUpdateDeleteUser(t *testing.T) {
 
 func TestUpdatePassword(t *testing.T) {
 	db := setupTestDB(t)
-	defer db.Close()
+
+	// Clean up before and after test
+	cleanupTestData(t, db)
+	defer cleanupTestData(t, db)
+
 	model := UserModel{DB: db}
 
 	user := &User{
 		FirstName: "Test",
 		LastName:  "User",
-		Email:     "testpw@example.com",
+		Email:     fmt.Sprintf("testpw-%d@example.com", time.Now().UnixNano()),
 		Gender:    "m",
 	}
 	_ = user.Password.Set("OldPass123!")
-	_ = model.Insert(user)
+	err := model.Insert(user)
+	if err != nil {
+		t.Fatalf("Insert() failed: %v", err)
+	}
 
 	time.Sleep(100 * time.Millisecond)
 
-	err := model.UpdatePassword(user.ID, "NewPass456@")
+	err = model.UpdatePassword(user.ID, "NewPass456@")
 	if err != nil {
 		t.Fatalf("UpdatePassword() failed: %v", err)
 	}

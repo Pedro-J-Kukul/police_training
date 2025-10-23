@@ -70,6 +70,14 @@ func (app *appDependencies) registerUserHandler(w http.ResponseWriter, r *http.R
 			app.serverErrorResponse(w, r, err)
 		}
 		return
+
+	}
+
+	// Make user an officer by default roles
+	err := app.models.Role.AssignToUser(user.ID, "Officer")
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
 	}
 
 	// Always clear existing activation tokens and send a new one.
