@@ -65,14 +65,13 @@ func TestCreateAuthenticationTokenHandler(t *testing.T) {
 					t.Error("Expected expiry field in authentication_token")
 				}
 			},
-		},
-		{
+		}, {
 			name: "Invalid password",
 			input: map[string]string{
 				"email":    user.Email,
-				"password": "WrongPassword", // This might be failing password validation rules
+				"password": "ValidFormat123!", // Use a password that passes validation but is wrong
 			},
-			expectedStatus: http.StatusUnauthorized, // Change this based on your validation rules
+			expectedStatus: http.StatusUnauthorized, // Should be 401
 			checkResponse: func(t *testing.T, res *http.Response) {
 				var response map[string]any
 				err := json.NewDecoder(res.Body).Decode(&response)

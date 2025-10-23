@@ -73,24 +73,23 @@ func (m RoleModel) GetAllForUser(userID int64) (Roles, error) {
 
 // AssignToUser - Assign a list of roles to a specific user
 func (m RoleModel) AssignToUser(userID int64, roles ...string) error {
-
 	// Query to insert roles for a user
 	query := `
-		INSERT INTO roles (user_id, role_id)
-		SELECT $1, r.id
-		FROM roles r
-		WHERE r.role = ANY($2)`
+        INSERT INTO roles_users (user_id, role_id)
+        SELECT $1, r.id
+        FROM roles r
+        WHERE r.role = ANY($2)`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // Set a 3-second timeout
-	defer cancel()                                                          // Ensure the context is canceled to free resources
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
-	// Execute the query
-	_, err := m.DB.ExecContext(ctx, query, userID, roles)
+	// Execute the query - Use pq.Array() for the string slice
+	_, err := m.DB.ExecContext(ctx, query, userID, pq.Array(roles))
 	if err != nil {
 		return err
 	}
 
-	return nil // Return nil error on successful assignment
+	return nil
 }
 
 // GetAllPermissionsForUser - Retrieve all permission codes associated with a specific user

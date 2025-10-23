@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"slices"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 /************************************************************************************************************/
@@ -72,23 +74,22 @@ func (m PermissionModel) GetAllForRole(roleID int64) (Permissions, error) {
 
 // AssignToRole - Assign a list of permissions to a specific role
 func (m PermissionModel) AssignToRole(roleID int64, codes ...string) error {
-
 	// Prepare the SQL statement for inserting role-permission associations
 	query := `
-		INSERT INTO roles_permissions (role_id, permission_id)
-		SELECT $1, p.id
-		FROM permissions p
-		WHERE p.code = ANY($2)
-		ON CONFLICT (role_id, permission_id) DO NOTHING`
+        INSERT INTO roles_permissions (role_id, permission_id)
+        SELECT $1, p.id
+        FROM permissions p
+        WHERE p.code = ANY($2)
+        ON CONFLICT (role_id, permission_id) DO NOTHING`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second) // Set a 3-second timeout
-	defer cancel()                                                          // Ensure the context is canceled to free resources
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
 	// Execute the insert statement with the provided role ID and permission codes
-	_, err := m.DB.ExecContext(ctx, query, roleID, codes)
+	_, err := m.DB.ExecContext(ctx, query, roleID, pq.Array(codes))
 	if err != nil {
 		return err
 	}
 
-	return nil // Return nil error if the operation is successful
+	return nil
 }
