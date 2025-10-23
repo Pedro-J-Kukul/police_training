@@ -20,7 +20,7 @@ type Rank struct {
 	ID                          int64  `json:"id"`
 	Rank                        string `json:"rank"`
 	Code                        string `json:"code"`
-	AnnualTrainingHoursRequired int    `json:"annual_training_hours_required"`
+	AnnualTrainingHoursRequired int    `json:"annual_training_hours"`
 }
 
 // RankModel struct to interact with the ranks table in the database
@@ -34,13 +34,13 @@ func ValidateRank(v *validator.Validator, rank *Rank) {
 	v.Check(len(rank.Rank) <= 150, "rank", "must not exceed 150 characters")
 	v.Check(rank.Code != "", "code", "must be provided")
 	v.Check(len(rank.Code) <= 20, "code", "must not exceed 20 characters")
-	v.Check(rank.AnnualTrainingHoursRequired >= 0, "annual_training_hours_required", "must be zero or greater")
+	v.Check(rank.AnnualTrainingHoursRequired >= 0, "annual_training_hours", "must be zero or greater")
 }
 
 // Insert adds a new rank record.
 func (m RankModel) Insert(rank *Rank) error {
 	query := `
-		INSERT INTO ranks (rank, code, annual_training_hours_required)
+		INSERT INTO ranks (rank, code, annual_training_hours)
 		VALUES ($1, $2, $3)
 		RETURNING id`
 
@@ -65,7 +65,7 @@ func (m RankModel) Get(id int64) (*Rank, error) {
 		return nil, ErrRecordNotFound
 	}
 
-	query := `SELECT id, rank, code, annual_training_hours_required FROM ranks WHERE id = $1`
+	query := `SELECT id, rank, code, annual_training_hours FROM ranks WHERE id = $1`
 
 	var rank Rank
 
@@ -92,7 +92,7 @@ func (m RankModel) GetAll(name string, code string, filters Filters) ([]*Rank, M
 	}
 
 	query := fmt.Sprintf(`
-		SELECT COUNT(*) OVER(), id, rank, code, annual_training_hours_required
+		SELECT COUNT(*) OVER(), id, rank, code, annual_training_hours
 		FROM ranks
 		WHERE ($1 = '' OR rank ILIKE $1)
 		AND ($2 = '' OR code ILIKE $2)
@@ -133,9 +133,9 @@ func (m RankModel) GetAll(name string, code string, filters Filters) ([]*Rank, M
 func (m RankModel) Update(rank *Rank) error {
 	query := `
 		UPDATE ranks
-		SET rank = $1, code = $2, annual_training_hours_required = $3
+		SET rank = $1, code = $2, annual_training_hours = $3
 		WHERE id = $4
-		RETURNING rank, code, annual_training_hours_required`
+		RETURNING rank, code, annual_training_hours`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

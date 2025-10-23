@@ -4,8 +4,7 @@ package data
 
 import "database/sql"
 
-// Wrapper for models
-
+// Wrapper for models// Add Officer to the Models struct
 type Models struct {
 	User               UserModel
 	Token              TokenModel

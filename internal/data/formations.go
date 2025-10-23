@@ -17,10 +17,9 @@ import (
 
 // Formation struct to represent a formation in the system
 type Formation struct {
-	ID        int64     `json:"id"`
-	Formation string    `json:"formation"`
-	RegionID  int64     `json:"region_id"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int64  `json:"id"`
+	Formation string `json:"formation"`
+	RegionID  int64  `json:"region_id"`
 }
 
 // FormationModel struct to interact with the formations table in the database
@@ -38,16 +37,14 @@ func ValidateFormation(v *validator.Validator, formation *Formation) {
 // Insert creates a new formation.
 func (m FormationModel) Insert(formation *Formation) error {
 	query := `
-		INSERT INTO formations (formation, region_id, created_at)
-		VALUES ($1, $2, $3)
-		RETURNING id, created_at`
-
-	now := time.Now()
+		INSERT INTO formations (formation, region_id)
+		VALUES ($1, $2)
+		RETURNING id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	if err := m.DB.QueryRowContext(ctx, query, formation.Formation, formation.RegionID, now).Scan(&formation.ID, &formation.CreatedAt); err != nil {
+	if err := m.DB.QueryRowContext(ctx, query, formation.Formation, formation.RegionID).Scan(&formation.ID); err != nil {
 		switch {
 		case isDuplicateKeyViolation(err):
 			return ErrDuplicateValue
@@ -67,14 +64,14 @@ func (m FormationModel) Get(id int64) (*Formation, error) {
 		return nil, ErrRecordNotFound
 	}
 
-	query := `SELECT id, formation, region_id, created_at FROM formations WHERE id = $1`
+	query := `SELECT id, formation, region_id FROM formations WHERE id = $1`
 
 	var formation Formation
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, id).Scan(&formation.ID, &formation.Formation, &formation.RegionID, &formation.CreatedAt)
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&formation.ID, &formation.Formation, &formation.RegionID)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -122,7 +119,7 @@ func (m FormationModel) GetAll(name string, regionID *int64, filters Filters) ([
 
 	for rows.Next() {
 		var formation Formation
-		if err := rows.Scan(&totalRecords, &formation.ID, &formation.Formation, &formation.RegionID, &formation.CreatedAt); err != nil {
+		if err := rows.Scan(&totalRecords, &formation.ID, &formation.Formation, &formation.RegionID); err != nil {
 			return nil, MetaData{}, err
 		}
 		formations = append(formations, &formation)
