@@ -224,6 +224,9 @@ func TestOfficerGetAll(t *testing.T) {
 	db := setupTestDB(t)
 
 	// Clean up before and after test
+	// Clean up before and after test
+	cleanupTestData(t, db)
+	defer cleanupTestData(t, db)
 
 	// Create test dependencies
 	userModel := UserModel{DB: db}
@@ -234,28 +237,25 @@ func TestOfficerGetAll(t *testing.T) {
 	officerModel := OfficerModel{DB: db}
 
 	// Create test data
-	testRegion := &Region{Region: "Test Resdsdsdsdasdfsdfsdfgi12on"}
-	err := regionModel.Insert(testRegion)
+	// Instead of inserting new regions, formations, etc.
+	testRegion, err := regionModel.Get(3)
 	if err != nil {
-		t.Fatalf("Failed to create test region: %v", err)
+		t.Fatalf("Failed to get test region: %v", err)
 	}
 
-	testFormation := &Formation{Formation: "Test Formsdsdssdasdfsdfsdfasdsdsdtion", RegionID: testRegion.ID}
-	err = formationModel.Insert(testFormation)
+	testFormation, err := formationModel.Get(3)
 	if err != nil {
-		t.Fatalf("Failed to create test formation: %v", err)
+		t.Fatalf("Failed to get test formation: %v", err)
 	}
 
-	testPosting := &Posting{Posting: "Test Posdsdsdstasdfsdfsdfing", Code: "sdasdasdfsdfsdfTP"}
-	err = postingModel.Insert(testPosting)
+	testPosting, err := postingModel.Get(4)
 	if err != nil {
-		t.Fatalf("Failed to create test posting: %v", err)
+		t.Fatalf("Failed to get test posting: %v", err)
 	}
 
-	testRank := &Rank{Rank: "Test Ranasdasdasdfsdfsdfssdsdk", Code: "TasdasdsasdfsdfsdfadasdR", AnnualTrainingHoursRequired: 40}
-	err = rankModel.Insert(testRank)
+	testRank, err := rankModel.Get(3)
 	if err != nil {
-		t.Fatalf("Failed to create test rank: %v", err)
+		t.Fatalf("Failed to get test rank: %v", err)
 	}
 
 	// Create multiple test officers

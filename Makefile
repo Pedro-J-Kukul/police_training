@@ -1,6 +1,6 @@
 include .envrc
 
-.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix db/migrate/up migrate/up1 migrate/down1 swagger/docs migrate/up/test migrate/down/test migrate/reset/test
+.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix db/migrate/up migrate/up1 migrate/down1 swagger/docs migrate/up/test migrate/down/test migrate/reset/test migrate/fix/test
 run/api:
 	@echo "Starting API server on port $(PORT) in $(ENVIRONMENT) mode..."
 	@go run ./cmd/api \
@@ -86,3 +86,22 @@ migrate/fix:
 swagger/docs:
 	@echo "Generating Swagger documentation..."
 	@swag init -g ./cmd/api/main.go
+
+
+migrate/fix/test:
+	@echo 'Checking migration status...'
+	@migrate -path ./migrations -database "${TEST_DB_DSN}" version > /tmp/migrate_version 2>&1
+	@cat /tmp/migrate_version
+	@if grep -q "dirty" /tmp/migrate_version; then \
+		version=$$(grep -o '[0-9]\+' /tmp/migrate_version | head -1); \
+		echo "Found dirty migration at version $$version"; \
+		echo "Forcing version $$version..."; \
+		migrate -path ./migrations -database "${TEST_DB_DSN}" force $$version; \
+		echo "Running down migration..."; \
+		migrate -path ./migrations -database "${TEST_DB_DSN}" down 1; \
+		echo "Running up migration..."; \
+		migrate -path ./migrations -database "${TEST_DB_DSN}" up 1; \
+	else \
+		echo "No dirty migration found"; \
+	fi
+	@rm -f /tmp/migrate_version
