@@ -1,6 +1,6 @@
 include .envrc
 
-.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix db/migrate/up
+.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix db/migrate/up migrate/up1 migrate/down1 swagger/docs migrate/up/test migrate/down/test
 run/api:
 	@echo "Starting API server on port $(PORT) in $(ENVIRONMENT) mode..."
 	@go run ./cmd/api \
@@ -48,7 +48,18 @@ migrate/up:
 	migrate -path ./migrations -database "$(DB_DSN)" up 
 
 migrate/down:
-	migrate -path ./migrations -database "$(DB_DSN)" down 
+	migrate -path ./migrations -database "$(DB_DSN)" down
+
+migrate/up1:
+	migrate -path ./migrations -database "$(DB_DSN)" up 1
+
+migrate/down1:
+	migrate -path ./migrations -database "$(DB_DSN)" down 1
+
+migrate/up/test:
+	migrate -path ./migrations -database "$(TEST_DB_DSN)" up
+migrate/down/test:
+	migrate -path ./migrations -database "$(TEST_DB_DSN)" down
 
 migrate/fix:
 	@echo 'Checking migration status...'
