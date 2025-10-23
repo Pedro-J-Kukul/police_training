@@ -98,6 +98,30 @@ VALUES --- Global permissions (this is all we need)
             WHERE "role" = 'USER'
         )
     ),
+    (
+        (
+            SELECT id
+            FROM "permissions"
+            WHERE "code" = 'CAN_CREATE_TRAINING_ENROLLMENTS'
+        ),
+        (
+            SELECT id
+            FROM "roles"
+            WHERE "role" = 'USER'
+        )
+    ),
+    (
+        (
+            SELECT id
+            FROM "permissions"
+            WHERE "code" = 'CAN_READ_TRAINING_ENROLLMENTS'
+        ),
+        (
+            SELECT id
+            FROM "roles"
+            WHERE "role" = 'USER'
+        )
+    ),
     --- Trainer-level permissions
     (
         (

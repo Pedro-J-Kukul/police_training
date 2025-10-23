@@ -15,8 +15,251 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/attendance/status": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of attendance statuses with optional filtering",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "attendance-statuses"
+                ],
+                "summary": "List attendance statuses",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by status name",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by counts as present flag",
+                        "name": "counts_as_present",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new attendance status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "attendance-statuses"
+                ],
+                "summary": "Create a new attendance status",
+                "parameters": [
+                    {
+                        "description": "Attendance status data",
+                        "name": "attendance_status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateAttendanceStatusRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/attendance/status/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve an attendance status by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "attendance-statuses"
+                ],
+                "summary": "Get an attendance status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Attendance status ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Perform a partial update on an attendance status record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "attendance-statuses"
+                ],
+                "summary": "Update an attendance status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Attendance status ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Attendance status data",
+                        "name": "attendance_status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UpdateAttendanceStatusRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/enrollment/status": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of enrollment statuses with optional filtering by status name",
                 "produces": [
                     "application/json"
@@ -73,6 +316,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new enrollment status",
                 "consumes": [
                     "application/json"
@@ -125,6 +373,11 @@ const docTemplate = `{
         },
         "/v1/enrollment/status/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve an enrollment status by its ID",
                 "produces": [
                     "application/json"
@@ -164,6 +417,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on an enrollment status record",
                 "consumes": [
                     "application/json"
@@ -229,6 +487,11 @@ const docTemplate = `{
         },
         "/v1/formations": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of formations with optional filtering by name and region",
                 "produces": [
                     "application/json"
@@ -291,6 +554,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new formation",
                 "consumes": [
                     "application/json"
@@ -343,6 +611,11 @@ const docTemplate = `{
         },
         "/v1/formations/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a formation by its ID",
                 "produces": [
                     "application/json"
@@ -382,6 +655,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a formation record",
                 "consumes": [
                     "application/json"
@@ -445,8 +723,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/me": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve the user record associated with the current request context",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get current user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/officers": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of officers with optional filtering by regulation number, posting, rank, formation, and region",
                 "produces": [
                     "application/json"
@@ -527,6 +841,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new officer",
                 "consumes": [
                     "application/json"
@@ -579,6 +898,11 @@ const docTemplate = `{
         },
         "/v1/officers/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve an officer by its ID",
                 "produces": [
                     "application/json"
@@ -618,6 +942,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete an officer by its ID",
                 "tags": [
                     "officers"
@@ -666,6 +995,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on an officer record",
                 "consumes": [
                     "application/json"
@@ -737,6 +1071,11 @@ const docTemplate = `{
         },
         "/v1/postings": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of postings with optional filtering by name and code",
                 "produces": [
                     "application/json"
@@ -799,6 +1138,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new posting",
                 "consumes": [
                     "application/json"
@@ -851,6 +1195,11 @@ const docTemplate = `{
         },
         "/v1/postings/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a posting by its ID",
                 "produces": [
                     "application/json"
@@ -890,6 +1239,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a posting record",
                 "consumes": [
                     "application/json"
@@ -953,8 +1307,245 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/progress/status": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of progress statuses with optional filtering",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "progress-statuses"
+                ],
+                "summary": "List progress statuses",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by status name",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new progress status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "progress-statuses"
+                ],
+                "summary": "Create a new progress status",
+                "parameters": [
+                    {
+                        "description": "Progress status data",
+                        "name": "progress_status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateProgressStatusRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/progress/status/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a progress status by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "progress-statuses"
+                ],
+                "summary": "Get a progress status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Progress status ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Perform a partial update on a progress status record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "progress-statuses"
+                ],
+                "summary": "Update a progress status",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Progress status ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Progress status data",
+                        "name": "progress_status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UpdateProgressStatusRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/ranks": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of ranks with optional filtering by rank name and code",
                 "produces": [
                     "application/json"
@@ -1017,6 +1608,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new rank",
                 "consumes": [
                     "application/json"
@@ -1069,6 +1665,11 @@ const docTemplate = `{
         },
         "/v1/ranks/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a rank by its ID",
                 "produces": [
                     "application/json"
@@ -1108,6 +1709,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a rank record",
                 "consumes": [
                     "application/json"
@@ -1173,6 +1779,11 @@ const docTemplate = `{
         },
         "/v1/regions": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of regions with optional filtering",
                 "produces": [
                     "application/json"
@@ -1229,6 +1840,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new region",
                 "consumes": [
                     "application/json"
@@ -1281,6 +1897,11 @@ const docTemplate = `{
         },
         "/v1/regions/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a region by its ID",
                 "produces": [
                     "application/json"
@@ -1320,6 +1941,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a region record",
                 "consumes": [
                     "application/json"
@@ -1383,8 +2009,117 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/tokens/authentication": {
+            "post": {
+                "description": "Generates an authentication token for a user based on provided email and password.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tokens"
+                ],
+                "summary": "Create Authentication Token",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateAuthenticationTokenRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tokens/password-reset": {
+            "post": {
+                "description": "Generates a password reset token and sends it to the user's email address.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tokens"
+                ],
+                "summary": "Create Password Reset Token",
+                "parameters": [
+                    {
+                        "description": "User email",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreatePasswordResetTokenRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/training/categories": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of training categories with optional filtering by name and active status",
                 "produces": [
                     "application/json"
@@ -1447,6 +2182,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new training category",
                 "consumes": [
                     "application/json"
@@ -1499,6 +2239,11 @@ const docTemplate = `{
         },
         "/v1/training/categories/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a training category by its ID",
                 "produces": [
                     "application/json"
@@ -1538,6 +2283,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a training category record",
                 "consumes": [
                     "application/json"
@@ -1601,8 +2351,649 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/training/enrollments": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of training enrollments with optional filtering",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "training-enrollments"
+                ],
+                "summary": "List training enrollments",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by officer ID",
+                        "name": "officer_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by session ID",
+                        "name": "session_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by enrollment status ID",
+                        "name": "enrollment_status_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by progress status ID",
+                        "name": "progress_status_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by certificate issued status",
+                        "name": "certificate_issued",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new training enrollment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "training-enrollments"
+                ],
+                "summary": "Create a new training enrollment",
+                "parameters": [
+                    {
+                        "description": "Training enrollment data",
+                        "name": "training_enrollment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateTrainingEnrollmentRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/training/enrollments/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a training enrollment by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "training-enrollments"
+                ],
+                "summary": "Get a training enrollment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Training enrollment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a training enrollment by its ID",
+                "tags": [
+                    "training-enrollments"
+                ],
+                "summary": "Delete a training enrollment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Training enrollment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/main.envelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Perform a partial update on a training enrollment record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "training-enrollments"
+                ],
+                "summary": "Update a training enrollment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Training enrollment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Training enrollment data",
+                        "name": "training_enrollment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UpdateTrainingEnrollmentRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/training/sessions": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of training sessions with optional filtering",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "training-sessions"
+                ],
+                "summary": "List training sessions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by formation ID",
+                        "name": "formation_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by region ID",
+                        "name": "region_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by facilitator ID",
+                        "name": "facilitator_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by workshop ID",
+                        "name": "workshop_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by training status ID",
+                        "name": "training_status_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by location",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by notes",
+                        "name": "notes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by session date (YYYY-MM-DD)",
+                        "name": "session_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new training session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "training-sessions"
+                ],
+                "summary": "Create a new training session",
+                "parameters": [
+                    {
+                        "description": "Training session data",
+                        "name": "training_session",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateTrainingSessionRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/training/sessions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a training session by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "training-sessions"
+                ],
+                "summary": "Get a training session",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Training session ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a training session by its ID",
+                "tags": [
+                    "training-sessions"
+                ],
+                "summary": "Delete a training session",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Training session ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/main.envelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Perform a partial update on a training session record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "training-sessions"
+                ],
+                "summary": "Update a training session",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Training session ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Training session data",
+                        "name": "training_session",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UpdateTrainingSessionRequest_T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/training/status": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of training statuses with optional filtering by status name",
                 "produces": [
                     "application/json"
@@ -1659,6 +3050,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new training status",
                 "consumes": [
                     "application/json"
@@ -1711,6 +3107,11 @@ const docTemplate = `{
         },
         "/v1/training/status/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a training status by its ID",
                 "produces": [
                     "application/json"
@@ -1750,6 +3151,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a training status record",
                 "consumes": [
                     "application/json"
@@ -1815,6 +3221,11 @@ const docTemplate = `{
         },
         "/v1/training/types": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of training types with optional filtering by type name",
                 "produces": [
                     "application/json"
@@ -1871,6 +3282,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new training type",
                 "consumes": [
                     "application/json"
@@ -1923,6 +3339,11 @@ const docTemplate = `{
         },
         "/v1/training/types/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a training type by its ID",
                 "produces": [
                     "application/json"
@@ -1962,6 +3383,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a training type record",
                 "consumes": [
                     "application/json"
@@ -2027,6 +3453,11 @@ const docTemplate = `{
         },
         "/v1/users": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of users with optional filters and pagination",
                 "produces": [
                     "application/json"
@@ -2102,7 +3533,7 @@ const docTemplate = `{
             }
         },
         "/v1/users/activate": {
-            "post": {
+            "put": {
                 "description": "Activate a user account using an activation token",
                 "consumes": [
                     "application/json"
@@ -2153,21 +3584,47 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users/me": {
-            "get": {
-                "description": "Retrieve the user record associated with the current request context",
+        "/v1/users/password-reset": {
+            "put": {
+                "description": "Resets a user's password using a valid password reset token.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Tokens"
                 ],
-                "summary": "Get current user",
+                "summary": "Reset Password",
+                "parameters": [
+                    {
+                        "description": "Password reset data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.ResetPasswordRequest_T"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
                         }
                     },
                     "500": {
@@ -2181,6 +3638,11 @@ const docTemplate = `{
         },
         "/v1/users/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete a user record by ID",
                 "produces": [
                     "application/json"
@@ -2189,6 +3651,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Delete a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2223,6 +3694,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a user record",
                 "produces": [
                     "application/json"
@@ -2231,6 +3707,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Update a user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2261,6 +3746,11 @@ const docTemplate = `{
         },
         "/v1/workshops": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of workshops with optional filtering by name, category, training type, and active status",
                 "produces": [
                     "application/json"
@@ -2335,6 +3825,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new workshop",
                 "consumes": [
                     "application/json"
@@ -2387,6 +3882,11 @@ const docTemplate = `{
         },
         "/v1/workshops/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a workshop by its ID",
                 "produces": [
                     "application/json"
@@ -2426,6 +3926,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Perform a partial update on a workshop record",
                 "consumes": [
                     "application/json"
@@ -2497,6 +4002,28 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "main.CreateAttendanceStatusRequest_T": {
+            "type": "object",
+            "properties": {
+                "counts_as_present": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.CreateAuthenticationTokenRequest_T": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "main.CreateEnrollmentStatusRequest_T": {
             "type": "object",
             "properties": {
@@ -2539,6 +4066,14 @@ const docTemplate = `{
                 }
             }
         },
+        "main.CreatePasswordResetTokenRequest_T": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
         "main.CreatePostingRequest_T": {
             "type": "object",
             "properties": {
@@ -2546,6 +4081,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "posting": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.CreateProgressStatusRequest_T": {
+            "type": "object",
+            "properties": {
+                "status": {
                     "type": "string"
                 }
             }
@@ -2580,6 +4123,74 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "main.CreateTrainingEnrollmentRequest_T": {
+            "type": "object",
+            "properties": {
+                "attendance_status_id": {
+                    "type": "integer"
+                },
+                "certificate_issued": {
+                    "type": "boolean"
+                },
+                "certificate_number": {
+                    "type": "string"
+                },
+                "completion_date": {
+                    "description": "Accept as string",
+                    "type": "string"
+                },
+                "enrollment_status_id": {
+                    "type": "integer"
+                },
+                "officer_id": {
+                    "type": "integer"
+                },
+                "progress_status_id": {
+                    "type": "integer"
+                },
+                "session_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "main.CreateTrainingSessionRequest_T": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "type": "string"
+                },
+                "facilitator_id": {
+                    "type": "integer"
+                },
+                "formation_id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "max_capacity": {
+                    "type": "integer"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "region_id": {
+                    "type": "integer"
+                },
+                "session_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "training_status_id": {
+                    "type": "integer"
+                },
+                "workshop_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -2621,6 +4232,28 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "workshop_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ResetPasswordRequest_T": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.UpdateAttendanceStatusRequest_T": {
+            "type": "object",
+            "properties": {
+                "counts_as_present": {
+                    "type": "boolean"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -2678,6 +4311,14 @@ const docTemplate = `{
                 }
             }
         },
+        "main.UpdateProgressStatusRequest_T": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "main.UpdateRankRequest_T": {
             "type": "object",
             "properties": {
@@ -2711,6 +4352,74 @@ const docTemplate = `{
                 }
             }
         },
+        "main.UpdateTrainingEnrollmentRequest_T": {
+            "type": "object",
+            "properties": {
+                "attendance_status_id": {
+                    "description": "Fixed: was **int64",
+                    "type": "integer"
+                },
+                "certificate_issued": {
+                    "type": "boolean"
+                },
+                "certificate_number": {
+                    "type": "string"
+                },
+                "completion_date": {
+                    "type": "string"
+                },
+                "enrollment_status_id": {
+                    "type": "integer"
+                },
+                "officer_id": {
+                    "type": "integer"
+                },
+                "progress_status_id": {
+                    "type": "integer"
+                },
+                "session_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "main.UpdateTrainingSessionRequest_T": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "type": "string"
+                },
+                "facilitator_id": {
+                    "type": "integer"
+                },
+                "formation_id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "max_capacity": {
+                    "type": "integer"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "region_id": {
+                    "type": "integer"
+                },
+                "session_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "training_status_id": {
+                    "type": "integer"
+                },
+                "workshop_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "main.UpdateTrainingStatusRequest_T": {
             "type": "object",
             "properties": {
@@ -2737,12 +4446,14 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "description": {
+                    "description": "Fixed: was **string",
                     "type": "string"
                 },
                 "is_active": {
                     "type": "boolean"
                 },
                 "objectives": {
+                    "description": "Fixed: was **string",
                     "type": "string"
                 },
                 "training_type_id": {
@@ -2813,7 +4524,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0.0",
 	Host:             "localhost:4000",
-	BasePath:         "/v1/",
+	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Police Training API",
 	Description:      "This is the API server for the Police Training application.",
