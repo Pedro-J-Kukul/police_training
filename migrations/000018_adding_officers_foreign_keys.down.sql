@@ -1,0 +1,9 @@
+-- DROPPING 
+-- Foreign Keys
+ALTER TABLE officers DROP CONSTRAINT IF EXISTS fk_rank;
+ALTER TABLE officers DROP CONSTRAINT IF EXISTS fk_posting;
+ALTER TABLE officers DROP CONSTRAINT IF EXISTS fk_formation;
+ALTER TABLE officers DROP CONSTRAINT IF EXISTS fk_region;
+ALTER TABLE officers DROP CONSTRAINT IF EXISTS fk_user;
+
+DROP INDEX IF EXISTS idx_officers_user_id;

@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict EQo3Y6erx3py6rcI8hifm4EeSAd9c6e46b4bX8q0BaexfANavIfohe2CykOu2ws
+\restrict aP3abiEIxe15KhWWv0SZBxRGCbuDn8LUiIfPkz49yGK4eiTNh4lFbDG26hcTINm
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -38,6 +38,73 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: formations; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.formations (
+    id bigint NOT NULL,
+    formation text NOT NULL,
+    region_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.formations OWNER TO police;
+
+--
+-- Name: formations_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.formations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.formations_id_seq OWNER TO police;
+
+--
+-- Name: formations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.formations_id_seq OWNED BY public.formations.id;
+
+
+--
+-- Name: officers; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.officers (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    regulation_number character varying(50) NOT NULL,
+    rank_id bigint NOT NULL,
+    posting_id bigint NOT NULL,
+    formation_id bigint NOT NULL,
+    region_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.officers OWNER TO police;
+
+--
+-- Name: officers_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+ALTER TABLE public.officers ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.officers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: permissions; Type: TABLE; Schema: public; Owner: police
 --
 
@@ -68,6 +135,107 @@ ALTER SEQUENCE public.permissions_id_seq OWNER TO police;
 --
 
 ALTER SEQUENCE public.permissions_id_seq OWNED BY public.permissions.id;
+
+
+--
+-- Name: postings; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.postings (
+    id bigint NOT NULL,
+    posting text NOT NULL,
+    code text NOT NULL
+);
+
+
+ALTER TABLE public.postings OWNER TO police;
+
+--
+-- Name: postings_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.postings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.postings_id_seq OWNER TO police;
+
+--
+-- Name: postings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.postings_id_seq OWNED BY public.postings.id;
+
+
+--
+-- Name: ranks; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.ranks (
+    id bigint NOT NULL,
+    rank text NOT NULL,
+    code text NOT NULL
+);
+
+
+ALTER TABLE public.ranks OWNER TO police;
+
+--
+-- Name: ranks_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.ranks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.ranks_id_seq OWNER TO police;
+
+--
+-- Name: ranks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.ranks_id_seq OWNED BY public.ranks.id;
+
+
+--
+-- Name: regions; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.regions (
+    id bigint NOT NULL,
+    region text NOT NULL
+);
+
+
+ALTER TABLE public.regions OWNER TO police;
+
+--
+-- Name: regions_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.regions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.regions_id_seq OWNER TO police;
+
+--
+-- Name: regions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.regions_id_seq OWNED BY public.regions.id;
 
 
 --
@@ -198,10 +366,38 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- Name: formations id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.formations ALTER COLUMN id SET DEFAULT nextval('public.formations_id_seq'::regclass);
+
+
+--
 -- Name: permissions id; Type: DEFAULT; Schema: public; Owner: police
 --
 
 ALTER TABLE ONLY public.permissions ALTER COLUMN id SET DEFAULT nextval('public.permissions_id_seq'::regclass);
+
+
+--
+-- Name: postings id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.postings ALTER COLUMN id SET DEFAULT nextval('public.postings_id_seq'::regclass);
+
+
+--
+-- Name: ranks id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.ranks ALTER COLUMN id SET DEFAULT nextval('public.ranks_id_seq'::regclass);
+
+
+--
+-- Name: regions id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.regions ALTER COLUMN id SET DEFAULT nextval('public.regions_id_seq'::regclass);
 
 
 --
@@ -219,11 +415,115 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
+-- Name: formations formations_formation_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.formations
+    ADD CONSTRAINT formations_formation_key UNIQUE (formation);
+
+
+--
+-- Name: formations formations_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.formations
+    ADD CONSTRAINT formations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: officers officers_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.officers
+    ADD CONSTRAINT officers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: officers officers_regulation_number_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.officers
+    ADD CONSTRAINT officers_regulation_number_key UNIQUE (regulation_number);
+
+
+--
+-- Name: officers officers_user_id_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.officers
+    ADD CONSTRAINT officers_user_id_key UNIQUE (user_id);
+
+
+--
 -- Name: permissions permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: police
 --
 
 ALTER TABLE ONLY public.permissions
     ADD CONSTRAINT permissions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: postings postings_code_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.postings
+    ADD CONSTRAINT postings_code_key UNIQUE (code);
+
+
+--
+-- Name: postings postings_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.postings
+    ADD CONSTRAINT postings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: postings postings_posting_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.postings
+    ADD CONSTRAINT postings_posting_key UNIQUE (posting);
+
+
+--
+-- Name: ranks ranks_code_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.ranks
+    ADD CONSTRAINT ranks_code_key UNIQUE (code);
+
+
+--
+-- Name: ranks ranks_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.ranks
+    ADD CONSTRAINT ranks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ranks ranks_rank_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.ranks
+    ADD CONSTRAINT ranks_rank_key UNIQUE (rank);
+
+
+--
+-- Name: regions regions_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.regions
+    ADD CONSTRAINT regions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: regions regions_region_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.regions
+    ADD CONSTRAINT regions_region_key UNIQUE (region);
 
 
 --
@@ -291,6 +591,61 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: idx_officers_user_id; Type: INDEX; Schema: public; Owner: police
+--
+
+CREATE INDEX idx_officers_user_id ON public.officers USING btree (user_id);
+
+
+--
+-- Name: officers fk_formation; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.officers
+    ADD CONSTRAINT fk_formation FOREIGN KEY (formation_id) REFERENCES public.formations(id) ON DELETE CASCADE;
+
+
+--
+-- Name: officers fk_posting; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.officers
+    ADD CONSTRAINT fk_posting FOREIGN KEY (posting_id) REFERENCES public.postings(id) ON DELETE CASCADE;
+
+
+--
+-- Name: officers fk_rank; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.officers
+    ADD CONSTRAINT fk_rank FOREIGN KEY (rank_id) REFERENCES public.ranks(id) ON DELETE CASCADE;
+
+
+--
+-- Name: formations fk_region; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.formations
+    ADD CONSTRAINT fk_region FOREIGN KEY (region_id) REFERENCES public.regions(id) ON DELETE CASCADE;
+
+
+--
+-- Name: officers fk_region; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.officers
+    ADD CONSTRAINT fk_region FOREIGN KEY (region_id) REFERENCES public.regions(id) ON DELETE CASCADE;
+
+
+--
+-- Name: officers fk_user; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.officers
+    ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: roles_permissions permission_roles_permissions; Type: FK CONSTRAINT; Schema: public; Owner: police
 --
 
@@ -334,5 +689,5 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump complete
 --
 
-\unrestrict EQo3Y6erx3py6rcI8hifm4EeSAd9c6e46b4bX8q0BaexfANavIfohe2CykOu2ws
+\unrestrict aP3abiEIxe15KhWWv0SZBxRGCbuDn8LUiIfPkz49yGK4eiTNh4lFbDG26hcTINm
 
