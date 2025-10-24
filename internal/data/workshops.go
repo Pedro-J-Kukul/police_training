@@ -22,8 +22,7 @@ type Workshop struct {
 	CategoryID     int64     `json:"category_id"`
 	TrainingTypeID int64     `json:"training_type_id"`
 	CreditHours    int64     `json:"credit_hours"`
-	Description    *string   `json:"description,omitempty"`
-	Objectives     *string   `json:"objectives,omitempty"`
+	Description    *string   `json:"description,omitempty"`\
 	IsActive       bool      `json:"is_active"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
@@ -44,7 +43,7 @@ func ValidateWorkshop(v *validator.Validator, workshop *Workshop) {
 }
 
 // Insert creates a new workshop.
-func (m WorkshopModel) Insert(workshop *Workshop) error {
+func (m *WorkshopModel) Insert(workshop *Workshop) error {
 	query := `
 		INSERT INTO workshops (workshop_name, category_id, training_type_id, credit_hours, description, objectives, is_active, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
@@ -79,7 +78,7 @@ func (m WorkshopModel) Insert(workshop *Workshop) error {
 }
 
 // Get retrieves a workshop by id.
-func (m WorkshopModel) Get(id int64) (*Workshop, error) {
+func (m *WorkshopModel) Get(id int64) (*Workshop, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
 	}
@@ -119,7 +118,7 @@ func (m WorkshopModel) Get(id int64) (*Workshop, error) {
 }
 
 // GetAll returns workshops filtered by name, category, type, or active state.
-func (m WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive *bool, filters Filters) ([]*Workshop, MetaData, error) {
+func (m *WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive *bool, filters Filters) ([]*Workshop, MetaData, error) {
 	if filters.Sort == "" {
 		filters.Sort = "workshop_name"
 	}
@@ -193,7 +192,7 @@ func (m WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive *
 }
 
 // Update modifies a workshop using optimistic locking on updated_at.
-func (m WorkshopModel) Update(workshop *Workshop, originalUpdatedAt time.Time) error {
+func (m *WorkshopModel) Update(workshop *Workshop, originalUpdatedAt time.Time) error {
 	query := `
 		UPDATE workshops
 		SET workshop_name = $1,
