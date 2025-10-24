@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict Hc8gCqupvH9innZBDLhMlGWnoy8UaQZWqyatfGjZrdM0G9YcW30XRBLai2SanQl
+\restrict v1xEgHSkYJxUSnGZHNpXS8uPnWhHgrWNW1IXMBohlPtgZ23GN4IwALSaFIrCki7
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -323,6 +323,74 @@ CREATE TABLE public.tokens (
 ALTER TABLE public.tokens OWNER TO police;
 
 --
+-- Name: training_categories; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.training_categories (
+    id bigint NOT NULL,
+    name text NOT NULL,
+    is_active boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE public.training_categories OWNER TO police;
+
+--
+-- Name: training_categories_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.training_categories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.training_categories_id_seq OWNER TO police;
+
+--
+-- Name: training_categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.training_categories_id_seq OWNED BY public.training_categories.id;
+
+
+--
+-- Name: training_types; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.training_types (
+    id bigint NOT NULL,
+    name text NOT NULL,
+    is_active boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE public.training_types OWNER TO police;
+
+--
+-- Name: training_types_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.training_types_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.training_types_id_seq OWNER TO police;
+
+--
+-- Name: training_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.training_types_id_seq OWNED BY public.training_types.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: police
 --
 
@@ -364,6 +432,46 @@ ALTER SEQUENCE public.users_id_seq OWNER TO police;
 --
 
 ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+
+--
+-- Name: workshops; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.workshops (
+    id bigint NOT NULL,
+    workshop_name text NOT NULL,
+    category_id bigint NOT NULL,
+    type_id bigint NOT NULL,
+    credit_hours integer NOT NULL,
+    description text,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.workshops OWNER TO police;
+
+--
+-- Name: workshops_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.workshops_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.workshops_id_seq OWNER TO police;
+
+--
+-- Name: workshops_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.workshops_id_seq OWNED BY public.workshops.id;
 
 
 --
@@ -409,10 +517,31 @@ ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_
 
 
 --
+-- Name: training_categories id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_categories ALTER COLUMN id SET DEFAULT nextval('public.training_categories_id_seq'::regclass);
+
+
+--
+-- Name: training_types id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_types ALTER COLUMN id SET DEFAULT nextval('public.training_types_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: police
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- Name: workshops id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.workshops ALTER COLUMN id SET DEFAULT nextval('public.workshops_id_seq'::regclass);
 
 
 --
@@ -560,6 +689,38 @@ ALTER TABLE ONLY public.tokens
 
 
 --
+-- Name: training_categories training_categories_name_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_categories
+    ADD CONSTRAINT training_categories_name_key UNIQUE (name);
+
+
+--
+-- Name: training_categories training_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_categories
+    ADD CONSTRAINT training_categories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: training_types training_types_name_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_types
+    ADD CONSTRAINT training_types_name_key UNIQUE (name);
+
+
+--
+-- Name: training_types training_types_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_types
+    ADD CONSTRAINT training_types_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: police
 --
 
@@ -576,10 +737,26 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: workshops workshops_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.workshops
+    ADD CONSTRAINT workshops_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: idx_officers_user_id; Type: INDEX; Schema: public; Owner: police
 --
 
 CREATE INDEX idx_officers_user_id ON public.officers USING btree (user_id);
+
+
+--
+-- Name: workshops fk_category; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.workshops
+    ADD CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES public.training_categories(id) ON DELETE RESTRICT;
 
 
 --
@@ -620,6 +797,14 @@ ALTER TABLE ONLY public.formations
 
 ALTER TABLE ONLY public.officers
     ADD CONSTRAINT fk_region FOREIGN KEY (region_id) REFERENCES public.regions(id) ON DELETE CASCADE;
+
+
+--
+-- Name: workshops fk_type; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.workshops
+    ADD CONSTRAINT fk_type FOREIGN KEY (type_id) REFERENCES public.training_types(id) ON DELETE RESTRICT;
 
 
 --
@@ -674,5 +859,5 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Hc8gCqupvH9innZBDLhMlGWnoy8UaQZWqyatfGjZrdM0G9YcW30XRBLai2SanQl
+\unrestrict v1xEgHSkYJxUSnGZHNpXS8uPnWhHgrWNW1IXMBohlPtgZ23GN4IwALSaFIrCki7
 
