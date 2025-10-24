@@ -17,15 +17,15 @@ import (
 
 // Workshop struct to represent a workshop in the system
 type Workshop struct {
-	ID             int64     `json:"id"`
-	WorkshopName   string    `json:"workshop_name"`
-	CategoryID     int64     `json:"category_id"`
-	TrainingTypeID int64     `json:"training_type_id"`
-	CreditHours    int64     `json:"credit_hours"`
-	Description    *string   `json:"description,omitempty"`\
-	IsActive       bool      `json:"is_active"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID           int64     `json:"id"`
+	WorkshopName string    `json:"workshop_name"`
+	CategoryID   int64     `json:"category_id"`
+	TypeID       int64     `json:"type_id"`
+	CreditHours  int       `json:"credit_hours"`
+	Description  *string   `json:"description,omitempty"`
+	IsActive     bool      `json:"is_active"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 // WorkshopModel struct to interact with the workshops table in the database
@@ -38,18 +38,16 @@ func ValidateWorkshop(v *validator.Validator, workshop *Workshop) {
 	v.Check(workshop.WorkshopName != "", "workshop_name", "must be provided")
 	v.Check(len(workshop.WorkshopName) <= 200, "workshop_name", "must not exceed 200 characters")
 	v.Check(workshop.CategoryID > 0, "category_id", "must be provided")
-	v.Check(workshop.TrainingTypeID > 0, "training_type_id", "must be provided")
+	v.Check(workshop.TypeID > 0, "type_id", "must be provided")
 	v.Check(workshop.CreditHours >= 0, "credit_hours", "must be zero or greater")
 }
 
 // Insert creates a new workshop.
 func (m *WorkshopModel) Insert(workshop *Workshop) error {
 	query := `
-		INSERT INTO workshops (workshop_name, category_id, training_type_id, credit_hours, description, objectives, is_active, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
+		INSERT INTO workshops (workshop_name, category_id, type_id, credit_hours, description, is_active)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, created_at, updated_at`
-
-	now := time.Now()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -57,18 +55,16 @@ func (m *WorkshopModel) Insert(workshop *Workshop) error {
 	if err := m.DB.QueryRowContext(ctx, query,
 		workshop.WorkshopName,
 		workshop.CategoryID,
-		workshop.TrainingTypeID,
+		workshop.TypeID,
 		workshop.CreditHours,
 		workshop.Description,
-		workshop.Objectives,
 		workshop.IsActive,
-		now,
 	).Scan(&workshop.ID, &workshop.CreatedAt, &workshop.UpdatedAt); err != nil {
 		switch {
-		case isForeignKeyViolation(err):
-			return ErrForeignKeyViolation
 		case isDuplicateKeyViolation(err):
 			return ErrDuplicateValue
+		case isForeignKeyViolation(err):
+			return ErrForeignKeyViolation
 		default:
 			return err
 		}
@@ -84,7 +80,7 @@ func (m *WorkshopModel) Get(id int64) (*Workshop, error) {
 	}
 
 	query := `
-		SELECT id, workshop_name, category_id, training_type_id, credit_hours, description, objectives, is_active, created_at, updated_at
+		SELECT id, workshop_name, category_id, type_id, credit_hours, description, is_active, created_at, updated_at
 		FROM workshops
 		WHERE id = $1`
 
@@ -97,14 +93,48 @@ func (m *WorkshopModel) Get(id int64) (*Workshop, error) {
 		&workshop.ID,
 		&workshop.WorkshopName,
 		&workshop.CategoryID,
-		&workshop.TrainingTypeID,
+		&workshop.TypeID,
 		&workshop.CreditHours,
 		&workshop.Description,
-		&workshop.Objectives,
 		&workshop.IsActive,
 		&workshop.CreatedAt,
 		&workshop.UpdatedAt,
 	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &workshop, nil
+}
+
+// GetByName retrieves a workshop by its name
+func (m *WorkshopModel) GetByName(workshopName string) (*Workshop, error) {
+	query := `
+		SELECT id, workshop_name, category_id, type_id, credit_hours, description, is_active, created_at, updated_at
+		FROM workshops
+		WHERE workshop_name = $1`
+
+	var workshop Workshop
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, workshopName).Scan(
+		&workshop.ID,
+		&workshop.WorkshopName,
+		&workshop.CategoryID,
+		&workshop.TypeID,
+		&workshop.CreditHours,
+		&workshop.Description,
+		&workshop.IsActive,
+		&workshop.CreatedAt,
+		&workshop.UpdatedAt,
+	)
+
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -124,16 +154,15 @@ func (m *WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive 
 	}
 
 	query := fmt.Sprintf(`
-		SELECT COUNT(*) OVER(), id, workshop_name, category_id, training_type_id, credit_hours, description, objectives, is_active, created_at, updated_at
+		SELECT COUNT(*) OVER(), id, workshop_name, category_id, type_id, credit_hours, description, is_active, created_at, updated_at
 		FROM workshops
-		WHERE ($1::text = '' OR workshop_name ILIKE $1::text)
-		AND ($2::bigint = 0 OR category_id = $2::bigint)
-		AND ($3::bigint = 0 OR training_type_id = $3::bigint)
+		WHERE ($1 = '' OR workshop_name ILIKE $1)
+		AND ($2 = 0 OR category_id = $2)
+		AND ($3 = 0 OR type_id = $3)
 		AND ($4::boolean IS NULL OR is_active = $4::boolean)
 		ORDER BY %s %s, id ASC
-		LIMIT $5::int OFFSET $6::int`, filters.sortColumn(), filters.sortDirection())
+		LIMIT $5 OFFSET $6`, filters.sortColumn(), filters.sortDirection())
 
-	// Handle parameters with explicit types
 	categoryArg := int64(0)
 	if categoryID != nil {
 		categoryArg = *categoryID
@@ -170,10 +199,9 @@ func (m *WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive 
 			&workshop.ID,
 			&workshop.WorkshopName,
 			&workshop.CategoryID,
-			&workshop.TrainingTypeID,
+			&workshop.TypeID,
 			&workshop.CreditHours,
 			&workshop.Description,
-			&workshop.Objectives,
 			&workshop.IsActive,
 			&workshop.CreatedAt,
 			&workshop.UpdatedAt,
@@ -191,19 +219,12 @@ func (m *WorkshopModel) GetAll(name string, categoryID, typeID *int64, isActive 
 	return workshops, metadata, nil
 }
 
-// Update modifies a workshop using optimistic locking on updated_at.
-func (m *WorkshopModel) Update(workshop *Workshop, originalUpdatedAt time.Time) error {
+// Update modifies an existing workshop.
+func (m *WorkshopModel) Update(workshop *Workshop) error {
 	query := `
 		UPDATE workshops
-		SET workshop_name = $1,
-			category_id = $2,
-			training_type_id = $3,
-			credit_hours = $4,
-			description = $5,
-			objectives = $6,
-			is_active = $7,
-			updated_at = now()
-		WHERE id = $8 AND updated_at = $9
+		SET workshop_name = $1, category_id = $2, type_id = $3, credit_hours = $4, description = $5, is_active = $6, updated_at = NOW()
+		WHERE id = $7
 		RETURNING updated_at`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -212,24 +233,50 @@ func (m *WorkshopModel) Update(workshop *Workshop, originalUpdatedAt time.Time) 
 	if err := m.DB.QueryRowContext(ctx, query,
 		workshop.WorkshopName,
 		workshop.CategoryID,
-		workshop.TrainingTypeID,
+		workshop.TypeID,
 		workshop.CreditHours,
 		workshop.Description,
-		workshop.Objectives,
 		workshop.IsActive,
 		workshop.ID,
-		originalUpdatedAt,
 	).Scan(&workshop.UpdatedAt); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ErrEditConflict
-		case isForeignKeyViolation(err):
-			return ErrForeignKeyViolation
+			return ErrRecordNotFound
 		case isDuplicateKeyViolation(err):
 			return ErrDuplicateValue
+		case isForeignKeyViolation(err):
+			return ErrForeignKeyViolation
 		default:
 			return err
 		}
+	}
+
+	return nil
+}
+
+// Delete removes a workshop from the database
+func (m *WorkshopModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `DELETE FROM workshops WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
 	}
 
 	return nil

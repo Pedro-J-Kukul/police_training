@@ -71,7 +71,7 @@ func ValidateTokenPlaintext(v *validator.Validator, tokenPlaintext string) {
 /*************************************************************************************************************/
 
 // New creates a new token for a user and stores it in the database
-func (m TokenModel) New(userID int64, ttl time.Duration, scope string) (*Token, error) {
+func (m *TokenModel) New(userID int64, ttl time.Duration, scope string) (*Token, error) {
 	// Generate a new token
 	token, err := generateToken(userID, ttl, scope)
 	if err != nil {
@@ -83,7 +83,7 @@ func (m TokenModel) New(userID int64, ttl time.Duration, scope string) (*Token, 
 }
 
 // Insert adds a new token to the database
-func (m TokenModel) Insert(token *Token) error {
+func (m *TokenModel) Insert(token *Token) error {
 	// SQL query to insert a new token into the tokens table
 	query := `
 		INSERT INTO tokens (hash, user_id, expiry, scope)
@@ -100,7 +100,7 @@ func (m TokenModel) Insert(token *Token) error {
 }
 
 // DeleteAllForUser removes all tokens for a specific user and scope from the database
-func (m TokenModel) DeleteAllForUser(scope string, userID int64) error {
+func (m *TokenModel) DeleteAllForUser(scope string, userID int64) error {
 	// SQL query to delete tokens for a specific user and scope
 	query := `
 		DELETE FROM tokens

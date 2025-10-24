@@ -38,7 +38,7 @@ func (r Roles) Include(role string) bool {
 /*************************************************************************************************************/
 
 // GetAllForUser - Retrieve all roles associated with a specific user
-func (m RoleModel) GetAllForUser(userID int64) (Roles, error) {
+func (m *RoleModel) GetAllForUser(userID int64) (Roles, error) {
 	query := `
 		SELECT r.role
 		FROM roles r
@@ -72,7 +72,7 @@ func (m RoleModel) GetAllForUser(userID int64) (Roles, error) {
 }
 
 // AssignToUser - Assign a list of roles to a specific user
-func (m RoleModel) AssignToUser(userID int64, roles ...string) error {
+func (m *RoleModel) AssignToUser(userID int64, roles ...string) error {
 	// Query to insert roles for a user
 	query := `
         INSERT INTO roles_users (user_id, role_id)
@@ -93,7 +93,7 @@ func (m RoleModel) AssignToUser(userID int64, roles ...string) error {
 }
 
 // GetAllPermissionsForUser - Retrieve all permission codes associated with a specific user
-func (m RoleModel) GetAllPermissionsForUser(userID int64) (Permissions, error) {
+func (m *RoleModel) GetAllPermissionsForUser(userID int64) (Permissions, error) {
 	query := `
 		SELECT DISTINCT p.code
 		FROM permissions p
@@ -127,7 +127,7 @@ func (m RoleModel) GetAllPermissionsForUser(userID int64) (Permissions, error) {
 }
 
 // HasPermission - Check if a user has a specific permission
-func (m RoleModel) HasPermission(userID int64, permissionCode string) (bool, error) {
+func (m *RoleModel) HasPermission(userID int64, permissionCode string) (bool, error) {
 	query := `
 		SELECT EXISTS (
 			SELECT 1
@@ -146,7 +146,7 @@ func (m RoleModel) HasPermission(userID int64, permissionCode string) (bool, err
 }
 
 // HasAllPermissions - Check if a user has all the required permissions
-func (m RoleModel) HasAllPermissions(userID int64, permissionCodes ...string) (bool, error) {
+func (m *RoleModel) HasAllPermissions(userID int64, permissionCodes ...string) (bool, error) {
 	query := `
 		SELECT COUNT(DISTINCT p.code)
 		FROM permissions p

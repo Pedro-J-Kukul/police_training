@@ -108,4 +108,9 @@ migrate/fix/test:
 
 pg_dump/schema:
 	@echo "Exporting database schema to schema.sql..."
-	@pg_dump -h localhost -p 5432 -d police_training -U postgres -s -F p -E UTF-8 -f ~/Projects/police_training/schema.sqlpg_dump -h localhost -p 5432 -d police_training -U postgres -s -F p -E UTF-8 -f ~/Projects/police_training/schema.sql
+	@pg_dump -h localhost -p 5432 -d police_training -U postgres -s -F p -E UTF-8 -f ~/Projects/police_training/schema.sql
+
+# FOR TESTING INDIVIDUAL PACKAGES
+# go test -v ./cmd/api/
+# go test -v ./internal/data/
+# go test -v ./...

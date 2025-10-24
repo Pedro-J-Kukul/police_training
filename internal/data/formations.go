@@ -114,7 +114,7 @@ func (m *FormationModel) GetByName(formation string) (*Formation, error) {
 }
 
 // Delete removes a formation from the database
-func (m FormationModel) Delete(id int64) error {
+func (m *FormationModel) Delete(id int64) error {
 	if id < 1 {
 		return ErrRecordNotFound
 	}
@@ -191,7 +191,7 @@ func (m *FormationModel) GetAll(name string, regionID *int64, filters Filters) (
 }
 
 // Update modifies an existing formation.
-func (m FormationModel) Update(formation *Formation) error {
+func (m *FormationModel) Update(formation *Formation) error {
 	query := `
 		UPDATE formations
 		SET formation = $1, region_id = $2

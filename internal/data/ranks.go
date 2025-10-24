@@ -152,7 +152,7 @@ func (m *RankModel) GetAll(name string, code string, filters Filters) ([]*Rank, 
 }
 
 // Update modifies an existing rank.
-func (m RankModel) Update(rank *Rank) error {
+func (m *RankModel) Update(rank *Rank) error {
 	query := `
 		UPDATE ranks
 		SET rank = $1, code = $2, annual_training_hours = $3

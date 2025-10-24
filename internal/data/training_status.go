@@ -33,7 +33,7 @@ func ValidateTrainingStatus(v *validator.Validator, status *TrainingStatus) {
 }
 
 // Insert adds a new training status.
-func (m TrainingStatusModel) Insert(status *TrainingStatus) error {
+func (m *TrainingStatusModel) Insert(status *TrainingStatus) error {
 	query := `
 		INSERT INTO training_status (status)
 		VALUES ($1)
@@ -55,7 +55,7 @@ func (m TrainingStatusModel) Insert(status *TrainingStatus) error {
 }
 
 // Get retrieves a training status by id.
-func (m TrainingStatusModel) Get(id int64) (*TrainingStatus, error) {
+func (m *TrainingStatusModel) Get(id int64) (*TrainingStatus, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
 	}
@@ -81,7 +81,7 @@ func (m TrainingStatusModel) Get(id int64) (*TrainingStatus, error) {
 }
 
 // GetAll returns training statuses filtered by name.
-func (m TrainingStatusModel) GetAll(name string, filters Filters) ([]*TrainingStatus, MetaData, error) {
+func (m *TrainingStatusModel) GetAll(name string, filters Filters) ([]*TrainingStatus, MetaData, error) {
 	if filters.Sort == "" {
 		filters.Sort = "status"
 	}
@@ -124,7 +124,7 @@ func (m TrainingStatusModel) GetAll(name string, filters Filters) ([]*TrainingSt
 }
 
 // Update modifies an existing training status.
-func (m TrainingStatusModel) Update(status *TrainingStatus) error {
+func (m *TrainingStatusModel) Update(status *TrainingStatus) error {
 	query := `
 		UPDATE training_status
 		SET status = $1
