@@ -631,9 +631,9 @@ func (app *appDependencies) createRankHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	rank := &data.Rank{
-		Rank:                        CreateRankRequest.Rank,
-		Code:                        CreateRankRequest.Code,
-		AnnualTrainingHoursRequired: CreateRankRequest.AnnualTrainingHoursRequired,
+		Rank:                CreateRankRequest.Rank,
+		Code:                CreateRankRequest.Code,
+		AnnualTrainingHours: CreateRankRequest.AnnualTrainingHoursRequired,
 	}
 
 	v := validator.New()
@@ -783,7 +783,7 @@ func (app *appDependencies) updateRankHandler(w http.ResponseWriter, r *http.Req
 		rank.Code = *UpdateRankRequest.Code
 	}
 	if UpdateRankRequest.AnnualTrainingHoursRequired != nil {
-		rank.AnnualTrainingHoursRequired = *UpdateRankRequest.AnnualTrainingHoursRequired
+		rank.AnnualTrainingHours = *UpdateRankRequest.AnnualTrainingHoursRequired
 	}
 
 	v := validator.New()

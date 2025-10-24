@@ -1,6 +1,6 @@
 include .envrc
 
-.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix db/migrate/up migrate/up1 migrate/down1 swagger/docs migrate/up/test migrate/down/test migrate/reset/test migrate/fix/test
+.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix db/migrate/up migrate/up1 migrate/down1 swagger/docs migrate/up/test migrate/down/test migrate/reset/test migrate/fix/test pg_dump/schema
 run/api:
 	@echo "Starting API server on port $(PORT) in $(ENVIRONMENT) mode..."
 	@go run ./cmd/api \
@@ -105,3 +105,7 @@ migrate/fix/test:
 		echo "No dirty migration found"; \
 	fi
 	@rm -f /tmp/migrate_version
+
+pg_dump/schema:
+	@echo "Exporting database schema to schema.sql..."
+	@pg_dump -h localhost -p 5432 -d police_training -U postgres -s -F p -E UTF-8 -f ~/Projects/police_training/schema.sqlpg_dump -h localhost -p 5432 -d police_training -U postgres -s -F p -E UTF-8 -f ~/Projects/police_training/schema.sql

@@ -35,7 +35,7 @@ func ValidateFormation(v *validator.Validator, formation *Formation) {
 }
 
 // Insert creates a new formation.
-func (m FormationModel) Insert(formation *Formation) error {
+func (m *FormationModel) Insert(formation *Formation) error {
 	query := `
 		INSERT INTO formations (formation, region_id)
 		VALUES ($1, $2)
@@ -59,7 +59,7 @@ func (m FormationModel) Insert(formation *Formation) error {
 }
 
 // Get retrieves a formation by id.
-func (m FormationModel) Get(id int64) (*Formation, error) {
+func (m *FormationModel) Get(id int64) (*Formation, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
 	}
@@ -84,16 +84,73 @@ func (m FormationModel) Get(id int64) (*Formation, error) {
 	return &formation, nil
 }
 
+// GetByName retrieves a formation by its name
+func (m *FormationModel) GetByName(formation string) (*Formation, error) {
+	query := `
+		SELECT id, formation, region_id,
+		FROM formations
+		WHERE formation = $1`
+
+	var f Formation
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, formation).Scan(
+		&f.ID,
+		&f.Formation,
+		&f.RegionID,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &f, nil
+}
+
+// Delete removes a formation from the database
+func (m FormationModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `DELETE FROM formations WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
+}
+
 // GetAll returns formations filtered by name and region.
-func (m FormationModel) GetAll(name string, regionID *int64, filters Filters) ([]*Formation, MetaData, error) {
+func (m *FormationModel) GetAll(name string, regionID *int64, filters Filters) ([]*Formation, MetaData, error) {
 	if filters.Sort == "" {
 		filters.Sort = "formation"
 	}
 
 	query := fmt.Sprintf(`
-		SELECT COUNT(*) OVER(), id, formation, region_id, created_at
+		SELECT COUNT(*) OVER(), id, formation, region_id
 		FROM formations
-		WHERE ($1 = '' OR formation ILIKE $1)
+		WHERE (to_tsvector('simple', formation) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		AND ($2 = 0 OR region_id = $2)
 		ORDER BY %s %s, id ASC
 		LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
