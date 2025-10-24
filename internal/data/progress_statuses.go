@@ -17,9 +17,8 @@ import (
 
 // ProgressStatus struct to represent a progress status in the system
 type ProgressStatus struct {
-	ID        int64     `json:"id"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
+	ID     int64  `json:"id"`
+	Status string `json:"status"`
 }
 
 // ProgressStatusModel struct to interact with the progress_statuses table in the database
@@ -36,16 +35,16 @@ func ValidateProgressStatus(v *validator.Validator, status *ProgressStatus) {
 // Insert creates a new progress status.
 func (m *ProgressStatusModel) Insert(status *ProgressStatus) error {
 	query := `
-		INSERT INTO progress_statuses (status, created_at)
+		INSERT INTO progress_statuses (status)
 		VALUES ($1, $2)
-		RETURNING id, created_at`
+		RETURNING id`
 
 	now := time.Now()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	if err := m.DB.QueryRowContext(ctx, query, status.Status, now).Scan(&status.ID, &status.CreatedAt); err != nil {
+	if err := m.DB.QueryRowContext(ctx, query, status.Status, now).Scan(&status.ID); err != nil {
 		switch {
 		case isDuplicateKeyViolation(err):
 			return ErrDuplicateValue
@@ -63,14 +62,14 @@ func (m *ProgressStatusModel) Get(id int64) (*ProgressStatus, error) {
 		return nil, ErrRecordNotFound
 	}
 
-	query := `SELECT id, status, created_at FROM progress_statuses WHERE id = $1`
+	query := `SELECT id, status FROM progress_statuses WHERE id = $1`
 
 	var status ProgressStatus
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, id).Scan(&status.ID, &status.Status, &status.CreatedAt)
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&status.ID, &status.Status)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -90,7 +89,7 @@ func (m *ProgressStatusModel) GetAll(name string, filters Filters) ([]*ProgressS
 	}
 
 	query := fmt.Sprintf(`
-		SELECT COUNT(*) OVER(), id, status, created_at
+		SELECT COUNT(*) OVER(), id, status
 		FROM progress_statuses
 		WHERE ($1 = '' OR status ILIKE $1)
 		ORDER BY %s %s, id ASC
@@ -112,7 +111,7 @@ func (m *ProgressStatusModel) GetAll(name string, filters Filters) ([]*ProgressS
 
 	for rows.Next() {
 		var status ProgressStatus
-		if err := rows.Scan(&totalRecords, &status.ID, &status.Status, &status.CreatedAt); err != nil {
+		if err := rows.Scan(&totalRecords, &status.ID, &status.Status); err != nil {
 			return nil, MetaData{}, err
 		}
 		statuses = append(statuses, &status)
@@ -149,4 +148,52 @@ func (m *ProgressStatusModel) Update(status *ProgressStatus) error {
 	}
 
 	return nil
+}
+
+func (m *ProgressStatusModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `DELETE FROM progress_statuses WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
+}
+
+func (m *ProgressStatusModel) GetByName(name string) (*ProgressStatus, error) {
+	query := `SELECT id, status FROM progress_statuses WHERE status = $1`
+
+	var status ProgressStatus
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, name).Scan(&status.ID, &status.Status)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &status, nil
 }

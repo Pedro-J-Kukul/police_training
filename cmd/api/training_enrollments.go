@@ -1,4 +1,3 @@
-// Filename: cmd/api/training_enrollments.go
 package main
 
 import (
@@ -11,85 +10,63 @@ import (
 	"github.com/Pedro-J-Kukul/police_training/internal/validator"
 )
 
-/*********************** Training Enrollments ***********************/
-
-// createTrainingEnrollmentHandler handles the creation of a new training enrollment.
-//
-//	@Summary		Create a new training enrollment
-//	@Description	Create a new training enrollment
-//	@Tags			training-enrollments
-//	@Accept			json
-//	@Produce		json
-//	@Security		ApiKeyAuth
-//	@Param			training_enrollment	body		CreateTrainingEnrollmentRequest_T	true	"Training enrollment data"
-//	@Success		201					{object}	envelope
-//	@Failure		400					{object}	errorResponse
-//	@Failure		422					{object}	errorResponse
-//	@Failure		500					{object}	errorResponse
-//	@Router			/v1/training/enrollments [post]
 func (app *appDependencies) createTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) {
-	if err := app.readJSON(w, r, &CreateTrainingEnrollmentRequest); err != nil {
+	var input struct {
+		OfficerID          int64   `json:"officer_id"`
+		SessionID          int64   `json:"session_id"`
+		EnrollmentStatusID int64   `json:"enrollment_status_id"`
+		AttendanceStatusID *int64  `json:"attendance_status_id"`
+		ProgressStatusID   int64   `json:"progress_status_id"`
+		CompletionDate     *string `json:"completion_date"` // "2025-01-15"
+		CertificateIssued  *bool   `json:"certificate_issued"`
+		CertificateNumber  *string `json:"certificate_number"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
 	enrollment := &data.TrainingEnrollment{
-		OfficerID:          CreateTrainingEnrollmentRequest.OfficerID,
-		SessionID:          CreateTrainingEnrollmentRequest.SessionID,
-		EnrollmentStatusID: CreateTrainingEnrollmentRequest.EnrollmentStatusID,
-		AttendanceStatusID: CreateTrainingEnrollmentRequest.AttendanceStatusID,
-		ProgressStatusID:   CreateTrainingEnrollmentRequest.ProgressStatusID,
-		CertificateIssued:  CreateTrainingEnrollmentRequest.CertificateIssued,
-		CertificateNumber:  CreateTrainingEnrollmentRequest.CertificateNumber,
+		OfficerID:          input.OfficerID,
+		SessionID:          input.SessionID,
+		EnrollmentStatusID: input.EnrollmentStatusID,
+		AttendanceStatusID: input.AttendanceStatusID,
+		ProgressStatusID:   input.ProgressStatusID,
+		CertificateIssued:  false, // default
+		CertificateNumber:  input.CertificateNumber,
+	}
+
+	if input.CertificateIssued != nil {
+		enrollment.CertificateIssued = *input.CertificateIssued
 	}
 
 	// Parse completion date if provided
-	if CreateTrainingEnrollmentRequest.CompletionDate != nil && *CreateTrainingEnrollmentRequest.CompletionDate != "" {
-		// Try multiple date formats
-		dateStr := *CreateTrainingEnrollmentRequest.CompletionDate
-		var parsedDate time.Time
-		var err error
-
-		// Try different formats
-		formats := []string{
-			"2006-01-02T15:04:05Z07:00", // RFC3339
-			"2006-01-02T15:04:05Z",      // RFC3339 UTC
-			"2006-01-02T15:04:05",       // Without timezone
-			"2006-01-02 15:04:05",       // SQL timestamp
-			"2006-01-02",                // Date only
-		}
-
-		for _, format := range formats {
-			if parsedDate, err = time.Parse(format, dateStr); err == nil {
-				enrollment.CompletionDate = &parsedDate
-				break
-			}
-		}
-
+	if input.CompletionDate != nil {
+		completionDate, err := time.Parse("2006-01-02", *input.CompletionDate)
 		if err != nil {
-			v := validator.New()
-			v.AddError("completion_date", "must be a valid date (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ)")
-			app.failedValidationResponse(w, r, v.Errors)
+			app.badRequestResponse(w, r, errors.New("invalid completion_date format, use YYYY-MM-DD"))
 			return
 		}
+		enrollment.CompletionDate = &completionDate
 	}
 
-	// Continue with validation and insertion...
 	v := validator.New()
 	data.ValidateTrainingEnrollment(v, enrollment)
+
 	if !v.IsEmpty() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	if err := app.models.TrainingEnrollment.Insert(enrollment); err != nil {
+	err = app.models.TrainingEnrollment.Insert(enrollment)
+	if err != nil {
 		switch {
-		case errors.Is(err, data.ErrForeignKeyViolation):
-			v.AddError("foreign_key", "must reference valid officer, session, enrollment status, and progress status")
-			app.failedValidationResponse(w, r, v.Errors)
 		case errors.Is(err, data.ErrDuplicateValue):
-			v.AddError("enrollment", "officer is already enrolled in this session")
-			app.failedValidationResponse(w, r, v.Errors)
+			app.badRequestResponse(w, r, errors.New("officer is already enrolled in this session"))
+		case errors.Is(err, data.ErrForeignKeyViolation):
+			app.badRequestResponse(w, r, errors.New("invalid officer_id, session_id, enrollment_status_id, or progress_status_id"))
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
@@ -97,25 +74,14 @@ func (app *appDependencies) createTrainingEnrollmentHandler(w http.ResponseWrite
 	}
 
 	headers := make(http.Header)
-	headers.Set("Location", fmt.Sprintf("/v1/training/enrollments/%d", enrollment.ID))
+	headers.Set("Location", fmt.Sprintf("/v1/training-enrollments/%d", enrollment.ID))
 
-	if err := app.writeJSON(w, http.StatusCreated, envelope{"training_enrollment": enrollment}, headers); err != nil {
+	err = app.writeJSON(w, http.StatusCreated, envelope{"training_enrollment": enrollment}, headers)
+	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
-// showTrainingEnrollmentHandler retrieves and returns a training enrollment by its ID.
-//
-//	@Summary		Get a training enrollment
-//	@Description	Retrieve a training enrollment by its ID
-//	@Tags			training-enrollments
-//	@Produce		json
-//	@Security		ApiKeyAuth
-//	@Param			id	path		int	true	"Training enrollment ID"
-//	@Success		200	{object}	envelope
-//	@Failure		404	{object}	errorResponse
-//	@Failure		500	{object}	errorResponse
-//	@Router			/v1/training/enrollments/{id} [get]
 func (app *appDependencies) showTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -134,79 +100,41 @@ func (app *appDependencies) showTrainingEnrollmentHandler(w http.ResponseWriter,
 		return
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, envelope{"training_enrollment": enrollment}, nil); err != nil {
+	err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollment": enrollment}, nil)
+	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
-// listTrainingEnrollmentsHandler returns a filtered list of training enrollments.
-//
-//	@Summary		List training enrollments
-//	@Description	Retrieve a list of training enrollments with optional filtering
-//	@Tags			training-enrollments
-//	@Produce		json
-//	@Security		ApiKeyAuth
-//	@Param			officer_id				query		int		false	"Filter by officer ID"
-//	@Param			session_id				query		int		false	"Filter by session ID"
-//	@Param			enrollment_status_id	query		int		false	"Filter by enrollment status ID"
-//	@Param			progress_status_id		query		int		false	"Filter by progress status ID"
-//	@Param			certificate_issued		query		bool	false	"Filter by certificate issued status"
-//	@Param			page					query		int		false	"Page number for pagination"
-//	@Param			page_size				query		int		false	"Number of items per page"
-//	@Param			sort					query		string	false	"Sort order"
-//	@Success		200						{object}	envelope
-//	@Failure		422						{object}	errorResponse
-//	@Failure		500						{object}	errorResponse
-//	@Router			/v1/training/enrollments [get]
 func (app *appDependencies) listTrainingEnrollmentsHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	v := validator.New()
 
-	filters := app.readFilters(query, "created_at", 20, []string{
-		"created_at", "-created_at", "updated_at", "-updated_at",
-		"completion_date", "-completion_date", "id", "-id"}, v)
+	filters := app.readFilters(query, "created_at", 20, []string{"created_at", "-created_at", "id", "-id", "completion_date", "-completion_date"}, v)
 
-	// Get optional filter parameters
 	officerID := app.getOptionalInt64QueryParameter(query, "officer_id", v)
 	sessionID := app.getOptionalInt64QueryParameter(query, "session_id", v)
 	enrollmentStatusID := app.getOptionalInt64QueryParameter(query, "enrollment_status_id", v)
+	attendanceStatusID := app.getOptionalInt64QueryParameter(query, "attendance_status_id", v)
 	progressStatusID := app.getOptionalInt64QueryParameter(query, "progress_status_id", v)
-	certificateIssued := app.getOptionalBoolQueryParameter(query, "certificate_issued", v)
 
 	if !v.IsEmpty() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	enrollments, metadata, err := app.models.TrainingEnrollment.GetAll(
-		officerID, sessionID, enrollmentStatusID,
-		progressStatusID, certificateIssued, filters)
+	enrollments, metadata, err := app.models.TrainingEnrollment.GetAll(officerID, sessionID, enrollmentStatusID, attendanceStatusID, progressStatusID, filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil); err != nil {
+	err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil)
+	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
-// updateTrainingEnrollmentHandler performs a partial update on a training enrollment record.
-//
-//	@Summary		Update a training enrollment
-//	@Description	Perform a partial update on a training enrollment record
-//	@Tags			training-enrollments
-//	@Accept			json
-//	@Produce		json
-//	@Security		ApiKeyAuth
-//	@Param			id					path		int								true	"Training enrollment ID"
-//	@Param			training_enrollment	body		UpdateTrainingEnrollmentRequest_T	true	"Training enrollment data"
-//	@Success		200					{object}	envelope
-//	@Failure		400					{object}	errorResponse
-//	@Failure		404					{object}	errorResponse
-//	@Failure		422					{object}	errorResponse
-//	@Failure		500					{object}	errorResponse
-//	@Router			/v1/training/enrollments/{id} [patch]
 func (app *appDependencies) updateTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -225,76 +153,86 @@ func (app *appDependencies) updateTrainingEnrollmentHandler(w http.ResponseWrite
 		return
 	}
 
-	if err := app.readJSON(w, r, &UpdateTrainingEnrollmentRequest); err != nil {
+	var input struct {
+		OfficerID          *int64  `json:"officer_id"`
+		SessionID          *int64  `json:"session_id"`
+		EnrollmentStatusID *int64  `json:"enrollment_status_id"`
+		AttendanceStatusID *int64  `json:"attendance_status_id"`
+		ProgressStatusID   *int64  `json:"progress_status_id"`
+		CompletionDate     *string `json:"completion_date"`
+		CertificateIssued  *bool   `json:"certificate_issued"`
+		CertificateNumber  *string `json:"certificate_number"`
+	}
+
+	err = app.readJSON(w, r, &input)
+	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	// Update fields if provided
-	if UpdateTrainingEnrollmentRequest.OfficerID != nil {
-		enrollment.OfficerID = *UpdateTrainingEnrollmentRequest.OfficerID
+	if input.OfficerID != nil {
+		enrollment.OfficerID = *input.OfficerID
 	}
-	if UpdateTrainingEnrollmentRequest.SessionID != nil {
-		enrollment.SessionID = *UpdateTrainingEnrollmentRequest.SessionID
+	if input.SessionID != nil {
+		enrollment.SessionID = *input.SessionID
 	}
-	if UpdateTrainingEnrollmentRequest.EnrollmentStatusID != nil {
-		enrollment.EnrollmentStatusID = *UpdateTrainingEnrollmentRequest.EnrollmentStatusID
+	if input.EnrollmentStatusID != nil {
+		enrollment.EnrollmentStatusID = *input.EnrollmentStatusID
 	}
-	if UpdateTrainingEnrollmentRequest.AttendanceStatusID != nil {
-		enrollment.AttendanceStatusID = UpdateTrainingEnrollmentRequest.AttendanceStatusID
+	if input.AttendanceStatusID != nil {
+		enrollment.AttendanceStatusID = input.AttendanceStatusID
 	}
-	if UpdateTrainingEnrollmentRequest.ProgressStatusID != nil {
-		enrollment.ProgressStatusID = *UpdateTrainingEnrollmentRequest.ProgressStatusID
+	if input.ProgressStatusID != nil {
+		enrollment.ProgressStatusID = *input.ProgressStatusID
 	}
-	if UpdateTrainingEnrollmentRequest.CompletionDate != nil {
-		enrollment.CompletionDate = UpdateTrainingEnrollmentRequest.CompletionDate
+	if input.CompletionDate != nil {
+		if *input.CompletionDate == "" {
+			enrollment.CompletionDate = nil
+		} else {
+			completionDate, err := time.Parse("2006-01-02", *input.CompletionDate)
+			if err != nil {
+				app.badRequestResponse(w, r, errors.New("invalid completion_date format, use YYYY-MM-DD"))
+				return
+			}
+			enrollment.CompletionDate = &completionDate
+		}
 	}
-	if UpdateTrainingEnrollmentRequest.CertificateIssued != nil {
-		enrollment.CertificateIssued = *UpdateTrainingEnrollmentRequest.CertificateIssued
+	if input.CertificateIssued != nil {
+		enrollment.CertificateIssued = *input.CertificateIssued
 	}
-	if UpdateTrainingEnrollmentRequest.CertificateNumber != nil {
-		enrollment.CertificateNumber = UpdateTrainingEnrollmentRequest.CertificateNumber
+	if input.CertificateNumber != nil {
+		enrollment.CertificateNumber = input.CertificateNumber
 	}
 
 	v := validator.New()
 	data.ValidateTrainingEnrollment(v, enrollment)
+
 	if !v.IsEmpty() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	if err := app.models.TrainingEnrollment.Update(enrollment); err != nil {
+	err = app.models.TrainingEnrollment.Update(enrollment)
+	if err != nil {
 		switch {
-		case errors.Is(err, data.ErrForeignKeyViolation):
-			v.AddError("foreign_key", "must reference valid related records")
-			app.failedValidationResponse(w, r, v.Errors)
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
 		case errors.Is(err, data.ErrDuplicateValue):
-			v.AddError("enrollment", "officer is already enrolled in this session")
-			app.failedValidationResponse(w, r, v.Errors)
+			app.badRequestResponse(w, r, errors.New("officer is already enrolled in this session"))
+		case errors.Is(err, data.ErrForeignKeyViolation):
+			app.badRequestResponse(w, r, errors.New("invalid officer_id, session_id, enrollment_status_id, or progress_status_id"))
 		default:
 			app.serverErrorResponse(w, r, err)
 		}
 		return
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, envelope{"training_enrollment": enrollment}, nil); err != nil {
+	err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollment": enrollment}, nil)
+	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
-// deleteTrainingEnrollmentHandler handles the deletion of a training enrollment.
-//
-//	@Summary		Delete a training enrollment
-//	@Description	Delete a training enrollment by its ID
-//	@Tags			training-enrollments
-//	@Security		ApiKeyAuth
-//	@Param			id	path		int	true	"Training enrollment ID"
-//	@Success		200	{object}	envelope{message=string}
-//	@Failure		404	{object}	errorResponse
-//	@Failure		500	{object}	errorResponse
-//	@Router			/v1/training/enrollments/{id} [delete]
 func (app *appDependencies) deleteTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
@@ -313,7 +251,116 @@ func (app *appDependencies) deleteTrainingEnrollmentHandler(w http.ResponseWrite
 		return
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, envelope{"message": "training enrollment successfully deleted"}, nil); err != nil {
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "training enrollment successfully deleted"}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// Specialized handlers
+func (app *appDependencies) getOfficerEnrollmentsHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	query := r.URL.Query()
+	v := validator.New()
+	filters := app.readFilters(query, "created_at", 20, []string{"created_at", "-created_at", "completion_date", "-completion_date"}, v)
+
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	enrollments, metadata, err := app.models.TrainingEnrollment.GetByOfficer(id, filters)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *appDependencies) getSessionEnrollmentsHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	query := r.URL.Query()
+	v := validator.New()
+	filters := app.readFilters(query, "created_at", 20, []string{"created_at", "-created_at", "completion_date", "-completion_date"}, v)
+
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	enrollments, metadata, err := app.models.TrainingEnrollment.GetBySession(id, filters)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *appDependencies) issueCertificateHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIDParameter(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	var input struct {
+		CertificateNumber string `json:"certificate_number"`
+		CompletionDate    string `json:"completion_date"` // "2025-01-15"
+	}
+
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	// Validate inputs
+	v := validator.New()
+	v.Check(input.CertificateNumber != "", "certificate_number", "must be provided")
+	v.Check(len(input.CertificateNumber) <= 100, "certificate_number", "must not exceed 100 characters")
+	v.Check(input.CompletionDate != "", "completion_date", "must be provided")
+
+	completionDate, err := time.Parse("2006-01-02", input.CompletionDate)
+	if err != nil {
+		v.AddError("completion_date", "invalid date format, use YYYY-MM-DD")
+	}
+
+	if !v.IsEmpty() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	err = app.models.TrainingEnrollment.IssueCertificate(id, input.CertificateNumber, completionDate)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "certificate issued successfully"}, nil)
+	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
