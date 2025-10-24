@@ -10,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var testDB *sql.DB
+var TestDB *sql.DB
 
 func TestMain(m *testing.M) {
 	// Try multiple environment variable names for flexibility
@@ -24,27 +24,27 @@ func TestMain(m *testing.M) {
 	}
 
 	var err error
-	testDB, err = sql.Open("postgres", dbDSN)
+	TestDB, err = sql.Open("postgres", dbDSN)
 	if err != nil {
 		panic(fmt.Sprintf("Failed to open database connection: %v", err))
 	}
 
 	// Test the connection
-	if err = testDB.Ping(); err != nil {
+	if err = TestDB.Ping(); err != nil {
 		panic(fmt.Sprintf("Could not connect to test database: %v\nUsing DSN: %s", err, dbDSN))
 	}
 
 	code := m.Run()
-	testDB.Close()
+	TestDB.Close()
 	os.Exit(code)
 }
 
 func setupTestDB(t *testing.T) *sql.DB {
-	return testDB
+	return TestDB
 }
 
 // Helper function to clean up test data
-func cleanupTestData(t *testing.T, db *sql.DB) {
+func cleanupUserTestData(t *testing.T, db *sql.DB) {
 	t.Helper()
 
 	// Clean up in reverse order of dependencies
@@ -61,11 +61,6 @@ func cleanupTestData(t *testing.T, db *sql.DB) {
 	_, err = db.Exec("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
 	if err != nil {
 		t.Logf("Warning: Failed to cleanup users: %v", err)
-	}
-
-	_, err = db.Exec("TRUNCATE TABLE officers RESTART IDENTITY CASCADE")
-	if err != nil {
-		t.Logf("Warning: Failed to cleanup officers: %v", err)
 	}
 }
 
@@ -91,8 +86,8 @@ func TestInsertGetUpdateDeleteUser(t *testing.T) {
 	db := setupTestDB(t)
 
 	// Clean up before and after test
-	cleanupTestData(t, db)
-	defer cleanupTestData(t, db)
+	cleanupUserTestData(t, db)
+	defer cleanupUserTestData(t, db)
 
 	model := UserModel{DB: db}
 
@@ -158,8 +153,8 @@ func TestUpdatePassword(t *testing.T) {
 	db := setupTestDB(t)
 
 	// Clean up before and after test
-	cleanupTestData(t, db)
-	defer cleanupTestData(t, db)
+	cleanupUserTestData(t, db)
+	defer cleanupUserTestData(t, db)
 
 	model := UserModel{DB: db}
 

@@ -59,7 +59,7 @@ func TestMain(m *testing.M) {
 }
 
 // Helper function to clean up test data for API tests
-func cleanupAPITestData(t *testing.T) {
+func cleanupUsersAPITestData(t *testing.T) {
 	t.Helper()
 
 	// Get the database from testApp
@@ -122,8 +122,8 @@ func createAuthenticatedRequest(method, path string, body []byte, token string) 
 
 func TestRegisterUserHandler(t *testing.T) {
 	// Clean up before test
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupUsersAPITestData(t)
+	defer cleanupUsersAPITestData(t)
 
 	tests := []struct {
 		name           string
@@ -207,8 +207,8 @@ func TestRegisterUserHandler(t *testing.T) {
 }
 
 func TestShowCurrentUserHandler(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupUsersAPITestData(t)
+	defer cleanupUsersAPITestData(t)
 
 	user, token := createTestUserWithToken(t)
 
@@ -284,8 +284,8 @@ func TestShowCurrentUserHandler(t *testing.T) {
 }
 
 func TestShowUserHandler(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupUsersAPITestData(t)
+	defer cleanupUsersAPITestData(t)
 
 	user, token := createTestUserWithToken(t)
 
@@ -338,8 +338,8 @@ func TestShowUserHandler(t *testing.T) {
 }
 
 func TestDeleteUserHandler(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupUsersAPITestData(t)
+	defer cleanupUsersAPITestData(t)
 
 	user, token := createTestUserWithToken(t)
 
@@ -387,8 +387,8 @@ func TestDeleteUserHandler(t *testing.T) {
 
 // Integration test for complete user workflow
 func TestUserWorkflow(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupUsersAPITestData(t)
+	defer cleanupUsersAPITestData(t)
 
 	// 1. Register a new user
 	userInput := map[string]any{
