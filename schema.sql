@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict aP3abiEIxe15KhWWv0SZBxRGCbuDn8LUiIfPkz49yGK4eiTNh4lFbDG26hcTINm
+\restrict Hc8gCqupvH9innZBDLhMlGWnoy8UaQZWqyatfGjZrdM0G9YcW30XRBLai2SanQl
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -144,7 +144,7 @@ ALTER SEQUENCE public.permissions_id_seq OWNED BY public.permissions.id;
 CREATE TABLE public.postings (
     id bigint NOT NULL,
     posting text NOT NULL,
-    code text NOT NULL
+    code text
 );
 
 
@@ -178,7 +178,8 @@ ALTER SEQUENCE public.postings_id_seq OWNED BY public.postings.id;
 CREATE TABLE public.ranks (
     id bigint NOT NULL,
     rank text NOT NULL,
-    code text NOT NULL
+    code text NOT NULL,
+    annual_training_hours integer NOT NULL
 );
 
 
@@ -463,27 +464,11 @@ ALTER TABLE ONLY public.permissions
 
 
 --
--- Name: postings postings_code_key; Type: CONSTRAINT; Schema: public; Owner: police
---
-
-ALTER TABLE ONLY public.postings
-    ADD CONSTRAINT postings_code_key UNIQUE (code);
-
-
---
 -- Name: postings postings_pkey; Type: CONSTRAINT; Schema: public; Owner: police
 --
 
 ALTER TABLE ONLY public.postings
     ADD CONSTRAINT postings_pkey PRIMARY KEY (id);
-
-
---
--- Name: postings postings_posting_key; Type: CONSTRAINT; Schema: public; Owner: police
---
-
-ALTER TABLE ONLY public.postings
-    ADD CONSTRAINT postings_posting_key UNIQUE (posting);
 
 
 --
@@ -689,5 +674,5 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump complete
 --
 
-\unrestrict aP3abiEIxe15KhWWv0SZBxRGCbuDn8LUiIfPkz49yGK4eiTNh4lFbDG26hcTINm
+\unrestrict Hc8gCqupvH9innZBDLhMlGWnoy8UaQZWqyatfGjZrdM0G9YcW30XRBLai2SanQl
 
