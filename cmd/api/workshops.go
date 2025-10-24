@@ -9,6 +9,17 @@ import (
 	"github.com/Pedro-J-Kukul/police_training/internal/validator"
 )
 
+// @Summary Create a workshop
+// @Description Create a new workshop
+// @Tags workshops
+// @Accept json
+// @Produce json
+// @Param workshop body map[string]interface{} true "Workshop data (workshop_name, category_id, type_id, credit_hours, description, is_active)"
+// @Success 201 {object} map[string]interface{} "Created workshop envelope {\"workshop\": {...}}"
+// @Failure 400 {object} map[string]string "Bad request"
+// @Failure 422 {object} map[string]interface{} "Validation errors"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /v1/workshops [post]
 func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		WorkshopName string  `json:"workshop_name"`
@@ -69,6 +80,16 @@ func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http
 	}
 }
 
+// @Summary Get a workshop
+// @Description Retrieve a workshop by ID
+// @Tags workshops
+// @Accept json
+// @Produce json
+// @Param id path int true "Workshop ID"
+// @Success 200 {object} map[string]interface{} "Workshop envelope {\"workshop\": {...}}"
+// @Failure 404 {object} map[string]string "Not found"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /v1/workshops/{id} [get]
 func (app *appDependencies) showWorkshopHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParameter(r)
 	if err != nil {
