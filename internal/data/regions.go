@@ -33,7 +33,7 @@ func ValidateRegion(v *validator.Validator, region *Region) {
 }
 
 // Insert adds a new region.
-func (m RegionModel) Insert(region *Region) error {
+func (m *RegionModel) Insert(region *Region) error {
 	query := `
 		INSERT INTO regions (region)
 		VALUES ($1)
@@ -55,7 +55,7 @@ func (m RegionModel) Insert(region *Region) error {
 }
 
 // Get retrieves a region by id.
-func (m RegionModel) Get(id int64) (*Region, error) {
+func (m *RegionModel) Get(id int64) (*Region, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
 	}
@@ -81,7 +81,7 @@ func (m RegionModel) Get(id int64) (*Region, error) {
 }
 
 // GetByName retrieves a region by name.
-func (m RegionModel) GetByName(name string) (*Region, error) {
+func (m *RegionModel) GetByName(name string) (*Region, error) {
 	query := `SELECT id, region FROM regions WHERE region = $1`
 
 	var region Region
@@ -103,7 +103,7 @@ func (m RegionModel) GetByName(name string) (*Region, error) {
 }
 
 // GetAll returns regions filtered by name with pagination.
-func (m RegionModel) GetAll(name string, filters Filters) ([]*Region, MetaData, error) {
+func (m *RegionModel) GetAll(name string, filters Filters) ([]*Region, MetaData, error) {
 	if filters.Sort == "" {
 		filters.Sort = "region"
 	}
@@ -146,7 +146,7 @@ func (m RegionModel) GetAll(name string, filters Filters) ([]*Region, MetaData, 
 }
 
 // Update modifies an existing region.
-func (m RegionModel) Update(region *Region) error {
+func (m *RegionModel) Update(region *Region) error {
 	query := `
 		UPDATE regions
 		SET region = $1
@@ -171,7 +171,7 @@ func (m RegionModel) Update(region *Region) error {
 }
 
 // Delete removes a region by id.
-func (m RegionModel) Delete(id int64) error {
+func (m *RegionModel) Delete(id int64) error {
 	if id < 1 {
 		return ErrRecordNotFound
 	}

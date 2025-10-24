@@ -34,7 +34,7 @@ func ValidateProgressStatus(v *validator.Validator, status *ProgressStatus) {
 }
 
 // Insert creates a new progress status.
-func (m ProgressStatusModel) Insert(status *ProgressStatus) error {
+func (m *ProgressStatusModel) Insert(status *ProgressStatus) error {
 	query := `
 		INSERT INTO progress_statuses (status, created_at)
 		VALUES ($1, $2)
@@ -58,7 +58,7 @@ func (m ProgressStatusModel) Insert(status *ProgressStatus) error {
 }
 
 // Get retrieves a progress status by id.
-func (m ProgressStatusModel) Get(id int64) (*ProgressStatus, error) {
+func (m *ProgressStatusModel) Get(id int64) (*ProgressStatus, error) {
 	if id < 1 {
 		return nil, ErrRecordNotFound
 	}
@@ -84,7 +84,7 @@ func (m ProgressStatusModel) Get(id int64) (*ProgressStatus, error) {
 }
 
 // GetAll returns progress statuses filtered by name.
-func (m ProgressStatusModel) GetAll(name string, filters Filters) ([]*ProgressStatus, MetaData, error) {
+func (m *ProgressStatusModel) GetAll(name string, filters Filters) ([]*ProgressStatus, MetaData, error) {
 	if filters.Sort == "" {
 		filters.Sort = "status"
 	}
@@ -127,7 +127,7 @@ func (m ProgressStatusModel) GetAll(name string, filters Filters) ([]*ProgressSt
 }
 
 // Update modifies an existing progress status.
-func (m ProgressStatusModel) Update(status *ProgressStatus) error {
+func (m *ProgressStatusModel) Update(status *ProgressStatus) error {
 	query := `
 		UPDATE progress_statuses
 		SET status = $1

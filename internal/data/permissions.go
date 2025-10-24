@@ -38,7 +38,7 @@ func (p Permissions) Includes(code string) bool {
 /*************************************************************************************************************/
 
 // GetAllFor Role - Retrieve all permissions associated with a specific role
-func (m PermissionModel) GetAllForRole(roleID int64) (Permissions, error) {
+func (m *PermissionModel) GetAllForRole(roleID int64) (Permissions, error) {
 	query := `
 		SELECT p.code
 		FROM permissions p
@@ -73,7 +73,7 @@ func (m PermissionModel) GetAllForRole(roleID int64) (Permissions, error) {
 }
 
 // AssignToRole - Assign a list of permissions to a specific role
-func (m PermissionModel) AssignToRole(roleID int64, codes ...string) error {
+func (m *PermissionModel) AssignToRole(roleID int64, codes ...string) error {
 	// Prepare the SQL statement for inserting role-permission associations
 	query := `
         INSERT INTO roles_permissions (role_id, permission_id)
