@@ -14,8 +14,8 @@ import (
 
 func TestCreateAuthenticationTokenHandler(t *testing.T) {
 	// Clean up before test
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupUsersAPITestData(t)
+	defer cleanupUsersAPITestData(t)
 
 	// Create a test user
 	user := &data.User{
