@@ -17,10 +17,9 @@ import (
 
 // AttendanceStatus struct to represent an attendance status in the system
 type AttendanceStatus struct {
-	ID              int64     `json:"id"`
-	Status          string    `json:"status"`
-	CountsAsPresent bool      `json:"counts_as_present"`
-	CreatedAt       time.Time `json:"created_at"`
+	ID              int64  `json:"id"`
+	Status          string `json:"status"`
+	CountsAsPresent bool   `json:"counts_as_present"`
 }
 
 // AttendanceStatusModel struct to interact with the attendance_statuses table in the database
@@ -37,16 +36,16 @@ func ValidateAttendanceStatus(v *validator.Validator, status *AttendanceStatus) 
 // Insert creates a new attendance status.
 func (m AttendanceStatusModel) Insert(status *AttendanceStatus) error {
 	query := `
-		INSERT INTO attendance_statuses (status, counts_as_present, created_at)
+		INSERT INTO attendance_statuses (status, counts_as_present)
 		VALUES ($1, $2, $3)
-		RETURNING id, created_at`
+		RETURNING id`
 
 	now := time.Now()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	if err := m.DB.QueryRowContext(ctx, query, status.Status, status.CountsAsPresent, now).Scan(&status.ID, &status.CreatedAt); err != nil {
+	if err := m.DB.QueryRowContext(ctx, query, status.Status, status.CountsAsPresent, now).Scan(&status.ID); err != nil {
 		switch {
 		case isDuplicateKeyViolation(err):
 			return ErrDuplicateValue
@@ -64,14 +63,14 @@ func (m AttendanceStatusModel) Get(id int64) (*AttendanceStatus, error) {
 		return nil, ErrRecordNotFound
 	}
 
-	query := `SELECT id, status, counts_as_present, created_at FROM attendance_statuses WHERE id = $1`
+	query := `SELECT id, status, counts_as_present FROM attendance_statuses WHERE id = $1`
 
 	var status AttendanceStatus
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, id).Scan(&status.ID, &status.Status, &status.CountsAsPresent, &status.CreatedAt)
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&status.ID, &status.Status, &status.CountsAsPresent)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -91,9 +90,9 @@ func (m AttendanceStatusModel) GetAll(name string, countsAsPresent *bool, filter
 	}
 
 	query := fmt.Sprintf(`
-		SELECT COUNT(*) OVER(), id, status, counts_as_present, created_at
+		SELECT COUNT(*) OVER(), id, status, counts_as_present
 		FROM attendance_statuses
-		WHERE ($1 = '' OR status ILIKE $1)
+		WHER (to_tsvector('simple', status) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		AND ($2::boolean IS NULL OR counts_as_present = $2)
 		ORDER BY %s %s, id ASC
 		LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
@@ -119,7 +118,7 @@ func (m AttendanceStatusModel) GetAll(name string, countsAsPresent *bool, filter
 
 	for rows.Next() {
 		var status AttendanceStatus
-		if err := rows.Scan(&totalRecords, &status.ID, &status.Status, &status.CountsAsPresent, &status.CreatedAt); err != nil {
+		if err := rows.Scan(&totalRecords, &status.ID, &status.Status, &status.CountsAsPresent); err != nil {
 			return nil, MetaData{}, err
 		}
 		statuses = append(statuses, &status)
@@ -156,4 +155,53 @@ func (m AttendanceStatusModel) Update(status *AttendanceStatus) error {
 	}
 
 	return nil
+}
+
+// Delete removes an attendance status by id.
+func (m AttendanceStatusModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `DELETE FROM attendance_statuses WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
+}
+
+func (m AttendanceStatusModel) GetByName(name string) (*AttendanceStatus, error) {
+	query := `SELECT id, status, counts_as_present FROM attendance_statuses WHERE status = $1`
+
+	var status AttendanceStatus
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, name).Scan(&status.ID, &status.Status, &status.CountsAsPresent)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &status, nil
 }
