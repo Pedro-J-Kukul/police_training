@@ -1,6 +1,6 @@
 include .envrc
 
-.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix db/migrate/up migrate/up1 migrate/down1 swagger/docs migrate/up/test migrate/down/test migrate/reset/test migrate/fix/test pg_dump/schema
+.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix d b/migrations/up swagger/docs pg_dump/schema run/users run/officers run/tests/internal/data run/tests/cmd/api
 run/api:
 	@echo "Starting API server on port $(PORT) in $(ENVIRONMENT) mode..."
 	@go run ./cmd/api \
@@ -29,6 +29,9 @@ run/tests:
 
 db/migrations/up:
 	@migrate -path ./migrations -database "$(DB_DSN)" up
+
+psql/login/test:
+	psql "$(TEST_DB_DSN)"
 
 psql/login:
 	psql "$(DB_DSN)"
@@ -110,6 +113,26 @@ pg_dump/schema:
 	@echo "Exporting database schema to schema.sql..."
 	@pg_dump -h localhost -p 5432 -d police_training -U postgres -s -F p -E UTF-8 -f ~/Projects/police_training/schema.sql
 
+run/users:
+	@echo "Running Users Population Script..."
+	@go run ./cmd/populate_users/main.go
+
+run/officers:
+	@echo "Running Officers Population Script..."
+	@go run ./cmd/populate_officers/main.go
+
+
+run/tests:
+	@echo "Running tests..."
+	@go test -v ./...
+
+run/tests/internal/data:
+	@echo "Running tests for internal/data package..."
+	@go test -v ./internal/data/...
+
+run/tests/cmd/api:
+	@echo "Running tests for cmd/api package..."
+	@go test -v ./cmd/api/...
 # FOR TESTING INDIVIDUAL PACKAGES
 # go test -v ./cmd/api/
 # go test -v ./internal/data/
