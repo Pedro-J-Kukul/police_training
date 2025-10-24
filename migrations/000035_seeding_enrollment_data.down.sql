@@ -1,0 +1,4 @@
+
+TRUNCATE "enrollment_statuses" RESTART IDENTITY CASCADE;
+TRUNCATE "attendance_statuses" RESTART IDENTITY CASCADE;
+TRUNCATE "progress_statuses" RESTART IDENTITY CASCADE

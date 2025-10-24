@@ -1,0 +1,1 @@
+TRUNCATE "training_status" RESTART IDENTITY CASCADE;
