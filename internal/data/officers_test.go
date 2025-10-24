@@ -1,6 +1,7 @@
 package data
 
 import (
+	"database/sql"
 	"fmt"
 	"testing"
 	"time"
@@ -79,14 +80,21 @@ func TestValidateOfficer(t *testing.T) {
 	}
 }
 
-func TestInsertGetUpdateDeleteOfficer(t *testing.T) {
-	db := setupTestDB(t)
+// Helper function to clean up officer test data only
+func CleanupOfficerTestData(t *testing.T, db *sql.DB) {
+	t.Helper()
 
-	// Clean up before and after test
-	cleanupTestData(t, db)
-	defer cleanupTestData(t, db)
+	_, err := db.Exec("TRUNCATE TABLE officers RESTART IDENTITY CASCADE")
+	if err != nil {
+		t.Logf("Warning: Failed to cleanup officers: %v", err)
+	}
+}
 
-	// Create test dependencies first
+// Helper function to create officer test data using existing seed data
+func CreateOfficerTestData(t *testing.T, db *sql.DB) *Officer {
+	t.Helper()
+
+	// Create models
 	userModel := UserModel{DB: db}
 	regionModel := RegionModel{DB: db}
 	formationModel := FormationModel{DB: db}
@@ -109,35 +117,284 @@ func TestInsertGetUpdateDeleteOfficer(t *testing.T) {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
 
-	// Create test region
-	testRegion := &Region{Region: "Test Region"}
-	err = regionModel.Insert(testRegion)
+	// Get existing seed data by name using the new GetByName methods
+	region, err := regionModel.GetByName("Northern Region")
 	if err != nil {
-		t.Fatalf("Failed to create test region: %v", err)
+		t.Fatalf("Failed to get region: %v", err)
 	}
 
-	// Create test formation
-	testFormation := &Formation{Formation: "Test Formation", RegionID: testRegion.ID}
-	err = formationModel.Insert(testFormation)
+	// Get a formation from Northern Region (should be ID 1 or 2)
+	formation, err := formationModel.GetByName("Corozal Police Formation") // Corozal Police Formation
 	if err != nil {
-		t.Fatalf("Failed to create test formation: %v", err)
+		t.Fatalf("Failed to get formation: %v", err)
 	}
 
-	// Create test posting
-	testPosting := &Posting{Posting: "Test Posting", Code: "TP"}
-	err = postingModel.Insert(testPosting)
+	// Get a posting
+	posting, err := postingModel.GetByName("Relief")
 	if err != nil {
-		t.Fatalf("Failed to create test posting: %v", err)
+		t.Fatalf("Failed to get posting: %v", err)
 	}
 
-	// Create test rank
-	testRank := &Rank{Rank: "Test Rank", Code: "TR", AnnualTrainingHoursRequired: 40}
-	err = rankModel.Insert(testRank)
+	// Get a rank
+	rank, err := rankModel.GetByName("Constable")
 	if err != nil {
-		t.Fatalf("Failed to create test rank: %v", err)
+		t.Fatalf("Failed to get rank: %v", err)
 	}
 
-	// Now test officer operations
+	officer := &Officer{
+		UserID:           testUser.ID,
+		RegulationNumber: fmt.Sprintf("OFF%d", time.Now().UnixNano()),
+		RankID:           rank.ID,
+		PostingID:        posting.ID,
+		FormationID:      formation.ID,
+		RegionID:         region.ID,
+	}
+
+	err = officerModel.Insert(officer)
+	if err != nil {
+		t.Fatalf("Failed to create test officer: %v", err)
+	}
+
+	return officer
+}
+
+func TestOfficerGetAll(t *testing.T) {
+	db := setupTestDB(t)
+
+	// Clean up before and after test - officer-specific
+	CleanupOfficerTestData(t, db)
+	defer CleanupOfficerTestData(t, db)
+
+	// Create test dependencies
+	userModel := UserModel{DB: db}
+	regionModel := RegionModel{DB: db}
+	formationModel := FormationModel{DB: db}
+	postingModel := PostingModel{DB: db}
+	rankModel := RankModel{DB: db}
+	officerModel := OfficerModel{DB: db}
+
+	// Use existing seed data instead of creating new ones
+	testRegion, err := regionModel.GetByName("Northern Region")
+	if err != nil {
+		t.Fatalf("Failed to get test region: %v", err)
+	}
+
+	testFormation, err := formationModel.Get(1) // Corozal Police Formation
+	if err != nil {
+		t.Fatalf("Failed to get test formation: %v", err)
+	}
+
+	testPosting, err := postingModel.GetByName("Relief")
+	if err != nil {
+		t.Fatalf("Failed to get test posting: %v", err)
+	}
+
+	testRank, err := rankModel.GetByName("Constable")
+	if err != nil {
+		t.Fatalf("Failed to get test rank: %v", err)
+	}
+
+	// Create multiple test officers
+	numOfficers := 3
+	for i := 0; i < numOfficers; i++ {
+		testUser := &User{
+			FirstName:   fmt.Sprintf("Officer%d", i),
+			LastName:    "Test",
+			Email:       fmt.Sprintf("officer%d_%d@example.com", i, time.Now().UnixNano()),
+			Gender:      "m",
+			IsActivated: true,
+			IsOfficer:   true,
+		}
+		_ = testUser.Password.Set("TestPass123!")
+		err := userModel.Insert(testUser)
+		if err != nil {
+			t.Fatalf("Failed to create test user: %v", err)
+		}
+
+		officer := &Officer{
+			UserID:           testUser.ID,
+			RegulationNumber: fmt.Sprintf("OFF%d_%d", i, time.Now().UnixNano()),
+			RankID:           testRank.ID,
+			PostingID:        testPosting.ID,
+			FormationID:      testFormation.ID,
+			RegionID:         testRegion.ID,
+		}
+		err = officerModel.Insert(officer)
+		if err != nil {
+			t.Fatalf("Insert() failed: %v", err)
+		}
+	}
+
+	// Test GetAll
+	filters := Filters{
+		Page:         1,
+		PageSize:     10,
+		Sort:         "id",
+		SortSafelist: []string{"id", "-id"},
+	}
+
+	officers, metadata, err := officerModel.GetAll("", nil, nil, nil, nil, filters)
+	if err != nil {
+		t.Fatalf("GetAll() failed: %v", err)
+	}
+
+	if len(officers) != numOfficers {
+		t.Errorf("Expected %d officers, got %d", numOfficers, len(officers))
+	}
+
+	if metadata.TotalRecords != numOfficers {
+		t.Errorf("Expected total records %d, got %d", numOfficers, metadata.TotalRecords)
+	}
+}
+func TestOfficerConstraints(t *testing.T) {
+	db := setupTestDB(t)
+
+	// Clean up before and after test
+	CleanupOfficerTestData(t, db)
+	defer CleanupOfficerTestData(t, db)
+
+	userModel := UserModel{DB: db}
+	regionModel := RegionModel{DB: db}
+	formationModel := FormationModel{DB: db}
+	postingModel := PostingModel{DB: db}
+	rankModel := RankModel{DB: db}
+	officerModel := OfficerModel{DB: db}
+
+	// Create test dependencies
+	testUser1 := &User{
+		FirstName:   "User1",
+		LastName:    "Test",
+		Email:       fmt.Sprintf("user1_%d@example.com", time.Now().UnixNano()),
+		Gender:      "m",
+		IsActivated: true,
+		IsOfficer:   true,
+	}
+	_ = testUser1.Password.Set("TestPass123!")
+	_ = userModel.Insert(testUser1)
+
+	testUser2 := &User{
+		FirstName:   "User2",
+		LastName:    "Test",
+		Email:       fmt.Sprintf("user2_%d@example.com", time.Now().UnixNano()),
+		Gender:      "f",
+		IsActivated: true,
+		IsOfficer:   true,
+	}
+	_ = testUser2.Password.Set("TestPass123!")
+	_ = userModel.Insert(testUser2)
+
+	testRegion := &Region{Region: "Constraint Test Region"}
+	_ = regionModel.Insert(testRegion)
+
+	testFormation := &Formation{Formation: "Constraint Test Formation", RegionID: testRegion.ID}
+	_ = formationModel.Insert(testFormation)
+
+	testPosting := &Posting{Posting: "Constraint Test Posting", Code: "CTP"}
+	_ = postingModel.Insert(testPosting)
+
+	testRank := &Rank{Rank: "Constraint Test Rank", Code: "CTR", AnnualTrainingHours: 45}
+	_ = rankModel.Insert(testRank)
+
+	regNumber := fmt.Sprintf("CONST%d", time.Now().UnixNano())
+
+	// Test unique user_id constraint
+	officer1 := &Officer{
+		UserID:           testUser1.ID,
+		RegulationNumber: regNumber + "1",
+		RankID:           testRank.ID,
+		PostingID:        testPosting.ID,
+		FormationID:      testFormation.ID,
+		RegionID:         testRegion.ID,
+	}
+	_ = officerModel.Insert(officer1)
+
+	// Try to create another officer with the same user_id
+	officer2 := &Officer{
+		UserID:           testUser1.ID, // Same user ID
+		RegulationNumber: regNumber + "2",
+		RankID:           testRank.ID,
+		PostingID:        testPosting.ID,
+		FormationID:      testFormation.ID,
+		RegionID:         testRegion.ID,
+	}
+	err := officerModel.Insert(officer2)
+	if err == nil {
+		t.Error("Expected error when inserting officer with duplicate user_id")
+	}
+	if err != ErrDuplicateValue {
+		t.Errorf("Expected ErrDuplicateValue, got %v", err)
+	}
+
+	// Test unique regulation_number constraint
+	officer3 := &Officer{
+		UserID:           testUser2.ID,
+		RegulationNumber: regNumber + "1", // Same regulation number as officer1
+		RankID:           testRank.ID,
+		PostingID:        testPosting.ID,
+		FormationID:      testFormation.ID,
+		RegionID:         testRegion.ID,
+	}
+	err = officerModel.Insert(officer3)
+	if err == nil {
+		t.Error("Expected error when inserting officer with duplicate regulation_number")
+	}
+	if err != ErrDuplicateValue {
+		t.Errorf("Expected ErrDuplicateValue, got %v", err)
+	}
+}
+
+func TestInsertGetUpdateDeleteOfficer(t *testing.T) {
+	db := setupTestDB(t)
+
+	// Clean up before and after test - officer-specific
+	CleanupOfficerTestData(t, db)
+	defer CleanupOfficerTestData(t, db)
+
+	// Create test dependencies
+	userModel := UserModel{DB: db}
+	regionModel := RegionModel{DB: db}
+	formationModel := FormationModel{DB: db}
+	postingModel := PostingModel{DB: db}
+	rankModel := RankModel{DB: db}
+	officerModel := OfficerModel{DB: db}
+
+	// Create a test user first
+	testUser := &User{
+		FirstName:   "Test",
+		LastName:    "Officer",
+		Email:       fmt.Sprintf("testofficer%d@example.com", time.Now().UnixNano()),
+		Gender:      "m",
+		IsActivated: true,
+		IsOfficer:   true,
+	}
+	_ = testUser.Password.Set("TestPass123!")
+	err := userModel.Insert(testUser)
+	if err != nil {
+		t.Fatalf("Failed to create test user: %v", err)
+	}
+
+	// Use existing seed data instead of creating new ones
+	testRegion, err := regionModel.GetByName("Eastern Division")
+	if err != nil {
+		t.Fatalf("Failed to get test region: %v", err)
+	}
+
+	testFormation, err := formationModel.Get(8) // Police Headquarters - Eastern Division
+	if err != nil {
+		t.Fatalf("Failed to get test formation: %v", err)
+	}
+
+	testPosting, err := postingModel.GetByName("Station Manager")
+	if err != nil {
+		t.Fatalf("Failed to get test posting: %v", err)
+	}
+
+	testRank, err := rankModel.GetByName("Corporal")
+	if err != nil {
+		t.Fatalf("Failed to get test rank: %v", err)
+	}
+
+	// Create test officer
 	officer := &Officer{
 		UserID:           testUser.ID,
 		RegulationNumber: fmt.Sprintf("OFF%d", time.Now().UnixNano()),
@@ -187,8 +444,21 @@ func TestInsertGetUpdateDeleteOfficer(t *testing.T) {
 		t.Errorf("Expected officer ID %v, got %v", officer.ID, fetchedByReg.ID)
 	}
 
-	// Test Update
+	// Test Update - change to a different rank and posting
+	updatedRank, err := rankModel.GetByName("Inspector of Police")
+	if err != nil {
+		t.Fatalf("Failed to get updated rank: %v", err)
+	}
+
+	updatedPosting, err := postingModel.GetByName("Crimes Investigation Branch")
+	if err != nil {
+		t.Fatalf("Failed to get updated posting: %v", err)
+	}
+
 	officer.RegulationNumber = fmt.Sprintf("UPD%d", time.Now().UnixNano())
+	officer.RankID = updatedRank.ID
+	officer.PostingID = updatedPosting.ID
+
 	err = officerModel.Update(officer)
 	if err != nil {
 		t.Fatalf("Update() failed: %v", err)
@@ -202,6 +472,14 @@ func TestInsertGetUpdateDeleteOfficer(t *testing.T) {
 
 	if updated.RegulationNumber != officer.RegulationNumber {
 		t.Errorf("Expected updated regulation number %v, got %v", officer.RegulationNumber, updated.RegulationNumber)
+	}
+
+	if updated.RankID != updatedRank.ID {
+		t.Errorf("Expected updated rank ID %v, got %v", updatedRank.ID, updated.RankID)
+	}
+
+	if updated.PostingID != updatedPosting.ID {
+		t.Errorf("Expected updated posting ID %v, got %v", updatedPosting.ID, updated.PostingID)
 	}
 
 	// Test Delete
@@ -219,14 +497,12 @@ func TestInsertGetUpdateDeleteOfficer(t *testing.T) {
 		t.Errorf("Expected ErrRecordNotFound, got %v", err)
 	}
 }
-
-func TestOfficerGetAll(t *testing.T) {
+func TestOfficerGetWithDetails(t *testing.T) {
 	db := setupTestDB(t)
 
-	// Clean up before and after test
-	// Clean up before and after test
-	cleanupTestData(t, db)
-	defer cleanupTestData(t, db)
+	// Clean up before and after test - officer-specific
+	CleanupOfficerTestData(t, db)
+	defer CleanupOfficerTestData(t, db)
 
 	// Create test dependencies
 	userModel := UserModel{DB: db}
@@ -236,94 +512,7 @@ func TestOfficerGetAll(t *testing.T) {
 	rankModel := RankModel{DB: db}
 	officerModel := OfficerModel{DB: db}
 
-	// Create test data
-	// Instead of inserting new regions, formations, etc.
-	testRegion, err := regionModel.Get(3)
-	if err != nil {
-		t.Fatalf("Failed to get test region: %v", err)
-	}
-
-	testFormation, err := formationModel.Get(3)
-	if err != nil {
-		t.Fatalf("Failed to get test formation: %v", err)
-	}
-
-	testPosting, err := postingModel.Get(4)
-	if err != nil {
-		t.Fatalf("Failed to get test posting: %v", err)
-	}
-
-	testRank, err := rankModel.Get(3)
-	if err != nil {
-		t.Fatalf("Failed to get test rank: %v", err)
-	}
-
-	// Create multiple test officers
-	numOfficers := 3
-	for i := 0; i < numOfficers; i++ {
-		testUser := &User{
-			FirstName:   fmt.Sprintf("Officer%d", i),
-			LastName:    "Test",
-			Email:       fmt.Sprintf("officer%d_%d@example.com", i, time.Now().UnixNano()),
-			Gender:      "m",
-			IsActivated: true,
-			IsOfficer:   true,
-		}
-		_ = testUser.Password.Set("TestPass123!")
-		err := userModel.Insert(testUser)
-		if err != nil {
-			t.Fatalf("Failed to create test user: %v", err)
-		}
-		testUserID := testUser.ID
-
-		officer := &Officer{
-			UserID:           testUserID,
-			RegulationNumber: fmt.Sprintf("OFF%d_%d", i, time.Now().UnixNano()),
-			RankID:           testRank.ID,
-			PostingID:        testPosting.ID,
-			FormationID:      testFormation.ID,
-			RegionID:         testRegion.ID,
-		}
-		err = officerModel.Insert(officer)
-		if err != nil {
-			t.Fatalf("Insert() failed: %v", err)
-		}
-	}
-
-	// Test GetAll
-	filters := Filters{
-		Page:         1,
-		PageSize:     10,
-		Sort:         "id",
-		SortSafelist: []string{"id", "-id"},
-	}
-
-	officers, metadata, err := officerModel.GetAll("", nil, nil, nil, nil, filters)
-	if err != nil {
-		t.Fatalf("GetAll() failed: %v", err)
-	}
-
-	if len(officers) != numOfficers {
-		t.Errorf("Expected %d officers, got %d", numOfficers, len(officers))
-	}
-
-	if metadata.TotalRecords != numOfficers {
-		t.Errorf("Expected total records %d, got %d", numOfficers, metadata.TotalRecords)
-	}
-}
-
-func TestOfficerGetWithDetails(t *testing.T) {
-	db := setupTestDB(t)
-
-	// Create test dependencies and officer (similar to above)
-	userModel := UserModel{DB: db}
-	regionModel := RegionModel{DB: db}
-	formationModel := FormationModel{DB: db}
-	postingModel := PostingModel{DB: db}
-	rankModel := RankModel{DB: db}
-	officerModel := OfficerModel{DB: db}
-
-	// Create test data
+	// Create test user
 	testUser := &User{
 		FirstName:   "Detailed",
 		LastName:    "Officer",
@@ -333,20 +522,33 @@ func TestOfficerGetWithDetails(t *testing.T) {
 		IsOfficer:   true,
 	}
 	_ = testUser.Password.Set("TestPass123!")
-	_ = userModel.Insert(testUser)
+	err := userModel.Insert(testUser)
+	if err != nil {
+		t.Fatalf("Failed to create test user: %v", err)
+	}
 
-	testRegion := &Region{Region: "Detailed Region"}
-	_ = regionModel.Insert(testRegion)
+	// Use existing seed data
+	testRegion, err := regionModel.GetByName("Western Region")
+	if err != nil {
+		t.Fatalf("Failed to get test region: %v", err)
+	}
 
-	testFormation := &Formation{Formation: "Detailed Formation", RegionID: testRegion.ID}
-	_ = formationModel.Insert(testFormation)
+	testFormation, err := formationModel.Get(3) // Police Headquarters - Belmopan
+	if err != nil {
+		t.Fatalf("Failed to get test formation: %v", err)
+	}
 
-	testPosting := &Posting{Posting: "Detailed Posting", Code: "DP"}
-	_ = postingModel.Insert(testPosting)
+	testPosting, err := postingModel.GetByName("Staff Duties")
+	if err != nil {
+		t.Fatalf("Failed to get test posting: %v", err)
+	}
 
-	testRank := &Rank{Rank: "Detailed Rank", Code: "DR", AnnualTrainingHoursRequired: 50}
-	_ = rankModel.Insert(testRank)
+	testRank, err := rankModel.GetByName("Sergeant")
+	if err != nil {
+		t.Fatalf("Failed to get test rank: %v", err)
+	}
 
+	// Create test officer
 	officer := &Officer{
 		UserID:           testUser.ID,
 		RegulationNumber: fmt.Sprintf("DET%d", time.Now().UnixNano()),
@@ -355,7 +557,10 @@ func TestOfficerGetWithDetails(t *testing.T) {
 		FormationID:      testFormation.ID,
 		RegionID:         testRegion.ID,
 	}
-	_ = officerModel.Insert(officer)
+	err = officerModel.Insert(officer)
+	if err != nil {
+		t.Fatalf("Failed to insert test officer: %v", err)
+	}
 
 	// Test GetWithDetails
 	detailed, err := officerModel.GetWithDetails(officer.ID)
@@ -392,102 +597,5 @@ func TestOfficerGetWithDetails(t *testing.T) {
 		t.Error("Expected region data to be populated")
 	} else if detailed.Region.Region != testRegion.Region {
 		t.Errorf("Expected region %v, got %v", testRegion.Region, detailed.Region.Region)
-	}
-}
-
-func TestOfficerConstraints(t *testing.T) {
-	db := setupTestDB(t)
-
-	// Clean up before and after test
-	cleanupTestData(t, db)
-	defer cleanupTestData(t, db)
-
-	userModel := UserModel{DB: db}
-	regionModel := RegionModel{DB: db}
-	formationModel := FormationModel{DB: db}
-	postingModel := PostingModel{DB: db}
-	rankModel := RankModel{DB: db}
-	officerModel := OfficerModel{DB: db}
-
-	// Create test dependencies
-	testUser1 := &User{
-		FirstName:   "User1",
-		LastName:    "Test",
-		Email:       fmt.Sprintf("user1_%d@example.com", time.Now().UnixNano()),
-		Gender:      "m",
-		IsActivated: true,
-		IsOfficer:   true,
-	}
-	_ = testUser1.Password.Set("TestPass123!")
-	_ = userModel.Insert(testUser1)
-
-	testUser2 := &User{
-		FirstName:   "User2",
-		LastName:    "Test",
-		Email:       fmt.Sprintf("user2_%d@example.com", time.Now().UnixNano()),
-		Gender:      "f",
-		IsActivated: true,
-		IsOfficer:   true,
-	}
-	_ = testUser2.Password.Set("TestPass123!")
-	_ = userModel.Insert(testUser2)
-
-	testRegion := &Region{Region: "Constraint Test Region"}
-	_ = regionModel.Insert(testRegion)
-
-	testFormation := &Formation{Formation: "Constraint Test Formation", RegionID: testRegion.ID}
-	_ = formationModel.Insert(testFormation)
-
-	testPosting := &Posting{Posting: "Constraint Test Posting", Code: "CTP"}
-	_ = postingModel.Insert(testPosting)
-
-	testRank := &Rank{Rank: "Constraint Test Rank", Code: "CTR", AnnualTrainingHoursRequired: 45}
-	_ = rankModel.Insert(testRank)
-
-	regNumber := fmt.Sprintf("CONST%d", time.Now().UnixNano())
-
-	// Test unique user_id constraint
-	officer1 := &Officer{
-		UserID:           testUser1.ID,
-		RegulationNumber: regNumber + "1",
-		RankID:           testRank.ID,
-		PostingID:        testPosting.ID,
-		FormationID:      testFormation.ID,
-		RegionID:         testRegion.ID,
-	}
-	_ = officerModel.Insert(officer1)
-
-	// Try to create another officer with the same user_id
-	officer2 := &Officer{
-		UserID:           testUser1.ID, // Same user ID
-		RegulationNumber: regNumber + "2",
-		RankID:           testRank.ID,
-		PostingID:        testPosting.ID,
-		FormationID:      testFormation.ID,
-		RegionID:         testRegion.ID,
-	}
-	err := officerModel.Insert(officer2)
-	if err == nil {
-		t.Error("Expected error when inserting officer with duplicate user_id")
-	}
-	if err != ErrDuplicateValue {
-		t.Errorf("Expected ErrDuplicateValue, got %v", err)
-	}
-
-	// Test unique regulation_number constraint
-	officer3 := &Officer{
-		UserID:           testUser2.ID,
-		RegulationNumber: regNumber + "1", // Same regulation number as officer1
-		RankID:           testRank.ID,
-		PostingID:        testPosting.ID,
-		FormationID:      testFormation.ID,
-		RegionID:         testRegion.ID,
-	}
-	err = officerModel.Insert(officer3)
-	if err == nil {
-		t.Error("Expected error when inserting officer with duplicate regulation_number")
-	}
-	if err != ErrDuplicateValue {
-		t.Errorf("Expected ErrDuplicateValue, got %v", err)
 	}
 }

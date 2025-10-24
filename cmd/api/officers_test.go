@@ -12,7 +12,21 @@ import (
 	"github.com/Pedro-J-Kukul/police_training/internal/data"
 )
 
-// Helper function to create test dependencies for officers
+// Helper function to clean up officer test data only for API tests
+func cleanupOfficerAPITestData(t *testing.T) {
+	t.Helper()
+
+	// Get the database from testApp
+	db := testApp.models.User.DB
+
+	// Clean up only officer-related data
+	_, err := db.Exec("TRUNCATE TABLE officers RESTART IDENTITY CASCADE")
+	if err != nil {
+		t.Logf("Warning: Failed to cleanup officers: %v", err)
+	}
+}
+
+// Helper function to create test dependencies for officers using seed data
 func createOfficerTestDependencies(t *testing.T) (userID, regionID, formationID, postingID, rankID int64) {
 	t.Helper()
 
@@ -31,32 +45,25 @@ func createOfficerTestDependencies(t *testing.T) (userID, regionID, formationID,
 		t.Fatalf("Failed to create test user: %v", err)
 	}
 
-	// Create test region
-	region := &data.Region{Region: "Test Officer Region"}
-	err = testApp.models.Region.Insert(region)
+	// Use existing seed data instead of creating new reference data
+	region, err := testApp.models.Region.GetByName("Northern Region")
 	if err != nil {
-		t.Fatalf("Failed to create test region: %v", err)
+		t.Fatalf("Failed to get test region: %v", err)
 	}
 
-	// Create test formation
-	formation := &data.Formation{Formation: "Test Officer Formation", RegionID: region.ID}
-	err = testApp.models.Formation.Insert(formation)
+	formation, err := testApp.models.Formation.Get(1) // Corozal Police Formation
 	if err != nil {
-		t.Fatalf("Failed to create test formation: %v", err)
+		t.Fatalf("Failed to get test formation: %v", err)
 	}
 
-	// Create test posting
-	posting := &data.Posting{Posting: "Test Officer Posting", Code: "TOP"}
-	err = testApp.models.Posting.Insert(posting)
+	posting, err := testApp.models.Posting.GetByName("Relief")
 	if err != nil {
-		t.Fatalf("Failed to create test posting: %v", err)
+		t.Fatalf("Failed to get test posting: %v", err)
 	}
 
-	// Create test rank
-	rank := &data.Rank{Rank: "Test Officer Rank", Code: "TOR", AnnualTrainingHoursRequired: 40}
-	err = testApp.models.Rank.Insert(rank)
+	rank, err := testApp.models.Rank.GetByName("Constable")
 	if err != nil {
-		t.Fatalf("Failed to create test rank: %v", err)
+		t.Fatalf("Failed to get test rank: %v", err)
 	}
 
 	return user.ID, region.ID, formation.ID, posting.ID, rank.ID
@@ -92,9 +99,9 @@ func createTestOfficerWithToken(t *testing.T) (*data.Officer, string) {
 }
 
 func TestCreateOfficerHandler(t *testing.T) {
-	// Clean up before test
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	// Clean up before test - officer-specific
+	cleanupOfficerAPITestData(t)
+	defer cleanupOfficerAPITestData(t)
 
 	userID, regionID, formationID, postingID, rankID := createOfficerTestDependencies(t)
 	_, token := createTestUserWithToken(t)
@@ -207,8 +214,8 @@ func TestCreateOfficerHandler(t *testing.T) {
 }
 
 func TestShowOfficerHandler(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupOfficerAPITestData(t)
+	defer cleanupOfficerAPITestData(t)
 
 	officer, token := createTestOfficerWithToken(t)
 
@@ -288,8 +295,8 @@ func TestShowOfficerHandler(t *testing.T) {
 }
 
 func TestShowOfficerWithDetailsHandler(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupOfficerAPITestData(t)
+	defer cleanupOfficerAPITestData(t)
 
 	officer, token := createTestOfficerWithToken(t)
 
@@ -336,13 +343,32 @@ func TestShowOfficerWithDetailsHandler(t *testing.T) {
 }
 
 func TestListOfficersHandler(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupOfficerAPITestData(t)
+	defer cleanupOfficerAPITestData(t)
 
-	// Create multiple test officers
+	// Create multiple test officers using seed data
 	_, token := createTestUserWithToken(t)
 
-	userID, regionID, formationID, postingID, rankID := createOfficerTestDependencies(t)
+	// Get seed data for creating multiple officers
+	region, err := testApp.models.Region.GetByName("Eastern Division")
+	if err != nil {
+		t.Fatalf("Failed to get region: %v", err)
+	}
+
+	formation, err := testApp.models.Formation.Get(8) // Police Headquarters - Eastern Division
+	if err != nil {
+		t.Fatalf("Failed to get formation: %v", err)
+	}
+
+	posting, err := testApp.models.Posting.GetByName("Station Manager")
+	if err != nil {
+		t.Fatalf("Failed to get posting: %v", err)
+	}
+
+	rank, err := testApp.models.Rank.GetByName("Sergeant")
+	if err != nil {
+		t.Fatalf("Failed to get rank: %v", err)
+	}
 
 	// Create 3 test officers
 	for i := 0; i < 3; i++ {
@@ -355,17 +381,16 @@ func TestListOfficersHandler(t *testing.T) {
 			IsActivated: true,
 			IsOfficer:   true,
 		}
-		_ = userID
 		_ = testUser.Password.Set("TestPass123!")
 		_ = testApp.models.User.Insert(testUser)
 
 		officer := &data.Officer{
 			UserID:           testUser.ID,
 			RegulationNumber: fmt.Sprintf("LIST%d_%d", i, time.Now().UnixNano()),
-			RankID:           rankID,
-			PostingID:        postingID,
-			FormationID:      formationID,
-			RegionID:         regionID,
+			RankID:           rank.ID,
+			PostingID:        posting.ID,
+			FormationID:      formation.ID,
+			RegionID:         region.ID,
 		}
 		_ = testApp.models.Officer.Insert(officer)
 	}
@@ -393,7 +418,14 @@ func TestListOfficersHandler(t *testing.T) {
 		},
 		{
 			name:           "Filter by rank",
-			queryParams:    fmt.Sprintf("?rank_id=%d", rankID),
+			queryParams:    fmt.Sprintf("?rank_id=%d", rank.ID),
+			token:          token,
+			expectedStatus: http.StatusOK,
+			expectedCount:  3,
+		},
+		{
+			name:           "Filter by region",
+			queryParams:    fmt.Sprintf("?region_id=%d", region.ID),
 			token:          token,
 			expectedStatus: http.StatusOK,
 			expectedCount:  3,
@@ -451,10 +483,21 @@ func TestListOfficersHandler(t *testing.T) {
 }
 
 func TestUpdateOfficerHandler(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupOfficerAPITestData(t)
+	defer cleanupOfficerAPITestData(t)
 
 	officer, token := createTestOfficerWithToken(t)
+
+	// Get different rank and posting for update test
+	newRank, err := testApp.models.Rank.GetByName("Inspector of Police")
+	if err != nil {
+		t.Fatalf("Failed to get new rank: %v", err)
+	}
+
+	newPosting, err := testApp.models.Posting.GetByName("Crimes Investigation Branch")
+	if err != nil {
+		t.Fatalf("Failed to get new posting: %v", err)
+	}
 
 	tests := []struct {
 		name           string
@@ -468,6 +511,8 @@ func TestUpdateOfficerHandler(t *testing.T) {
 			officerID: strconv.FormatInt(officer.ID, 10),
 			input: map[string]any{
 				"regulation_number": fmt.Sprintf("UPD%d", time.Now().UnixNano()),
+				"rank_id":           newRank.ID,
+				"posting_id":        newPosting.ID,
 			},
 			token:          token,
 			expectedStatus: http.StatusOK,
@@ -532,8 +577,8 @@ func TestUpdateOfficerHandler(t *testing.T) {
 }
 
 func TestDeleteOfficerHandler(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupOfficerAPITestData(t)
+	defer cleanupOfficerAPITestData(t)
 
 	officer, token := createTestOfficerWithToken(t)
 
@@ -593,8 +638,8 @@ func TestDeleteOfficerHandler(t *testing.T) {
 }
 
 func TestGetUserOfficerHandler(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupOfficerAPITestData(t)
+	defer cleanupOfficerAPITestData(t)
 
 	officer, token := createTestOfficerWithToken(t)
 
@@ -669,8 +714,8 @@ func TestGetUserOfficerHandler(t *testing.T) {
 
 // Integration test for complete officer workflow
 func TestOfficerWorkflow(t *testing.T) {
-	cleanupAPITestData(t)
-	defer cleanupAPITestData(t)
+	cleanupOfficerAPITestData(t)
+	defer cleanupOfficerAPITestData(t)
 
 	userID, regionID, formationID, postingID, rankID := createOfficerTestDependencies(t)
 	_, token := createTestUserWithToken(t)
@@ -716,8 +761,10 @@ func TestOfficerWorkflow(t *testing.T) {
 	}
 
 	// 3. Update the officer
+	updateRank, _ := testApp.models.Rank.GetByName("Corporal")
 	updateInput := map[string]any{
 		"regulation_number": fmt.Sprintf("UPD_WF%d", time.Now().UnixNano()),
+		"rank_id":           updateRank.ID,
 	}
 
 	body, _ = json.Marshal(updateInput)
