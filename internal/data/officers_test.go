@@ -179,7 +179,7 @@ func TestOfficerGetAll(t *testing.T) {
 		t.Fatalf("Failed to get test region: %v", err)
 	}
 
-	testFormation, err := formationModel.Get(1) // Corozal Police Formation
+	testFormation, err := formationModel.GetByName("Corozal Police Formation")
 	if err != nil {
 		t.Fatalf("Failed to get test formation: %v", err)
 	}
@@ -281,19 +281,30 @@ func TestOfficerConstraints(t *testing.T) {
 		IsOfficer:   true,
 	}
 	_ = testUser2.Password.Set("TestPass123!")
-	_ = userModel.Insert(testUser2)
+	err := userModel.Insert(testUser2)
+	if err != nil {
+		t.Fatalf("Failed to create test user2: %v", err)
+	}
 
-	testRegion := &Region{Region: "Constraint Test Region"}
-	_ = regionModel.Insert(testRegion)
+	testRegion, err := regionModel.GetByName("Southern Region")
+	if err != nil {
+		t.Fatalf("Failed to get test region: %v", err)
+	}
 
-	testFormation := &Formation{Formation: "Constraint Test Formation", RegionID: testRegion.ID}
-	_ = formationModel.Insert(testFormation)
+	testFormation, err := formationModel.GetByName("Ladyville Police Sub-Formation")
+	if err != nil {
+		t.Fatalf("Failed to get test formation: %v", err)
+	}
 
-	testPosting := &Posting{Posting: "Constraint Test Posting", Code: "CTP"}
-	_ = postingModel.Insert(testPosting)
+	testPosting, err := postingModel.GetByName("Special Branch")
+	if err != nil {
+		t.Fatalf("Failed to get test posting: %v", err)
+	}
 
-	testRank := &Rank{Rank: "Constraint Test Rank", Code: "CTR", AnnualTrainingHours: 45}
-	_ = rankModel.Insert(testRank)
+	testRank, err := rankModel.GetByName("Constable")
+	if err != nil {
+		t.Fatalf("Failed to get test rank: %v", err)
+	}
 
 	regNumber := fmt.Sprintf("CONST%d", time.Now().UnixNano())
 
@@ -317,7 +328,7 @@ func TestOfficerConstraints(t *testing.T) {
 		FormationID:      testFormation.ID,
 		RegionID:         testRegion.ID,
 	}
-	err := officerModel.Insert(officer2)
+	err = officerModel.Insert(officer2)
 	if err == nil {
 		t.Error("Expected error when inserting officer with duplicate user_id")
 	}
