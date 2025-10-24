@@ -82,6 +82,28 @@ func (m *PostingModel) Get(id int64) (*Posting, error) {
 	return &posting, nil
 }
 
+// GetByName retrieves a posting by name.
+func (m *PostingModel) GetByName(name string) (*Posting, error) {
+	query := `SELECT id, posting, code FROM postings WHERE posting = $1`
+
+	var posting Posting
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, name).Scan(&posting.ID, &posting.Posting, &posting.Code)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &posting, nil
+}
+
 // GetAll returns postings filtered by name or code.
 func (m *PostingModel) GetAll(name string, code string, filters Filters) ([]*Posting, MetaData, error) {
 	if filters.Sort == "" {
@@ -91,8 +113,8 @@ func (m *PostingModel) GetAll(name string, code string, filters Filters) ([]*Pos
 	query := fmt.Sprintf(`
 		SELECT COUNT(*) OVER(), id, posting, code
 		FROM postings
-		WHERE ($1 = '' OR posting ILIKE $1)
-		AND ($2 = '' OR code ILIKE $2)
+		WHERE (to_tsvector('simple', posting) @@ plainto_tsquery('simple', $1) OR $1 = '')
+		AND (to_tsvector('simple', code) @@ plainto_tsquery('simple', $2) OR $2 = '')
 		ORDER BY %s %s, id ASC
 		LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 
@@ -146,6 +168,34 @@ func (m *PostingModel) Update(posting *Posting) error {
 		default:
 			return err
 		}
+	}
+
+	return nil
+}
+
+// Delete removes a posting by id.
+func (m *PostingModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `DELETE FROM postings WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
 	}
 
 	return nil

@@ -80,6 +80,28 @@ func (m RegionModel) Get(id int64) (*Region, error) {
 	return &region, nil
 }
 
+// GetByName retrieves a region by name.
+func (m RegionModel) GetByName(name string) (*Region, error) {
+	query := `SELECT id, region FROM regions WHERE region = $1`
+
+	var region Region
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, name).Scan(&region.ID, &region.Region)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &region, nil
+}
+
 // GetAll returns regions filtered by name with pagination.
 func (m RegionModel) GetAll(name string, filters Filters) ([]*Region, MetaData, error) {
 	if filters.Sort == "" {
@@ -89,7 +111,7 @@ func (m RegionModel) GetAll(name string, filters Filters) ([]*Region, MetaData, 
 	query := fmt.Sprintf(`
 		SELECT COUNT(*) OVER(), id, region
 		FROM regions
-		WHERE ($1 = '' OR region ILIKE $1)
+		WHERE (to_tsvector('simple', region) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		ORDER BY %s %s, id ASC
 		LIMIT $2 OFFSET $3`, filters.sortColumn(), filters.sortDirection())
 
@@ -143,6 +165,34 @@ func (m RegionModel) Update(region *Region) error {
 		default:
 			return err
 		}
+	}
+
+	return nil
+}
+
+// Delete removes a region by id.
+func (m RegionModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `DELETE FROM regions WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
 	}
 
 	return nil
