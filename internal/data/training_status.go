@@ -147,3 +147,53 @@ func (m *TrainingStatusModel) Update(status *TrainingStatus) error {
 
 	return nil
 }
+
+func (m *TrainingStatusModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `
+		DELETE FROM training_status
+		WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
+}
+
+func (m *TrainingStatusModel) GetByName(name string) (*TrainingStatus, error) {
+	query := `SELECT id, status FROM training_status WHERE status = $1`
+
+	var status TrainingStatus
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, name).Scan(&status.ID, &status.Status)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &status, nil
+}
