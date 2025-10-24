@@ -87,7 +87,7 @@ func (m *FormationModel) Get(id int64) (*Formation, error) {
 // GetByName retrieves a formation by its name
 func (m *FormationModel) GetByName(formation string) (*Formation, error) {
 	query := `
-		SELECT id, formation, region_id,
+		SELECT id, formation, region_id
 		FROM formations
 		WHERE formation = $1`
 
