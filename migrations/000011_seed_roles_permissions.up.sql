@@ -1,4 +1,4 @@
--- Give Admin all permissions
+-- Assign all permissions to Admin role
 DO $$
 DECLARE
     perm RECORD;
@@ -11,23 +11,24 @@ BEGIN
     FOR perm IN SELECT id FROM permissions LOOP
         INSERT INTO roles_permissions (role_id, permission_id)
         VALUES (admin_role_id, perm.id)
-        ON CONFLICT DO NOTHING;  -- avoids duplicate inserts
+        ON CONFLICT DO NOTHING; -- Avoid duplicate inserts
     END LOOP;
 END $$;
 
-
--- Give Content-Contributor specific permissions (view, edit, create)
+-- Assign specific permissions to Content-Contributor role
 DO $$
 DECLARE
     perm_code TEXT;
     cc_role_id INT;
     perm_codes TEXT[] := ARRAY[
-        'workshop:create', 'workshop:view', 'workshop:update',
-        'training:create', 'training:view', 'training:update',
-        'enrollment:create', 'enrollment:view', 'enrollment:update',
-        'session:create', 'session:view', 'session:update',
-        'user:create', 'user:view', 'user:update',
-        'officer:create', 'officer:view', 'officer:update',
+        'workshops:create', 'workshops:view', 'workshops:edit',
+        'training:categories:create', 'training:categories:view', 'training:categories:edit',
+        'training:types:create', 'training:types:view', 'training:types:edit',
+        'training:status:create', 'training:status:view', 'training:status:edit',
+        'training:sessions:create', 'training:sessions:view', 'training:sessions:edit',
+        'training:enrollments:create', 'training:enrollments:view', 'training:enrollments:edit',
+        'users:view', 'users:edit',
+        'officers:view', 'officers:create', 'officers:edit',
         'self:view', 'self:update'
     ];
 BEGIN
@@ -46,17 +47,16 @@ BEGIN
 END $$;
 
 
--- Give Officer specific permissions (view/edit self, view trainings/enrollments/workshops)
+-- Assign specific permissions to Officer role
 DO $$
 DECLARE
     perm_code TEXT;
     officer_role_id INT;
     perm_codes TEXT[] := ARRAY[
         'self:view', 'self:update',
-        'training:view',
-        'enrollment:view',
-        'session:view',
-        'workshop:view'
+        'training:sessions:view',
+        'training:enrollments:view',
+        'workshops:view'
     ];
 BEGIN
     -- Get the role_id for the Officer role
