@@ -203,13 +203,13 @@ func (app *appDependencies) requireActivatedUser(next http.Handler) http.Handler
 // Permissions
 /************************************************************************************************************/
 // requireRole is a middleware that ensures the user has a specific role.
-func (app *appDependencies) requirePermissions(requiredPermissions ...string) func(http.Handler) http.Handler {
+func (app *appDependencies) requirePermissions(requiredPermissions string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user := app.contextGetUser(r) // Get the user from the context
 
-			// Check if the user has all required permissions
-			hasPermissions, err := app.models.Role.HasAllPermissions(user.ID, requiredPermissions...)
+			// Check if the user has the required permission
+			hasPermissions, err := app.models.Role.HasPermission(user.ID, requiredPermissions)
 			if err != nil {
 				app.serverErrorResponse(w, r, err) // Send a 500 Internal Server Error response for errors
 				return
