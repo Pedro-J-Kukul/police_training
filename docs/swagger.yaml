@@ -79,51 +79,6 @@ definitions:
       name:
         type: string
     type: object
-  main.CreateTrainingEnrollmentRequest_T:
-    properties:
-      attendance_status_id:
-        type: integer
-      certificate_issued:
-        type: boolean
-      certificate_number:
-        type: string
-      completion_date:
-        description: Accept as string
-        type: string
-      enrollment_status_id:
-        type: integer
-      officer_id:
-        type: integer
-      progress_status_id:
-        type: integer
-      session_id:
-        type: integer
-    type: object
-  main.CreateTrainingSessionRequest_T:
-    properties:
-      end_time:
-        type: string
-      facilitator_id:
-        type: integer
-      formation_id:
-        type: integer
-      location:
-        type: string
-      max_capacity:
-        type: integer
-      notes:
-        type: string
-      region_id:
-        type: integer
-      session_date:
-        type: string
-      start_time:
-        type: string
-      training_status_id:
-        type: integer
-      workshop_id:
-        type: integer
-    type: object
   main.CreateTrainingStatusRequest_T:
     properties:
       status:
@@ -132,23 +87,6 @@ definitions:
   main.CreateTrainingTypeRequest_T:
     properties:
       type:
-        type: string
-    type: object
-  main.CreateWorkshopRequest_T:
-    properties:
-      category_id:
-        type: integer
-      credit_hours:
-        type: integer
-      description:
-        type: string
-      is_active:
-        type: boolean
-      objectives:
-        type: string
-      training_type_id:
-        type: integer
-      workshop_name:
         type: string
     type: object
   main.ResetPasswordRequest_T:
@@ -225,51 +163,6 @@ definitions:
       name:
         type: string
     type: object
-  main.UpdateTrainingEnrollmentRequest_T:
-    properties:
-      attendance_status_id:
-        description: 'Fixed: was **int64'
-        type: integer
-      certificate_issued:
-        type: boolean
-      certificate_number:
-        type: string
-      completion_date:
-        type: string
-      enrollment_status_id:
-        type: integer
-      officer_id:
-        type: integer
-      progress_status_id:
-        type: integer
-      session_id:
-        type: integer
-    type: object
-  main.UpdateTrainingSessionRequest_T:
-    properties:
-      end_time:
-        type: string
-      facilitator_id:
-        type: integer
-      formation_id:
-        type: integer
-      location:
-        type: string
-      max_capacity:
-        type: integer
-      notes:
-        type: string
-      region_id:
-        type: integer
-      session_date:
-        type: string
-      start_time:
-        type: string
-      training_status_id:
-        type: integer
-      workshop_id:
-        type: integer
-    type: object
   main.UpdateTrainingStatusRequest_T:
     properties:
       status:
@@ -278,27 +171,6 @@ definitions:
   main.UpdateTrainingTypeRequest_T:
     properties:
       type:
-        type: string
-    type: object
-  main.UpdateWorkshopRequest_T:
-    properties:
-      category_id:
-        type: integer
-      credit_hours:
-        type: integer
-      description:
-        description: 'Fixed: was **string'
-        type: string
-      is_active:
-        type: boolean
-      objectives:
-        description: 'Fixed: was **string'
-        type: string
-      training_type_id:
-        type: integer
-      updated_at:
-        type: string
-      workshop_name:
         type: string
     type: object
   main.activateUserRequest:
@@ -811,20 +683,19 @@ paths:
       - users
   /v1/officers:
     get:
-      description: Retrieve a list of officers with optional filtering by regulation
-        number, posting, rank, formation, and region
+      description: Retrieve a list of officers with optional filtering and pagination
       parameters:
       - description: Filter by regulation number
         in: query
         name: regulation_number
         type: string
-      - description: Filter by posting ID
-        in: query
-        name: posting_id
-        type: integer
       - description: Filter by rank ID
         in: query
         name: rank_id
+        type: integer
+      - description: Filter by posting ID
+        in: query
+        name: posting_id
         type: integer
       - description: Filter by formation ID
         in: query
@@ -834,18 +705,6 @@ paths:
         in: query
         name: region_id
         type: integer
-      - description: Page number for pagination
-        in: query
-        name: page
-        type: integer
-      - description: Number of items per page
-        in: query
-        name: page_size
-        type: integer
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
       produces:
       - application/json
       responses:
@@ -853,10 +712,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/main.envelope'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/main.errorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -869,7 +724,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new officer
+      description: Create a new officer record linked to a user
       parameters:
       - description: Officer data
         in: body
@@ -896,20 +751,20 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Create a new officer
       tags:
       - officers
   /v1/officers/{id}:
     delete:
-      description: Delete an officer by its ID
+      description: Remove an officer record
       parameters:
       - description: Officer ID
         in: path
         name: id
         required: true
         type: integer
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
@@ -934,7 +789,7 @@ paths:
       tags:
       - officers
     get:
-      description: Retrieve an officer by its ID
+      description: Retrieve an officer by their ID
       parameters:
       - description: Officer ID
         in: path
@@ -964,14 +819,14 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Perform a partial update on an officer record
+      description: Update an existing officer's information
       parameters:
       - description: Officer ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Officer data
+      - description: Officer update data
         in: body
         name: officer
         required: true
@@ -992,10 +847,6 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/main.errorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/main.errorResponse'
         "422":
           description: Unprocessable Entity
           schema:
@@ -1007,6 +858,36 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update an officer
+      tags:
+      - officers
+  /v1/officers/{id}/details:
+    get:
+      description: Retrieve an officer with all related information (user, rank, posting,
+        etc.)
+      parameters:
+      - description: Officer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get an officer with details
       tags:
       - officers
   /v1/postings:
@@ -1834,408 +1715,6 @@ paths:
       summary: Update a training category
       tags:
       - training-categories
-  /v1/training/enrollments:
-    get:
-      description: Retrieve a list of training enrollments with optional filtering
-      parameters:
-      - description: Filter by officer ID
-        in: query
-        name: officer_id
-        type: integer
-      - description: Filter by session ID
-        in: query
-        name: session_id
-        type: integer
-      - description: Filter by enrollment status ID
-        in: query
-        name: enrollment_status_id
-        type: integer
-      - description: Filter by progress status ID
-        in: query
-        name: progress_status_id
-        type: integer
-      - description: Filter by certificate issued status
-        in: query
-        name: certificate_issued
-        type: boolean
-      - description: Page number for pagination
-        in: query
-        name: page
-        type: integer
-      - description: Number of items per page
-        in: query
-        name: page_size
-        type: integer
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: List training enrollments
-      tags:
-      - training-enrollments
-    post:
-      consumes:
-      - application/json
-      description: Create a new training enrollment
-      parameters:
-      - description: Training enrollment data
-        in: body
-        name: training_enrollment
-        required: true
-        schema:
-          $ref: '#/definitions/main.CreateTrainingEnrollmentRequest_T'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a new training enrollment
-      tags:
-      - training-enrollments
-  /v1/training/enrollments/{id}:
-    delete:
-      description: Delete a training enrollment by its ID
-      parameters:
-      - description: Training enrollment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/main.envelope'
-            - properties:
-                message:
-                  type: string
-              type: object
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a training enrollment
-      tags:
-      - training-enrollments
-    get:
-      description: Retrieve a training enrollment by its ID
-      parameters:
-      - description: Training enrollment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Get a training enrollment
-      tags:
-      - training-enrollments
-    patch:
-      consumes:
-      - application/json
-      description: Perform a partial update on a training enrollment record
-      parameters:
-      - description: Training enrollment ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Training enrollment data
-        in: body
-        name: training_enrollment
-        required: true
-        schema:
-          $ref: '#/definitions/main.UpdateTrainingEnrollmentRequest_T'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a training enrollment
-      tags:
-      - training-enrollments
-  /v1/training/sessions:
-    get:
-      description: Retrieve a list of training sessions with optional filtering
-      parameters:
-      - description: Filter by formation ID
-        in: query
-        name: formation_id
-        type: integer
-      - description: Filter by region ID
-        in: query
-        name: region_id
-        type: integer
-      - description: Filter by facilitator ID
-        in: query
-        name: facilitator_id
-        type: integer
-      - description: Filter by workshop ID
-        in: query
-        name: workshop_id
-        type: integer
-      - description: Filter by training status ID
-        in: query
-        name: training_status_id
-        type: integer
-      - description: Filter by location
-        in: query
-        name: location
-        type: string
-      - description: Filter by notes
-        in: query
-        name: notes
-        type: string
-      - description: Filter by session date (YYYY-MM-DD)
-        in: query
-        name: session_date
-        type: string
-      - description: Page number for pagination
-        in: query
-        name: page
-        type: integer
-      - description: Number of items per page
-        in: query
-        name: page_size
-        type: integer
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: List training sessions
-      tags:
-      - training-sessions
-    post:
-      consumes:
-      - application/json
-      description: Create a new training session
-      parameters:
-      - description: Training session data
-        in: body
-        name: training_session
-        required: true
-        schema:
-          $ref: '#/definitions/main.CreateTrainingSessionRequest_T'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a new training session
-      tags:
-      - training-sessions
-  /v1/training/sessions/{id}:
-    delete:
-      description: Delete a training session by its ID
-      parameters:
-      - description: Training session ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/main.envelope'
-            - properties:
-                message:
-                  type: string
-              type: object
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Delete a training session
-      tags:
-      - training-sessions
-    get:
-      description: Retrieve a training session by its ID
-      parameters:
-      - description: Training session ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Get a training session
-      tags:
-      - training-sessions
-    patch:
-      consumes:
-      - application/json
-      description: Perform a partial update on a training session record
-      parameters:
-      - description: Training session ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Training session data
-        in: body
-        name: training_session
-        required: true
-        schema:
-          $ref: '#/definitions/main.UpdateTrainingSessionRequest_T'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a training session
-      tags:
-      - training-sessions
   /v1/training/status:
     get:
       description: Retrieve a list of training statuses with optional filtering by
@@ -2652,6 +2131,35 @@ paths:
       summary: Update a user
       tags:
       - users
+  /v1/users/{user_id}/officer:
+    get:
+      description: Retrieve an officer record by their associated user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.envelope'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get officer by user ID
+      tags:
+      - officers
   /v1/users/activate:
     put:
       consumes:
@@ -2721,168 +2229,79 @@ paths:
       tags:
       - Tokens
   /v1/workshops:
-    get:
-      description: Retrieve a list of workshops with optional filtering by name, category,
-        training type, and active status
-      parameters:
-      - description: Filter by workshop name
-        in: query
-        name: workshop_name
-        type: string
-      - description: Filter by category ID
-        in: query
-        name: category_id
-        type: integer
-      - description: Filter by training type ID
-        in: query
-        name: training_type_id
-        type: integer
-      - description: Filter by active status
-        in: query
-        name: is_active
-        type: boolean
-      - description: Page number for pagination
-        in: query
-        name: page
-        type: integer
-      - description: Number of items per page
-        in: query
-        name: page_size
-        type: integer
-      - description: Sort order
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: List workshops
-      tags:
-      - workshops
     post:
       consumes:
       - application/json
       description: Create a new workshop
       parameters:
-      - description: Workshop data
+      - description: Workshop data (workshop_name, category_id, type_id, credit_hours,
+          description, is_active)
         in: body
         name: workshop
         required: true
         schema:
-          $ref: '#/definitions/main.CreateWorkshopRequest_T'
+          additionalProperties: true
+          type: object
       produces:
       - application/json
       responses:
         "201":
-          description: Created
+          description: 'Created workshop envelope {\"workshop\": {...}}'
           schema:
-            $ref: '#/definitions/main.envelope'
+            additionalProperties: true
+            type: object
         "400":
-          description: Bad Request
+          description: Bad request
           schema:
-            $ref: '#/definitions/main.errorResponse'
+            additionalProperties:
+              type: string
+            type: object
         "422":
-          description: Unprocessable Entity
+          description: Validation errors
           schema:
-            $ref: '#/definitions/main.errorResponse'
+            additionalProperties: true
+            type: object
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Create a new workshop
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a workshop
       tags:
       - workshops
   /v1/workshops/{id}:
     get:
-      description: Retrieve a workshop by its ID
-      parameters:
-      - description: Workshop ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.envelope'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Get a workshop
-      tags:
-      - workshops
-    patch:
       consumes:
       - application/json
-      description: Perform a partial update on a workshop record
+      description: Retrieve a workshop by ID
       parameters:
       - description: Workshop ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Workshop data
-        in: body
-        name: workshop
-        required: true
-        schema:
-          $ref: '#/definitions/main.UpdateWorkshopRequest_T'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: 'Workshop envelope {\"workshop\": {...}}'
           schema:
-            $ref: '#/definitions/main.envelope'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/main.errorResponse'
+            additionalProperties: true
+            type: object
         "404":
-          description: Not Found
+          description: Not found
           schema:
-            $ref: '#/definitions/main.errorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/main.errorResponse'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/main.errorResponse'
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            $ref: '#/definitions/main.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Update a workshop
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a workshop
       tags:
       - workshops
 securityDefinitions:
