@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict v1xEgHSkYJxUSnGZHNpXS8uPnWhHgrWNW1IXMBohlPtgZ23GN4IwALSaFIrCki7
+\restrict sxlSOi4UVz6RJo3FuwEjPuu1r3tYck8pQJavjjHLCJbaWtJQGHOLB0FpxQPJLO5
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 17.6
@@ -36,6 +36,74 @@ COMMENT ON EXTENSION citext IS 'data type for case-insensitive character strings
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- Name: attendance_statuses; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.attendance_statuses (
+    id integer NOT NULL,
+    status text NOT NULL,
+    counts_as_present boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public.attendance_statuses OWNER TO police;
+
+--
+-- Name: attendance_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.attendance_statuses_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.attendance_statuses_id_seq OWNER TO police;
+
+--
+-- Name: attendance_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.attendance_statuses_id_seq OWNED BY public.attendance_statuses.id;
+
+
+--
+-- Name: enrollment_statuses; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.enrollment_statuses (
+    id bigint NOT NULL,
+    status text NOT NULL
+);
+
+
+ALTER TABLE public.enrollment_statuses OWNER TO police;
+
+--
+-- Name: enrollment_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.enrollment_statuses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.enrollment_statuses_id_seq OWNER TO police;
+
+--
+-- Name: enrollment_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.enrollment_statuses_id_seq OWNED BY public.enrollment_statuses.id;
+
 
 --
 -- Name: formations; Type: TABLE; Schema: public; Owner: police
@@ -169,6 +237,40 @@ ALTER SEQUENCE public.postings_id_seq OWNER TO police;
 --
 
 ALTER SEQUENCE public.postings_id_seq OWNED BY public.postings.id;
+
+
+--
+-- Name: progress_statuses; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.progress_statuses (
+    id integer NOT NULL,
+    status text NOT NULL
+);
+
+
+ALTER TABLE public.progress_statuses OWNER TO police;
+
+--
+-- Name: progress_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.progress_statuses_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.progress_statuses_id_seq OWNER TO police;
+
+--
+-- Name: progress_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.progress_statuses_id_seq OWNED BY public.progress_statuses.id;
 
 
 --
@@ -357,6 +459,126 @@ ALTER SEQUENCE public.training_categories_id_seq OWNED BY public.training_catego
 
 
 --
+-- Name: training_enrollments; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.training_enrollments (
+    id bigint NOT NULL,
+    officer_id bigint NOT NULL,
+    session_id bigint NOT NULL,
+    enrollment_status_id bigint NOT NULL,
+    attendance_status_id bigint,
+    progress_status_id bigint NOT NULL,
+    completion_date date,
+    certificate_issued boolean DEFAULT false,
+    certificate_number text,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.training_enrollments OWNER TO police;
+
+--
+-- Name: training_enrollments_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.training_enrollments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.training_enrollments_id_seq OWNER TO police;
+
+--
+-- Name: training_enrollments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.training_enrollments_id_seq OWNED BY public.training_enrollments.id;
+
+
+--
+-- Name: training_sessions; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.training_sessions (
+    id bigint NOT NULL,
+    facilitator_id bigint NOT NULL,
+    workshop_id bigint NOT NULL,
+    formation_id bigint NOT NULL,
+    region_id bigint NOT NULL,
+    training_status_id bigint NOT NULL,
+    session_date date NOT NULL,
+    start_time time without time zone NOT NULL,
+    end_time time without time zone NOT NULL,
+    location text,
+    max_capacity integer,
+    notes text,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.training_sessions OWNER TO police;
+
+--
+-- Name: training_sessions_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.training_sessions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.training_sessions_id_seq OWNER TO police;
+
+--
+-- Name: training_sessions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.training_sessions_id_seq OWNED BY public.training_sessions.id;
+
+
+--
+-- Name: training_status; Type: TABLE; Schema: public; Owner: police
+--
+
+CREATE TABLE public.training_status (
+    id bigint NOT NULL,
+    status text NOT NULL
+);
+
+
+ALTER TABLE public.training_status OWNER TO police;
+
+--
+-- Name: training_status_id_seq; Type: SEQUENCE; Schema: public; Owner: police
+--
+
+CREATE SEQUENCE public.training_status_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.training_status_id_seq OWNER TO police;
+
+--
+-- Name: training_status_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: police
+--
+
+ALTER SEQUENCE public.training_status_id_seq OWNED BY public.training_status.id;
+
+
+--
 -- Name: training_types; Type: TABLE; Schema: public; Owner: police
 --
 
@@ -475,6 +697,20 @@ ALTER SEQUENCE public.workshops_id_seq OWNED BY public.workshops.id;
 
 
 --
+-- Name: attendance_statuses id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.attendance_statuses ALTER COLUMN id SET DEFAULT nextval('public.attendance_statuses_id_seq'::regclass);
+
+
+--
+-- Name: enrollment_statuses id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.enrollment_statuses ALTER COLUMN id SET DEFAULT nextval('public.enrollment_statuses_id_seq'::regclass);
+
+
+--
 -- Name: formations id; Type: DEFAULT; Schema: public; Owner: police
 --
 
@@ -493,6 +729,13 @@ ALTER TABLE ONLY public.permissions ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 ALTER TABLE ONLY public.postings ALTER COLUMN id SET DEFAULT nextval('public.postings_id_seq'::regclass);
+
+
+--
+-- Name: progress_statuses id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.progress_statuses ALTER COLUMN id SET DEFAULT nextval('public.progress_statuses_id_seq'::regclass);
 
 
 --
@@ -524,6 +767,27 @@ ALTER TABLE ONLY public.training_categories ALTER COLUMN id SET DEFAULT nextval(
 
 
 --
+-- Name: training_enrollments id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_enrollments ALTER COLUMN id SET DEFAULT nextval('public.training_enrollments_id_seq'::regclass);
+
+
+--
+-- Name: training_sessions id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_sessions ALTER COLUMN id SET DEFAULT nextval('public.training_sessions_id_seq'::regclass);
+
+
+--
+-- Name: training_status id; Type: DEFAULT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_status ALTER COLUMN id SET DEFAULT nextval('public.training_status_id_seq'::regclass);
+
+
+--
 -- Name: training_types id; Type: DEFAULT; Schema: public; Owner: police
 --
 
@@ -542,6 +806,38 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 --
 
 ALTER TABLE ONLY public.workshops ALTER COLUMN id SET DEFAULT nextval('public.workshops_id_seq'::regclass);
+
+
+--
+-- Name: attendance_statuses attendance_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.attendance_statuses
+    ADD CONSTRAINT attendance_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: attendance_statuses attendance_statuses_status_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.attendance_statuses
+    ADD CONSTRAINT attendance_statuses_status_key UNIQUE (status);
+
+
+--
+-- Name: enrollment_statuses enrollment_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.enrollment_statuses
+    ADD CONSTRAINT enrollment_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: enrollment_statuses enrollment_statuses_status_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.enrollment_statuses
+    ADD CONSTRAINT enrollment_statuses_status_key UNIQUE (status);
 
 
 --
@@ -598,6 +894,22 @@ ALTER TABLE ONLY public.permissions
 
 ALTER TABLE ONLY public.postings
     ADD CONSTRAINT postings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: progress_statuses progress_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.progress_statuses
+    ADD CONSTRAINT progress_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: progress_statuses progress_statuses_status_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.progress_statuses
+    ADD CONSTRAINT progress_statuses_status_key UNIQUE (status);
 
 
 --
@@ -705,6 +1017,38 @@ ALTER TABLE ONLY public.training_categories
 
 
 --
+-- Name: training_enrollments training_enrollments_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_enrollments
+    ADD CONSTRAINT training_enrollments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: training_sessions training_sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_sessions
+    ADD CONSTRAINT training_sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: training_status training_status_pkey; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_status
+    ADD CONSTRAINT training_status_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: training_status training_status_status_key; Type: CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_status
+    ADD CONSTRAINT training_status_status_key UNIQUE (status);
+
+
+--
 -- Name: training_types training_types_name_key; Type: CONSTRAINT; Schema: public; Owner: police
 --
 
@@ -749,6 +1093,34 @@ ALTER TABLE ONLY public.workshops
 --
 
 CREATE INDEX idx_officers_user_id ON public.officers USING btree (user_id);
+
+
+--
+-- Name: idx_training_enrollments_completion_date; Type: INDEX; Schema: public; Owner: police
+--
+
+CREATE INDEX idx_training_enrollments_completion_date ON public.training_enrollments USING btree (completion_date);
+
+
+--
+-- Name: idx_training_enrollments_officer_id; Type: INDEX; Schema: public; Owner: police
+--
+
+CREATE INDEX idx_training_enrollments_officer_id ON public.training_enrollments USING btree (officer_id);
+
+
+--
+-- Name: idx_training_enrollments_session_id; Type: INDEX; Schema: public; Owner: police
+--
+
+CREATE INDEX idx_training_enrollments_session_id ON public.training_enrollments USING btree (session_id);
+
+
+--
+-- Name: idx_training_enrollments_session_officer; Type: INDEX; Schema: public; Owner: police
+--
+
+CREATE UNIQUE INDEX idx_training_enrollments_session_officer ON public.training_enrollments USING btree (session_id, officer_id);
 
 
 --
@@ -800,6 +1172,46 @@ ALTER TABLE ONLY public.officers
 
 
 --
+-- Name: training_enrollments fk_training_enrollments_attendance_status; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_enrollments
+    ADD CONSTRAINT fk_training_enrollments_attendance_status FOREIGN KEY (attendance_status_id) REFERENCES public.attendance_statuses(id) ON DELETE CASCADE;
+
+
+--
+-- Name: training_enrollments fk_training_enrollments_enrollment_status; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_enrollments
+    ADD CONSTRAINT fk_training_enrollments_enrollment_status FOREIGN KEY (enrollment_status_id) REFERENCES public.enrollment_statuses(id) ON DELETE CASCADE;
+
+
+--
+-- Name: training_enrollments fk_training_enrollments_officer; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_enrollments
+    ADD CONSTRAINT fk_training_enrollments_officer FOREIGN KEY (officer_id) REFERENCES public.officers(id) ON DELETE CASCADE;
+
+
+--
+-- Name: training_enrollments fk_training_enrollments_progress_status; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_enrollments
+    ADD CONSTRAINT fk_training_enrollments_progress_status FOREIGN KEY (progress_status_id) REFERENCES public.progress_statuses(id) ON DELETE CASCADE;
+
+
+--
+-- Name: training_enrollments fk_training_enrollments_session; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_enrollments
+    ADD CONSTRAINT fk_training_enrollments_session FOREIGN KEY (session_id) REFERENCES public.training_sessions(id) ON DELETE CASCADE;
+
+
+--
 -- Name: workshops fk_type; Type: FK CONSTRAINT; Schema: public; Owner: police
 --
 
@@ -840,6 +1252,46 @@ ALTER TABLE ONLY public.roles_users
 
 
 --
+-- Name: training_sessions training_sessions_facilitator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_sessions
+    ADD CONSTRAINT training_sessions_facilitator_id_fkey FOREIGN KEY (facilitator_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: training_sessions training_sessions_formation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_sessions
+    ADD CONSTRAINT training_sessions_formation_id_fkey FOREIGN KEY (formation_id) REFERENCES public.formations(id) ON DELETE CASCADE;
+
+
+--
+-- Name: training_sessions training_sessions_region_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_sessions
+    ADD CONSTRAINT training_sessions_region_id_fkey FOREIGN KEY (region_id) REFERENCES public.regions(id) ON DELETE CASCADE;
+
+
+--
+-- Name: training_sessions training_sessions_training_status_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_sessions
+    ADD CONSTRAINT training_sessions_training_status_id_fkey FOREIGN KEY (training_status_id) REFERENCES public.training_status(id) ON DELETE CASCADE;
+
+
+--
+-- Name: training_sessions training_sessions_workshop_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: police
+--
+
+ALTER TABLE ONLY public.training_sessions
+    ADD CONSTRAINT training_sessions_workshop_id_fkey FOREIGN KEY (workshop_id) REFERENCES public.workshops(id) ON DELETE CASCADE;
+
+
+--
 -- Name: roles_users user_roles_users; Type: FK CONSTRAINT; Schema: public; Owner: police
 --
 
@@ -859,5 +1311,5 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump complete
 --
 
-\unrestrict v1xEgHSkYJxUSnGZHNpXS8uPnWhHgrWNW1IXMBohlPtgZ23GN4IwALSaFIrCki7
+\unrestrict sxlSOi4UVz6RJo3FuwEjPuu1r3tYck8pQJavjjHLCJbaWtJQGHOLB0FpxQPJLO5
 

@@ -226,36 +226,6 @@ func (app *appDependencies) requirePermissions(requiredPermissions string) func(
 	}
 }
 
-func (app *appDependencies) requireAnyPermission(requiredPermissions ...string) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			user := app.contextGetUser(r) // Get the user from the context
-
-			// Check each permission until we find one the user has
-			hasPermission := false
-			for _, perm := range requiredPermissions {
-				allowed, err := app.models.Role.HasPermission(user.ID, perm)
-				if err != nil {
-					app.serverErrorResponse(w, r, err)
-					return
-				}
-				if allowed {
-					hasPermission = true
-					break
-				}
-			}
-
-			if !hasPermission {
-				app.notPermittedResponse(w, r) // Send a 403 Forbidden response if not permitted
-				return
-			}
-
-			next.ServeHTTP(w, r) // Call the next handler in the chain
-		})
-		return app.requireActivatedUser(fn) // Ensure the user is activated before checking permissions
-	}
-}
-
 /************************************************************************************************************/
 //  Metrics
 /************************************************************************************************************/
