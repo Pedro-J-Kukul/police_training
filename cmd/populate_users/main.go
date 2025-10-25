@@ -12,9 +12,9 @@ import (
 
 func main() {
 	// Get database connection string from environment
-	dsn := os.Getenv("TEST_DB_DSN")
+	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {
-		dsn = "postgres://police:police@localhost/police_training_testing?sslmode=disable"
+		dsn = "postgres://police:police@localhost/police_training?sslmode=disable"
 	}
 
 	// Connect to database
