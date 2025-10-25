@@ -17,7 +17,7 @@ import (
 //	@Tags			officers
 //	@Accept			json
 //	@Produce		json
-//	@Param			officer	body		createOfficerRequest	true	"Officer data"
+//	@Param			officer	body		CreateOfficerRequest_T	true	"Officer data"
 //	@Success		201		{object}	envelope
 //	@Failure		400		{object}	errorResponse
 //	@Failure		422		{object}	errorResponse
@@ -213,7 +213,7 @@ func (app *appDependencies) listOfficersHandler(w http.ResponseWriter, r *http.R
 //	@Produce		json
 //	@Security		ApiKeyAuth
 //	@Param			id		path		int					true	"Officer ID"
-//	@Param			officer	body		updateOfficerRequest	true	"Officer update data"
+//	@Param			officer	body		UpdateOfficerRequest_T	true	"Officer update data"
 //	@Success		200		{object}	envelope
 //	@Failure		400		{object}	errorResponse
 //	@Failure		404		{object}	errorResponse

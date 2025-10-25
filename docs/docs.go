@@ -761,7 +761,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Retrieve a list of officers with optional filtering by regulation number, posting, rank, formation, and region",
+                "description": "Retrieve a list of officers with optional filtering and pagination",
                 "produces": [
                     "application/json"
                 ],
@@ -778,14 +778,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Filter by posting ID",
-                        "name": "posting_id",
+                        "description": "Filter by rank ID",
+                        "name": "rank_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Filter by rank ID",
-                        "name": "rank_id",
+                        "description": "Filter by posting ID",
+                        "name": "posting_id",
                         "in": "query"
                     },
                     {
@@ -799,24 +799,6 @@ const docTemplate = `{
                         "description": "Filter by region ID",
                         "name": "region_id",
                         "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number for pagination",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Number of items per page",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort order",
-                        "name": "sort",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -824,12 +806,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
                         }
                     },
                     "500": {
@@ -841,12 +817,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Create a new officer",
+                "description": "Create a new officer record linked to a user",
                 "consumes": [
                     "application/json"
                 ],
@@ -903,7 +874,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Retrieve an officer by its ID",
+                "description": "Retrieve an officer by their ID",
                 "produces": [
                     "application/json"
                 ],
@@ -947,7 +918,10 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Delete an officer by its ID",
+                "description": "Remove an officer record",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "officers"
                 ],
@@ -1000,7 +974,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Perform a partial update on an officer record",
+                "description": "Update an existing officer's information",
                 "consumes": [
                     "application/json"
                 ],
@@ -1020,7 +994,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Officer data",
+                        "description": "Officer update data",
                         "name": "officer",
                         "in": "body",
                         "required": true,
@@ -1048,14 +1022,54 @@ const docTemplate = `{
                             "$ref": "#/definitions/main.errorResponse"
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "422": {
+                        "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/main.errorResponse"
                         }
                     },
-                    "422": {
-                        "description": "Unprocessable Entity",
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/main.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/officers/{id}/details": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve an officer with all related information (user, rank, posting, etc.)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "officers"
+                ],
+                "summary": "Get an officer with details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Officer ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.envelope"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/main.errorResponse"
                         }
@@ -2351,642 +2365,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/training/enrollments": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Retrieve a list of training enrollments with optional filtering",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "training-enrollments"
-                ],
-                "summary": "List training enrollments",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Filter by officer ID",
-                        "name": "officer_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by session ID",
-                        "name": "session_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by enrollment status ID",
-                        "name": "enrollment_status_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by progress status ID",
-                        "name": "progress_status_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by certificate issued status",
-                        "name": "certificate_issued",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number for pagination",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Number of items per page",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort order",
-                        "name": "sort",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Create a new training enrollment",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "training-enrollments"
-                ],
-                "summary": "Create a new training enrollment",
-                "parameters": [
-                    {
-                        "description": "Training enrollment data",
-                        "name": "training_enrollment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.CreateTrainingEnrollmentRequest_T"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/training/enrollments/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Retrieve a training enrollment by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "training-enrollments"
-                ],
-                "summary": "Get a training enrollment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Training enrollment ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Delete a training enrollment by its ID",
-                "tags": [
-                    "training-enrollments"
-                ],
-                "summary": "Delete a training enrollment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Training enrollment ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/main.envelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Perform a partial update on a training enrollment record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "training-enrollments"
-                ],
-                "summary": "Update a training enrollment",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Training enrollment ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Training enrollment data",
-                        "name": "training_enrollment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.UpdateTrainingEnrollmentRequest_T"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/training/sessions": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Retrieve a list of training sessions with optional filtering",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "training-sessions"
-                ],
-                "summary": "List training sessions",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Filter by formation ID",
-                        "name": "formation_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by region ID",
-                        "name": "region_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by facilitator ID",
-                        "name": "facilitator_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by workshop ID",
-                        "name": "workshop_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by training status ID",
-                        "name": "training_status_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by location",
-                        "name": "location",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by notes",
-                        "name": "notes",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by session date (YYYY-MM-DD)",
-                        "name": "session_date",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number for pagination",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Number of items per page",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort order",
-                        "name": "sort",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Create a new training session",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "training-sessions"
-                ],
-                "summary": "Create a new training session",
-                "parameters": [
-                    {
-                        "description": "Training session data",
-                        "name": "training_session",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.CreateTrainingSessionRequest_T"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/training/sessions/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Retrieve a training session by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "training-sessions"
-                ],
-                "summary": "Get a training session",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Training session ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Delete a training session by its ID",
-                "tags": [
-                    "training-sessions"
-                ],
-                "summary": "Delete a training session",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Training session ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/main.envelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Perform a partial update on a training session record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "training-sessions"
-                ],
-                "summary": "Update a training session",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Training session ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Training session data",
-                        "name": "training_session",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.UpdateTrainingSessionRequest_T"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/training/status": {
             "get": {
                 "security": [
@@ -3744,63 +3122,28 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/workshops": {
+        "/v1/users/{user_id}/officer": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Retrieve a list of workshops with optional filtering by name, category, training type, and active status",
+                "description": "Retrieve an officer record by their associated user ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "workshops"
+                    "officers"
                 ],
-                "summary": "List workshops",
+                "summary": "Get officer by user ID",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Filter by workshop name",
-                        "name": "workshop_name",
-                        "in": "query"
-                    },
-                    {
                         "type": "integer",
-                        "description": "Filter by category ID",
-                        "name": "category_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Filter by training type ID",
-                        "name": "training_type_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by active status",
-                        "name": "is_active",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number for pagination",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Number of items per page",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort order",
-                        "name": "sort",
-                        "in": "query"
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3810,63 +3153,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/main.envelope"
                         }
                     },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Create a new workshop",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "workshops"
-                ],
-                "summary": "Create a new workshop",
-                "parameters": [
-                    {
-                        "description": "Workshop data",
-                        "name": "workshop",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.CreateWorkshopRequest_T"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/main.errorResponse"
                         }
@@ -3880,14 +3168,73 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/workshops/{id}": {
-            "get": {
-                "security": [
+        "/v1/workshops": {
+            "post": {
+                "description": "Create a new workshop",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Create a workshop",
+                "parameters": [
                     {
-                        "ApiKeyAuth": []
+                        "description": "Workshop data (workshop_name, category_id, type_id, credit_hours, description, is_active)",
+                        "name": "workshop",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
                     }
                 ],
-                "description": "Retrieve a workshop by its ID",
+                "responses": {
+                    "201": {
+                        "description": "Created workshop envelope {\\\"workshop\\\": {...}}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation errors",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/workshops/{id}": {
+            "get": {
+                "description": "Retrieve a workshop by ID",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -3906,95 +3253,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Workshop envelope {\\\"workshop\\\": {...}}",
                         "schema": {
-                            "$ref": "#/definitions/main.envelope"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Not found",
                         "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Perform a partial update on a workshop record",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "workshops"
-                ],
-                "summary": "Update a workshop",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Workshop ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Workshop data",
-                        "name": "workshop",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.UpdateWorkshopRequest_T"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/main.envelope"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/main.errorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -4126,74 +3406,6 @@ const docTemplate = `{
                 }
             }
         },
-        "main.CreateTrainingEnrollmentRequest_T": {
-            "type": "object",
-            "properties": {
-                "attendance_status_id": {
-                    "type": "integer"
-                },
-                "certificate_issued": {
-                    "type": "boolean"
-                },
-                "certificate_number": {
-                    "type": "string"
-                },
-                "completion_date": {
-                    "description": "Accept as string",
-                    "type": "string"
-                },
-                "enrollment_status_id": {
-                    "type": "integer"
-                },
-                "officer_id": {
-                    "type": "integer"
-                },
-                "progress_status_id": {
-                    "type": "integer"
-                },
-                "session_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "main.CreateTrainingSessionRequest_T": {
-            "type": "object",
-            "properties": {
-                "end_time": {
-                    "type": "string"
-                },
-                "facilitator_id": {
-                    "type": "integer"
-                },
-                "formation_id": {
-                    "type": "integer"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "max_capacity": {
-                    "type": "integer"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "region_id": {
-                    "type": "integer"
-                },
-                "session_date": {
-                    "type": "string"
-                },
-                "start_time": {
-                    "type": "string"
-                },
-                "training_status_id": {
-                    "type": "integer"
-                },
-                "workshop_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "main.CreateTrainingStatusRequest_T": {
             "type": "object",
             "properties": {
@@ -4206,32 +3418,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "main.CreateWorkshopRequest_T": {
-            "type": "object",
-            "properties": {
-                "category_id": {
-                    "type": "integer"
-                },
-                "credit_hours": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "objectives": {
-                    "type": "string"
-                },
-                "training_type_id": {
-                    "type": "integer"
-                },
-                "workshop_name": {
                     "type": "string"
                 }
             }
@@ -4352,74 +3538,6 @@ const docTemplate = `{
                 }
             }
         },
-        "main.UpdateTrainingEnrollmentRequest_T": {
-            "type": "object",
-            "properties": {
-                "attendance_status_id": {
-                    "description": "Fixed: was **int64",
-                    "type": "integer"
-                },
-                "certificate_issued": {
-                    "type": "boolean"
-                },
-                "certificate_number": {
-                    "type": "string"
-                },
-                "completion_date": {
-                    "type": "string"
-                },
-                "enrollment_status_id": {
-                    "type": "integer"
-                },
-                "officer_id": {
-                    "type": "integer"
-                },
-                "progress_status_id": {
-                    "type": "integer"
-                },
-                "session_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "main.UpdateTrainingSessionRequest_T": {
-            "type": "object",
-            "properties": {
-                "end_time": {
-                    "type": "string"
-                },
-                "facilitator_id": {
-                    "type": "integer"
-                },
-                "formation_id": {
-                    "type": "integer"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "max_capacity": {
-                    "type": "integer"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "region_id": {
-                    "type": "integer"
-                },
-                "session_date": {
-                    "type": "string"
-                },
-                "start_time": {
-                    "type": "string"
-                },
-                "training_status_id": {
-                    "type": "integer"
-                },
-                "workshop_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "main.UpdateTrainingStatusRequest_T": {
             "type": "object",
             "properties": {
@@ -4432,37 +3550,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "main.UpdateWorkshopRequest_T": {
-            "type": "object",
-            "properties": {
-                "category_id": {
-                    "type": "integer"
-                },
-                "credit_hours": {
-                    "type": "integer"
-                },
-                "description": {
-                    "description": "Fixed: was **string",
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "objectives": {
-                    "description": "Fixed: was **string",
-                    "type": "string"
-                },
-                "training_type_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "workshop_name": {
                     "type": "string"
                 }
             }
