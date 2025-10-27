@@ -102,3 +102,9 @@ func (a *appDependencies) notPermittedResponse(w http.ResponseWriter, r *http.Re
 	message := "you do not have the necessary permissions to access this resource"
 	a.errorResponseJSON(w, r, http.StatusForbidden, message)
 }
+
+// Return a 409 status code
+func (a *appDependencies) conflictResponse(w http.ResponseWriter, r *http.Request) {
+	message := "the request could not be completed due to a conflict with the current state of the resource"
+	a.errorResponseJSON(w, r, http.StatusConflict, message)
+}

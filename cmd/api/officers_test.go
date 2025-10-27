@@ -860,7 +860,7 @@ func TestOfficerWorkflow(t *testing.T) {
 	req = setURLParam(req, "id", strconv.FormatInt(officerID, 10))
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", userToken))
-	req = setURLParam(req, "id", strconv.FormatInt(userID, 10)) // Use userID not officerID
+	req = setURLParam(req, "id", strconv.FormatInt(officerID, 10))
 	req = setUserContext(req, user)
 
 	rec = httptest.NewRecorder()
@@ -875,7 +875,7 @@ func TestOfficerWorkflow(t *testing.T) {
 	// 3. Get officer with details
 	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/v1/officers/%d/details", officerID), nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", userToken))
-	req = setURLParam(req, "id", strconv.FormatInt(userID, 10)) // Use userID not officerID
+	req = setURLParam(req, "id", strconv.FormatInt(officerID, 10))
 	req = setUserContext(req, user)
 
 	rec = httptest.NewRecorder()
@@ -898,7 +898,7 @@ func TestOfficerWorkflow(t *testing.T) {
 	req = httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/v1/officers/%d", officerID), bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", userToken))
-	req = setURLParam(req, "id", strconv.FormatInt(userID, 10))
+	req = setURLParam(req, "id", strconv.FormatInt(officerID, 10))
 	req = setUserContext(req, user)
 
 	rec = httptest.NewRecorder()
@@ -913,7 +913,7 @@ func TestOfficerWorkflow(t *testing.T) {
 	// 5. Get officer by user ID
 	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/v1/users/%d/officer", userID), nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", userToken))
-	req = setURLParam(req, "user_id", strconv.FormatInt(userID, 10))
+	req = setURLParam(req, "id", strconv.FormatInt(userID, 10))
 	req = setUserContext(req, user)
 
 	rec = httptest.NewRecorder()
@@ -928,7 +928,7 @@ func TestOfficerWorkflow(t *testing.T) {
 	// 6. Delete the officer
 	req = httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/v1/officers/%d", officerID), nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", userToken))
-	req = setURLParam(req, "id", strconv.FormatInt(userID, 10))
+	req = setURLParam(req, "id", strconv.FormatInt(officerID, 10))
 	req = setUserContext(req, user)
 
 	rec = httptest.NewRecorder()

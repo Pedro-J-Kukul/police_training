@@ -8,7 +8,7 @@
     officers_test.go:192: Starting test: Valid officer creation
     officers_test.go:207: Step: Received status code 201
     officers_test.go:143: Step: Validating successful officer creation
-    officers_test.go:157: Step: Created officer ID 87
+    officers_test.go:157: Step: Created officer ID 37
     officers_test.go:213: Completed test: Valid officer creation
 === RUN   TestCreateOfficerHandler/Missing_required_fields
     officers_test.go:192: Starting test: Missing required fields
@@ -124,14 +124,14 @@
     --- PASS: TestListOfficersHandler/Search_officers_by_regulation_number (0.00s)
 === RUN   TestUpdateOfficerHandler
     officers_test.go:541: === Testing Update Officer Handler ===
-    officers_test.go:544: Step: Creating authentication token for user ID 197
-    officers_test.go:544: Step: Successfully created token for user ID 197
-    officers_test.go:544: Step: Created test officer ID 89 for user testofficer1761584122043498891@test-police-training.bz
+    officers_test.go:544: Step: Creating authentication token for user ID 85
+    officers_test.go:544: Step: Successfully created token for user ID 85
+    officers_test.go:544: Step: Created test officer ID 39 for user testofficer1761588152458130719@test-police-training.bz
 === RUN   TestUpdateOfficerHandler/Valid_officer_update
     officers_test.go:610: Starting test: Valid officer update
     officers_test.go:627: Step: Received status code 200
     officers_test.go:568: Step: Validating successful officer update
-    officers_test.go:581: Step: Updated officer regulation number to UPD1761584122283404704
+    officers_test.go:581: Step: Updated officer regulation number to UPD1761588152699300886
     officers_test.go:633: Completed test: Valid officer update
 === RUN   TestUpdateOfficerHandler/Non-existent_officer
     officers_test.go:610: Starting test: Non-existent officer
@@ -149,9 +149,9 @@
     --- PASS: TestUpdateOfficerHandler/Invalid_rank_id (0.00s)
 === RUN   TestDeleteOfficerHandler
     officers_test.go:639: === Testing Delete Officer Handler ===
-    officers_test.go:642: Step: Creating authentication token for user ID 198
-    officers_test.go:642: Step: Successfully created token for user ID 198
-    officers_test.go:642: Step: Created test officer ID 90 for user testofficer1761584122290878851@test-police-training.bz
+    officers_test.go:642: Step: Creating authentication token for user ID 86
+    officers_test.go:642: Step: Successfully created token for user ID 86
+    officers_test.go:642: Step: Created test officer ID 40 for user testofficer1761588152705116363@test-police-training.bz
 === RUN   TestDeleteOfficerHandler/Valid_officer_deletion
     officers_test.go:682: Starting test: Valid officer deletion
     officers_test.go:697: Step: Received status code 200
@@ -163,7 +163,7 @@
     officers_test.go:697: Step: Received status code 404
     officers_test.go:675: Step: Validating non-existent officer deletion
     officers_test.go:703: Completed test: Non-existent officer
---- PASS: TestDeleteOfficerHandler (0.24s)
+--- PASS: TestDeleteOfficerHandler (0.25s)
     --- PASS: TestDeleteOfficerHandler/Valid_officer_deletion (0.00s)
     --- PASS: TestDeleteOfficerHandler/Non-existent_officer (0.00s)
 === RUN   TestGetUserOfficerHandler
@@ -196,11 +196,16 @@
     --- PASS: TestGetUserOfficerHandler/Invalid_user_ID_format (0.00s)
 === RUN   TestOfficerWorkflow
     officers_test.go:792: === Testing Complete Officer Workflow ===
-    officers_test.go:820: Step: Creating authentication token for user ID 199
-    officers_test.go:820: Step: Successfully created token for user ID 199
-    officers_test.go:856: Step: Created officer ID 91
-    officers_test.go:870: Officer retrieval failed with status 404
---- FAIL: TestOfficerWorkflow (0.25s)
+    officers_test.go:820: Step: Creating authentication token for user ID 87
+    officers_test.go:820: Step: Successfully created token for user ID 87
+    officers_test.go:856: Step: Created officer ID 41
+    officers_test.go:873: Step: Successfully retrieved officer
+    officers_test.go:888: Step: Successfully retrieved officer details
+    officers_test.go:911: Step: Successfully updated officer
+    officers_test.go:926: Step: Successfully retrieved officer by user ID
+    officers_test.go:941: Step: Successfully deleted officer
+    officers_test.go:943: Step: Complete officer workflow test passed successfully!
+--- PASS: TestOfficerWorkflow (0.26s)
 === RUN   TestCreateAuthenticationTokenHandler
     tokens_test.go:16: === Testing Authentication Token Creation ===
 === RUN   TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_admin
@@ -208,7 +213,7 @@
     tokens_test.go:152: Step: Making POST request with email admin1@police-training.bz
     tokens_test.go:160: Step: Received status code 201 (expected 201)
     tokens_test.go:32: Step: Validating successful token creation
-    tokens_test.go:52: Step: Successfully created token with expiry 2025-10-28T10:55:23.005368945-06:00
+    tokens_test.go:52: Step: Successfully created token with expiry 2025-10-28T12:02:33.442400723-06:00
     tokens_test.go:166: Completed test: Valid credentials for seeded admin
 === RUN   TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_facilitator
     tokens_test.go:146: Starting test: Valid credentials for seeded facilitator
@@ -248,11 +253,11 @@
     tokens_test.go:160: Step: Received status code 422 (expected 422)
     tokens_test.go:139: Step: Validating missing password validation
     tokens_test.go:166: Completed test: Missing password
---- PASS: TestCreateAuthenticationTokenHandler (0.89s)
+--- PASS: TestCreateAuthenticationTokenHandler (0.91s)
     --- PASS: TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_admin (0.23s)
-    --- PASS: TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_facilitator (0.22s)
-    --- PASS: TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_officer (0.22s)
-    --- PASS: TestCreateAuthenticationTokenHandler/Invalid_password_for_seeded_user (0.22s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_facilitator (0.23s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_officer (0.23s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Invalid_password_for_seeded_user (0.23s)
     --- PASS: TestCreateAuthenticationTokenHandler/Non-existent_email (0.00s)
     --- PASS: TestCreateAuthenticationTokenHandler/Invalid_email_format (0.00s)
     --- PASS: TestCreateAuthenticationTokenHandler/Missing_password (0.00s)
@@ -331,15 +336,447 @@
     tokens_test.go:408: Step: Successfully accessed protected endpoint for user Immanuel Garcia
     tokens_test.go:436: Step: Password reset token creation completed
     tokens_test.go:438: Step: Token workflow completed successfully with correct user data
---- PASS: TestTokenWorkflow (0.22s)
+--- PASS: TestTokenWorkflow (0.23s)
+=== RUN   TestCreateTrainingEnrollmentHandler
+    training_enrollments_test.go:141: === Testing Create Training Enrollment Handler ===
+    training_enrollments_test.go:165: Step: Fetching seeded user with email: admin1@police-training.bz
+    training_enrollments_test.go:165: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    training_enrollments_test.go:166: Step: Creating authentication token for user ID 1
+    training_enrollments_test.go:166: Step: Successfully created token for user ID 1
+=== RUN   TestCreateTrainingEnrollmentHandler/Valid_enrollment_creation
+    training_enrollments_test.go:247: Starting test: Valid enrollment creation
+    training_enrollments_test.go:262: Step: Received status code 201
+    training_enrollments_test.go:186: Step: Validating successful enrollment creation
+    training_enrollments_test.go:200: Step: Created enrollment ID 79
+    training_enrollments_test.go:268: Completed test: Valid enrollment creation
+=== RUN   TestCreateTrainingEnrollmentHandler/Missing_required_fields
+    training_enrollments_test.go:247: Starting test: Missing required fields
+    training_enrollments_test.go:262: Step: Received status code 422
+    training_enrollments_test.go:213: Step: Validating missing fields validation
+    training_enrollments_test.go:268: Completed test: Missing required fields
+=== RUN   TestCreateTrainingEnrollmentHandler/Invalid_officer_id
+    training_enrollments_test.go:247: Starting test: Invalid officer_id
+    training_enrollments_test.go:262: Step: Received status code 400
+    training_enrollments_test.go:226: Step: Validating invalid officer_id handling
+    training_enrollments_test.go:268: Completed test: Invalid officer_id
+=== RUN   TestCreateTrainingEnrollmentHandler/Invalid_completion_date_format
+    training_enrollments_test.go:247: Starting test: Invalid completion date format
+    training_enrollments_test.go:262: Step: Received status code 400
+    training_enrollments_test.go:240: Step: Validating invalid date format handling
+    training_enrollments_test.go:268: Completed test: Invalid completion date format
+--- PASS: TestCreateTrainingEnrollmentHandler (0.01s)
+    --- PASS: TestCreateTrainingEnrollmentHandler/Valid_enrollment_creation (0.01s)
+    --- PASS: TestCreateTrainingEnrollmentHandler/Missing_required_fields (0.00s)
+    --- PASS: TestCreateTrainingEnrollmentHandler/Invalid_officer_id (0.00s)
+    --- PASS: TestCreateTrainingEnrollmentHandler/Invalid_completion_date_format (0.00s)
+=== RUN   TestShowTrainingEnrollmentHandler
+    training_enrollments_test.go:274: === Testing Show Training Enrollment Handler ===
+    training_enrollments_test.go:276: Step: Getting seeded training enrollment
+    training_enrollments_test.go:276: Step: Using seeded enrollment ID 2
+    training_enrollments_test.go:277: Step: Fetching seeded user with email: admin1@police-training.bz
+    training_enrollments_test.go:277: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    training_enrollments_test.go:278: Step: Creating authentication token for user ID 1
+    training_enrollments_test.go:278: Step: Successfully created token for user ID 1
+=== RUN   TestShowTrainingEnrollmentHandler/Valid_seeded_enrollment_ID
+    training_enrollments_test.go:340: Starting test: Valid seeded enrollment ID with enrollment ID 2
+    training_enrollments_test.go:355: Step: Received status code 200
+    training_enrollments_test.go:291: Step: Validating enrollment details response
+    training_enrollments_test.go:308: Step: Retrieved enrollment for officer 2 in session 1
+    training_enrollments_test.go:361: Completed test: Valid seeded enrollment ID
+=== RUN   TestShowTrainingEnrollmentHandler/Non-existent_enrollment_ID
+    training_enrollments_test.go:340: Starting test: Non-existent enrollment ID with enrollment ID 999999
+    training_enrollments_test.go:355: Step: Received status code 404
+    training_enrollments_test.go:325: Step: Validating non-existent enrollment response
+    training_enrollments_test.go:361: Completed test: Non-existent enrollment ID
+=== RUN   TestShowTrainingEnrollmentHandler/Invalid_enrollment_ID_format
+    training_enrollments_test.go:340: Starting test: Invalid enrollment ID format with enrollment ID abc
+    training_enrollments_test.go:355: Step: Received status code 404
+    training_enrollments_test.go:333: Step: Validating invalid ID format response
+    training_enrollments_test.go:361: Completed test: Invalid enrollment ID format
+--- PASS: TestShowTrainingEnrollmentHandler (0.00s)
+    --- PASS: TestShowTrainingEnrollmentHandler/Valid_seeded_enrollment_ID (0.00s)
+    --- PASS: TestShowTrainingEnrollmentHandler/Non-existent_enrollment_ID (0.00s)
+    --- PASS: TestShowTrainingEnrollmentHandler/Invalid_enrollment_ID_format (0.00s)
+=== RUN   TestListTrainingEnrollmentsHandler
+    training_enrollments_test.go:367: === Testing List Training Enrollments Handler ===
+    training_enrollments_test.go:369: Step: Fetching seeded user with email: admin1@police-training.bz
+    training_enrollments_test.go:369: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    training_enrollments_test.go:370: Step: Creating authentication token for user ID 1
+    training_enrollments_test.go:370: Step: Successfully created token for user ID 1
+=== RUN   TestListTrainingEnrollmentsHandler/List_all_enrollments
+    training_enrollments_test.go:521: Starting test: List all enrollments
+    training_enrollments_test.go:534: Step: Received status code 200
+    training_enrollments_test.go:383: Step: Validating enrollments list response
+    training_enrollments_test.go:401: Step: Retrieved 20 enrollments
+    training_enrollments_test.go:412: Step: First enrollment ID 2, Officer: 2, Session: 1
+    training_enrollments_test.go:540: Completed test: List all enrollments
+=== RUN   TestListTrainingEnrollmentsHandler/List_enrollments_with_pagination
+    training_enrollments_test.go:521: Starting test: List enrollments with pagination
+    training_enrollments_test.go:534: Step: Received status code 200
+    training_enrollments_test.go:426: Step: Validating paginated enrollments response
+    training_enrollments_test.go:439: Step: Retrieved 3 enrollments with page_size=3
+    training_enrollments_test.go:540: Completed test: List enrollments with pagination
+=== RUN   TestListTrainingEnrollmentsHandler/Filter_enrollments_by_officer
+    training_enrollments_test.go:521: Starting test: Filter enrollments by officer
+    training_enrollments_test.go:534: Step: Received status code 200
+    training_enrollments_test.go:451: Step: Validating officer filter response
+    training_enrollments_test.go:464: Step: Retrieved 7 enrollments for officer 1
+    training_enrollments_test.go:540: Completed test: Filter enrollments by officer
+=== RUN   TestListTrainingEnrollmentsHandler/Filter_enrollments_by_session
+    training_enrollments_test.go:521: Starting test: Filter enrollments by session
+    training_enrollments_test.go:534: Step: Received status code 200
+    training_enrollments_test.go:480: Step: Validating session filter response
+    training_enrollments_test.go:493: Step: Retrieved 2 enrollments for session 1
+    training_enrollments_test.go:540: Completed test: Filter enrollments by session
+=== RUN   TestListTrainingEnrollmentsHandler/Filter_by_enrollment_status
+    training_enrollments_test.go:521: Starting test: Filter by enrollment status
+    training_enrollments_test.go:534: Step: Received status code 200
+    training_enrollments_test.go:501: Step: Validating enrollment status filter response
+    training_enrollments_test.go:514: Step: Retrieved 20 enrollments with status 1
+    training_enrollments_test.go:540: Completed test: Filter by enrollment status
+--- PASS: TestListTrainingEnrollmentsHandler (0.00s)
+    --- PASS: TestListTrainingEnrollmentsHandler/List_all_enrollments (0.00s)
+    --- PASS: TestListTrainingEnrollmentsHandler/List_enrollments_with_pagination (0.00s)
+    --- PASS: TestListTrainingEnrollmentsHandler/Filter_enrollments_by_officer (0.00s)
+    --- PASS: TestListTrainingEnrollmentsHandler/Filter_enrollments_by_session (0.00s)
+    --- PASS: TestListTrainingEnrollmentsHandler/Filter_by_enrollment_status (0.00s)
+=== RUN   TestUpdateTrainingEnrollmentHandler
+    training_enrollments_test.go:546: === Testing Update Training Enrollment Handler ===
+    training_enrollments_test.go:549: Step: Created test enrollment ID 81
+    training_enrollments_test.go:553: Step: Fetching seeded user with email: admin1@police-training.bz
+    training_enrollments_test.go:553: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    training_enrollments_test.go:554: Step: Creating authentication token for user ID 1
+    training_enrollments_test.go:554: Step: Successfully created token for user ID 1
+=== RUN   TestUpdateTrainingEnrollmentHandler/Valid_enrollment_update
+    training_enrollments_test.go:620: Starting test: Valid enrollment update
+    training_enrollments_test.go:637: Step: Received status code 200
+    training_enrollments_test.go:574: Step: Validating successful enrollment update
+    training_enrollments_test.go:591: Step: Updated enrollment with certificate CERT-TEST-123
+    training_enrollments_test.go:643: Completed test: Valid enrollment update
+=== RUN   TestUpdateTrainingEnrollmentHandler/Non-existent_enrollment
+    training_enrollments_test.go:620: Starting test: Non-existent enrollment
+    training_enrollments_test.go:637: Step: Received status code 404
+    training_enrollments_test.go:602: Step: Validating non-existent enrollment update
+    training_enrollments_test.go:643: Completed test: Non-existent enrollment
+=== RUN   TestUpdateTrainingEnrollmentHandler/Invalid_completion_date_format
+    training_enrollments_test.go:620: Starting test: Invalid completion date format
+    training_enrollments_test.go:637: Step: Received status code 400
+    training_enrollments_test.go:613: Step: Validating invalid date format handling
+    training_enrollments_test.go:643: Completed test: Invalid completion date format
+--- PASS: TestUpdateTrainingEnrollmentHandler (0.01s)
+    --- PASS: TestUpdateTrainingEnrollmentHandler/Valid_enrollment_update (0.00s)
+    --- PASS: TestUpdateTrainingEnrollmentHandler/Non-existent_enrollment (0.00s)
+    --- PASS: TestUpdateTrainingEnrollmentHandler/Invalid_completion_date_format (0.00s)
+=== RUN   TestDeleteTrainingEnrollmentHandler
+    training_enrollments_test.go:649: === Testing Delete Training Enrollment Handler ===
+    training_enrollments_test.go:652: Step: Created test enrollment ID 82
+    training_enrollments_test.go:655: Step: Fetching seeded user with email: admin1@police-training.bz
+    training_enrollments_test.go:655: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    training_enrollments_test.go:656: Step: Creating authentication token for user ID 1
+    training_enrollments_test.go:656: Step: Successfully created token for user ID 1
+=== RUN   TestDeleteTrainingEnrollmentHandler/Valid_enrollment_deletion
+    training_enrollments_test.go:695: Starting test: Valid enrollment deletion
+    training_enrollments_test.go:710: Step: Received status code 200
+    training_enrollments_test.go:669: Step: Validating successful enrollment deletion
+    training_enrollments_test.go:680: Step: Enrollment deleted with message: training enrollment successfully deleted
+    training_enrollments_test.go:716: Completed test: Valid enrollment deletion
+=== RUN   TestDeleteTrainingEnrollmentHandler/Non-existent_enrollment
+    training_enrollments_test.go:695: Starting test: Non-existent enrollment
+    training_enrollments_test.go:710: Step: Received status code 404
+    training_enrollments_test.go:688: Step: Validating non-existent enrollment deletion
+    training_enrollments_test.go:716: Completed test: Non-existent enrollment
+--- PASS: TestDeleteTrainingEnrollmentHandler (0.01s)
+    --- PASS: TestDeleteTrainingEnrollmentHandler/Valid_enrollment_deletion (0.00s)
+    --- PASS: TestDeleteTrainingEnrollmentHandler/Non-existent_enrollment (0.00s)
+=== RUN   TestGetOfficerEnrollmentsHandler
+    training_enrollments_test.go:722: === Testing Get Officer Enrollments Handler ===
+    training_enrollments_test.go:733: Step: Fetching seeded user with email: admin1@police-training.bz
+    training_enrollments_test.go:733: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    training_enrollments_test.go:734: Step: Creating authentication token for user ID 1
+    training_enrollments_test.go:734: Step: Successfully created token for user ID 1
+=== RUN   TestGetOfficerEnrollmentsHandler/Valid_officer_enrollments
+    training_enrollments_test.go:788: Starting test: Valid officer enrollments
+    training_enrollments_test.go:803: Step: Received status code 200
+    training_enrollments_test.go:747: Step: Validating officer enrollments response
+    training_enrollments_test.go:765: Step: Retrieved 7 enrollments for officer 1
+    training_enrollments_test.go:809: Completed test: Valid officer enrollments
+=== RUN   TestGetOfficerEnrollmentsHandler/Non-existent_officer
+    training_enrollments_test.go:788: Starting test: Non-existent officer
+    training_enrollments_test.go:803: Step: Received status code 200
+    training_enrollments_test.go:781: Step: Validating non-existent officer enrollments
+    training_enrollments_test.go:809: Completed test: Non-existent officer
+--- PASS: TestGetOfficerEnrollmentsHandler (0.00s)
+    --- PASS: TestGetOfficerEnrollmentsHandler/Valid_officer_enrollments (0.00s)
+    --- PASS: TestGetOfficerEnrollmentsHandler/Non-existent_officer (0.00s)
+=== RUN   TestGetSessionEnrollmentsHandler
+    training_enrollments_test.go:815: === Testing Get Session Enrollments Handler ===
+    training_enrollments_test.go:826: Step: Fetching seeded user with email: admin1@police-training.bz
+    training_enrollments_test.go:826: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    training_enrollments_test.go:827: Step: Creating authentication token for user ID 1
+    training_enrollments_test.go:827: Step: Successfully created token for user ID 1
+=== RUN   TestGetSessionEnrollmentsHandler/Valid_session_enrollments
+    training_enrollments_test.go:881: Starting test: Valid session enrollments
+    training_enrollments_test.go:896: Step: Received status code 200
+    training_enrollments_test.go:840: Step: Validating session enrollments response
+    training_enrollments_test.go:858: Step: Retrieved 2 enrollments for session 1
+    training_enrollments_test.go:902: Completed test: Valid session enrollments
+=== RUN   TestGetSessionEnrollmentsHandler/Non-existent_session
+    training_enrollments_test.go:881: Starting test: Non-existent session
+    training_enrollments_test.go:896: Step: Received status code 200
+    training_enrollments_test.go:874: Step: Validating non-existent session enrollments
+    training_enrollments_test.go:902: Completed test: Non-existent session
+--- PASS: TestGetSessionEnrollmentsHandler (0.00s)
+    --- PASS: TestGetSessionEnrollmentsHandler/Valid_session_enrollments (0.00s)
+    --- PASS: TestGetSessionEnrollmentsHandler/Non-existent_session (0.00s)
+=== RUN   TestIssueCertificateHandler
+    training_enrollments_test.go:908: === Testing Issue Certificate Handler ===
+    training_enrollments_test.go:911: Step: Created test enrollment ID 83
+    training_enrollments_test.go:914: Step: Fetching seeded user with email: admin1@police-training.bz
+    training_enrollments_test.go:914: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    training_enrollments_test.go:915: Step: Creating authentication token for user ID 1
+    training_enrollments_test.go:915: Step: Successfully created token for user ID 1
+=== RUN   TestIssueCertificateHandler/Valid_certificate_issuance
+    training_enrollments_test.go:986: Starting test: Valid certificate issuance
+    training_enrollments_test.go:1003: Step: Received status code 200
+    training_enrollments_test.go:933: Step: Validating successful certificate issuance
+    training_enrollments_test.go:944: Step: Certificate issued with message: certificate issued successfully
+    training_enrollments_test.go:1009: Completed test: Valid certificate issuance
+=== RUN   TestIssueCertificateHandler/Non-existent_enrollment
+    training_enrollments_test.go:986: Starting test: Non-existent enrollment
+    training_enrollments_test.go:1003: Step: Received status code 404
+    training_enrollments_test.go:956: Step: Validating non-existent enrollment certificate
+    training_enrollments_test.go:1009: Completed test: Non-existent enrollment
+=== RUN   TestIssueCertificateHandler/Missing_certificate_number
+    training_enrollments_test.go:986: Starting test: Missing certificate number
+    training_enrollments_test.go:1003: Step: Received status code 422
+    training_enrollments_test.go:967: Step: Validating missing certificate number
+    training_enrollments_test.go:1009: Completed test: Missing certificate number
+=== RUN   TestIssueCertificateHandler/Invalid_completion_date_format
+    training_enrollments_test.go:986: Starting test: Invalid completion date format
+    training_enrollments_test.go:1003: Step: Received status code 422
+    training_enrollments_test.go:979: Step: Validating invalid date format
+    training_enrollments_test.go:1009: Completed test: Invalid completion date format
+--- PASS: TestIssueCertificateHandler (0.01s)
+    --- PASS: TestIssueCertificateHandler/Valid_certificate_issuance (0.00s)
+    --- PASS: TestIssueCertificateHandler/Non-existent_enrollment (0.00s)
+    --- PASS: TestIssueCertificateHandler/Missing_certificate_number (0.00s)
+    --- PASS: TestIssueCertificateHandler/Invalid_completion_date_format (0.00s)
+=== RUN   TestEnrollmentWorkflow
+    training_enrollments_test.go:1015: === Testing Complete Enrollment Workflow ===
+    training_enrollments_test.go:1039: Step: Deleted existing enrollment for officer 3 in session 3
+    training_enrollments_test.go:1047: Step: Fetching seeded user with email: admin1@police-training.bz
+    training_enrollments_test.go:1047: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    training_enrollments_test.go:1048: Step: Creating authentication token for user ID 1
+    training_enrollments_test.go:1048: Step: Successfully created token for user ID 1
+    training_enrollments_test.go:1068: Request body: {"attendance_status_id":1,"certificate_issued":false,"enrollment_status_id":1,"officer_id":3,"progress_status_id":2,"session_id":3}
+    training_enrollments_test.go:1080: Step: Created enrollment ID 84
+    training_enrollments_test.go:1095: Step: Successfully retrieved enrollment
+    training_enrollments_test.go:1118: Step: Successfully updated enrollment
+    training_enrollments_test.go:1140: Step: Successfully issued certificate
+    training_enrollments_test.go:1155: Step: Successfully retrieved officer enrollments
+    training_enrollments_test.go:1170: Step: Successfully retrieved session enrollments
+    training_enrollments_test.go:1185: Step: Successfully deleted enrollment
+    training_enrollments_test.go:1187: Step: Complete enrollment workflow test passed successfully!
+--- PASS: TestEnrollmentWorkflow (0.02s)
+=== RUN   TestCreateTrainingSessionHandler
+    training_sessions_test.go:106: === Testing Create Training Session Handler ===
+    training_sessions_test.go:108: Step: Getting seeded session reference data
+    training_sessions_test.go:108: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:108: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:108: Step: Using facilitator ID 3, workshop ID 1, formation ID 1, region ID 1, status ID 6
+    training_sessions_test.go:109: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:109: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:110: Step: Creating authentication token for user ID 3
+    training_sessions_test.go:110: Step: Successfully created token for user ID 3
+=== RUN   TestCreateTrainingSessionHandler/Valid_session_creation
+    training_sessions_test.go:204: Starting test: Valid session creation
+    training_sessions_test.go:219: Step: Received status code 201
+    training_sessions_test.go:135: Step: Validating successful session creation
+    training_sessions_test.go:149: Step: Created session ID 37
+    training_sessions_test.go:225: Completed test: Valid session creation
+=== RUN   TestCreateTrainingSessionHandler/Missing_required_fields
+    training_sessions_test.go:204: Starting test: Missing required fields
+    training_sessions_test.go:219: Step: Received status code 400
+    training_sessions_test.go:163: Step: Validating missing fields validation
+    training_sessions_test.go:225: Completed test: Missing required fields
+=== RUN   TestCreateTrainingSessionHandler/Invalid_date_format
+    training_sessions_test.go:204: Starting test: Invalid date format
+    training_sessions_test.go:219: Step: Received status code 400
+    training_sessions_test.go:180: Step: Validating invalid date format handling
+    training_sessions_test.go:225: Completed test: Invalid date format
+=== RUN   TestCreateTrainingSessionHandler/Invalid_time_format
+    training_sessions_test.go:204: Starting test: Invalid time format
+    training_sessions_test.go:219: Step: Received status code 400
+    training_sessions_test.go:197: Step: Validating invalid time format handling
+    training_sessions_test.go:225: Completed test: Invalid time format
+--- PASS: TestCreateTrainingSessionHandler (0.01s)
+    --- PASS: TestCreateTrainingSessionHandler/Valid_session_creation (0.01s)
+    --- PASS: TestCreateTrainingSessionHandler/Missing_required_fields (0.00s)
+    --- PASS: TestCreateTrainingSessionHandler/Invalid_date_format (0.00s)
+    --- PASS: TestCreateTrainingSessionHandler/Invalid_time_format (0.00s)
+=== RUN   TestShowTrainingSessionHandler
+    training_sessions_test.go:231: === Testing Show Training Session Handler ===
+    training_sessions_test.go:233: Step: Getting seeded training session
+    training_sessions_test.go:233: Step: Using seeded session ID 1 on 2025-10-28
+    training_sessions_test.go:234: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:234: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:235: Step: Creating authentication token for user ID 3
+    training_sessions_test.go:235: Step: Successfully created token for user ID 3
+=== RUN   TestShowTrainingSessionHandler/Valid_seeded_session_ID
+    training_sessions_test.go:296: Starting test: Valid seeded session ID with session ID 1
+    training_sessions_test.go:311: Step: Received status code 200
+    training_sessions_test.go:248: Step: Validating session details response
+    training_sessions_test.go:265: Step: Retrieved session on 2025-10-28T00:00:00Z
+    training_sessions_test.go:317: Completed test: Valid seeded session ID
+=== RUN   TestShowTrainingSessionHandler/Non-existent_session_ID
+    training_sessions_test.go:296: Starting test: Non-existent session ID with session ID 999999
+    training_sessions_test.go:311: Step: Received status code 404
+    training_sessions_test.go:281: Step: Validating non-existent session response
+    training_sessions_test.go:317: Completed test: Non-existent session ID
+=== RUN   TestShowTrainingSessionHandler/Invalid_session_ID_format
+    training_sessions_test.go:296: Starting test: Invalid session ID format with session ID abc
+    training_sessions_test.go:311: Step: Received status code 404
+    training_sessions_test.go:289: Step: Validating invalid ID format response
+    training_sessions_test.go:317: Completed test: Invalid session ID format
+--- PASS: TestShowTrainingSessionHandler (0.00s)
+    --- PASS: TestShowTrainingSessionHandler/Valid_seeded_session_ID (0.00s)
+    --- PASS: TestShowTrainingSessionHandler/Non-existent_session_ID (0.00s)
+    --- PASS: TestShowTrainingSessionHandler/Invalid_session_ID_format (0.00s)
+=== RUN   TestListTrainingSessionsHandler
+    training_sessions_test.go:323: === Testing List Training Sessions Handler ===
+    training_sessions_test.go:325: Step: Getting seeded session reference data
+    training_sessions_test.go:325: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:325: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:325: Step: Using facilitator ID 3, workshop ID 1, formation ID 1, region ID 1, status ID 6
+    training_sessions_test.go:326: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:326: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:327: Step: Creating authentication token for user ID 3
+    training_sessions_test.go:327: Step: Successfully created token for user ID 3
+=== RUN   TestListTrainingSessionsHandler/List_all_sessions
+    training_sessions_test.go:473: Starting test: List all sessions
+    training_sessions_test.go:486: Step: Received status code 200
+    training_sessions_test.go:340: Step: Validating sessions list response
+    training_sessions_test.go:353: Step: Retrieved 12 sessions
+    training_sessions_test.go:364: Step: First session ID 1 on 2025-10-28T00:00:00Z
+    training_sessions_test.go:492: Completed test: List all sessions
+=== RUN   TestListTrainingSessionsHandler/List_sessions_with_pagination
+    training_sessions_test.go:473: Starting test: List sessions with pagination
+    training_sessions_test.go:486: Step: Received status code 200
+    training_sessions_test.go:377: Step: Validating paginated sessions response
+    training_sessions_test.go:385: Step: Retrieved 3 sessions with page_size=3
+    training_sessions_test.go:492: Completed test: List sessions with pagination
+=== RUN   TestListTrainingSessionsHandler/Filter_sessions_by_facilitator
+    training_sessions_test.go:473: Starting test: Filter sessions by facilitator
+    training_sessions_test.go:486: Step: Received status code 200
+    training_sessions_test.go:397: Step: Validating facilitator filter response
+    training_sessions_test.go:405: Step: Retrieved 4 sessions for facilitator 3
+    training_sessions_test.go:492: Completed test: Filter sessions by facilitator
+=== RUN   TestListTrainingSessionsHandler/Filter_sessions_by_workshop
+    training_sessions_test.go:473: Starting test: Filter sessions by workshop
+    training_sessions_test.go:486: Step: Received status code 200
+    training_sessions_test.go:421: Step: Validating workshop filter response
+    training_sessions_test.go:429: Step: Retrieved 3 sessions for workshop 1
+    training_sessions_test.go:492: Completed test: Filter sessions by workshop
+=== RUN   TestListTrainingSessionsHandler/Filter_sessions_by_formation
+    training_sessions_test.go:473: Starting test: Filter sessions by formation
+    training_sessions_test.go:486: Step: Received status code 200
+    training_sessions_test.go:437: Step: Validating formation filter response
+    training_sessions_test.go:445: Step: Retrieved 12 sessions for formation 1
+    training_sessions_test.go:492: Completed test: Filter sessions by formation
+=== RUN   TestListTrainingSessionsHandler/Filter_sessions_by_date
+    training_sessions_test.go:473: Starting test: Filter sessions by date
+    training_sessions_test.go:486: Step: Received status code 200
+    training_sessions_test.go:453: Step: Validating date filter response
+    training_sessions_test.go:462: Step: Retrieved 0 sessions for today (no sessions found)
+    training_sessions_test.go:492: Completed test: Filter sessions by date
+--- PASS: TestListTrainingSessionsHandler (0.01s)
+    --- PASS: TestListTrainingSessionsHandler/List_all_sessions (0.00s)
+    --- PASS: TestListTrainingSessionsHandler/List_sessions_with_pagination (0.00s)
+    --- PASS: TestListTrainingSessionsHandler/Filter_sessions_by_facilitator (0.00s)
+    --- PASS: TestListTrainingSessionsHandler/Filter_sessions_by_workshop (0.00s)
+    --- PASS: TestListTrainingSessionsHandler/Filter_sessions_by_formation (0.00s)
+    --- PASS: TestListTrainingSessionsHandler/Filter_sessions_by_date (0.00s)
+=== RUN   TestUpdateTrainingSessionHandler
+    training_sessions_test.go:498: === Testing Update Training Session Handler ===
+    training_sessions_test.go:501: Step: Getting seeded session reference data
+    training_sessions_test.go:501: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:501: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:501: Step: Using facilitator ID 3, workshop ID 1, formation ID 1, region ID 1, status ID 6
+    training_sessions_test.go:501: Step: Created test session ID 38
+    training_sessions_test.go:504: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:504: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:505: Step: Creating authentication token for user ID 3
+    training_sessions_test.go:505: Step: Successfully created token for user ID 3
+=== RUN   TestUpdateTrainingSessionHandler/Valid_session_update
+    training_sessions_test.go:570: Starting test: Valid session update
+    training_sessions_test.go:587: Step: Received status code 200
+    training_sessions_test.go:524: Step: Validating successful session update
+    training_sessions_test.go:541: Step: Updated session location to Updated Training Room
+    training_sessions_test.go:593: Completed test: Valid session update
+=== RUN   TestUpdateTrainingSessionHandler/Non-existent_session
+    training_sessions_test.go:570: Starting test: Non-existent session
+    training_sessions_test.go:587: Step: Received status code 404
+    training_sessions_test.go:552: Step: Validating non-existent session update
+    training_sessions_test.go:593: Completed test: Non-existent session
+=== RUN   TestUpdateTrainingSessionHandler/Invalid_date_format
+    training_sessions_test.go:570: Starting test: Invalid date format
+    training_sessions_test.go:587: Step: Received status code 400
+    training_sessions_test.go:563: Step: Validating invalid date format handling
+    training_sessions_test.go:593: Completed test: Invalid date format
+--- PASS: TestUpdateTrainingSessionHandler (0.01s)
+    --- PASS: TestUpdateTrainingSessionHandler/Valid_session_update (0.00s)
+    --- PASS: TestUpdateTrainingSessionHandler/Non-existent_session (0.00s)
+    --- PASS: TestUpdateTrainingSessionHandler/Invalid_date_format (0.00s)
+=== RUN   TestDeleteTrainingSessionHandler
+    training_sessions_test.go:599: === Testing Delete Training Session Handler ===
+    training_sessions_test.go:602: Step: Getting seeded session reference data
+    training_sessions_test.go:602: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:602: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:602: Step: Using facilitator ID 3, workshop ID 1, formation ID 1, region ID 1, status ID 6
+    training_sessions_test.go:602: Step: Created test session ID 39
+    training_sessions_test.go:605: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:605: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:606: Step: Creating authentication token for user ID 3
+    training_sessions_test.go:606: Step: Successfully created token for user ID 3
+=== RUN   TestDeleteTrainingSessionHandler/Valid_session_deletion
+    training_sessions_test.go:645: Starting test: Valid session deletion
+    training_sessions_test.go:660: Step: Received status code 200
+    training_sessions_test.go:619: Step: Validating successful session deletion
+    training_sessions_test.go:630: Step: Session deleted with message: training session successfully deleted
+    training_sessions_test.go:666: Completed test: Valid session deletion
+=== RUN   TestDeleteTrainingSessionHandler/Non-existent_session
+    training_sessions_test.go:645: Starting test: Non-existent session
+    training_sessions_test.go:660: Step: Received status code 404
+    training_sessions_test.go:638: Step: Validating non-existent session deletion
+    training_sessions_test.go:666: Completed test: Non-existent session
+--- PASS: TestDeleteTrainingSessionHandler (0.01s)
+    --- PASS: TestDeleteTrainingSessionHandler/Valid_session_deletion (0.00s)
+    --- PASS: TestDeleteTrainingSessionHandler/Non-existent_session (0.00s)
+=== RUN   TestSessionWorkflow
+    training_sessions_test.go:672: === Testing Complete Session Workflow ===
+    training_sessions_test.go:674: Step: Getting seeded session reference data
+    training_sessions_test.go:674: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:674: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:674: Step: Using facilitator ID 3, workshop ID 1, formation ID 1, region ID 1, status ID 6
+    training_sessions_test.go:675: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    training_sessions_test.go:675: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    training_sessions_test.go:676: Step: Creating authentication token for user ID 3
+    training_sessions_test.go:676: Step: Successfully created token for user ID 3
+    training_sessions_test.go:713: Step: Created session ID 40
+    training_sessions_test.go:728: Step: Successfully retrieved session
+    training_sessions_test.go:751: Step: Successfully updated session
+    training_sessions_test.go:765: Step: Successfully listed sessions
+    training_sessions_test.go:780: Step: Successfully deleted session
+    training_sessions_test.go:782: Step: Complete session workflow test passed successfully!
+--- PASS: TestSessionWorkflow (0.01s)
 === RUN   TestRegisterUserHandler
     users_test.go:78: === Testing User Registration Handler ===
 === RUN   TestRegisterUserHandler/Valid_new_user_registration
     users_test.go:153: Starting test: Valid new user registration
     users_test.go:165: Step: Received status code 201 (expected 201)
     users_test.go:99: Step: Validating successful registration response
-    users_test.go:112: Step: Created user ID 200 with email newuser1761584124142020341@test-police-training.bz
-    users_test.go:117: Step: Cleaned up test user ID 200
+    users_test.go:112: Step: Created user ID 88 with email newuser1761588154718461982@test-police-training.bz
+    users_test.go:117: Step: Cleaned up test user ID 88
     users_test.go:171: Completed test: Valid new user registration
 === RUN   TestRegisterUserHandler/Duplicate_email_with_seeded_user
     users_test.go:153: Starting test: Duplicate email with seeded user
@@ -351,9 +788,9 @@
     users_test.go:165: Step: Received status code 422 (expected 422)
     users_test.go:146: Step: Validating email format validation
     users_test.go:171: Completed test: Invalid email format
---- PASS: TestRegisterUserHandler (0.66s)
-    --- PASS: TestRegisterUserHandler/Valid_new_user_registration (0.23s)
-    --- PASS: TestRegisterUserHandler/Duplicate_email_with_seeded_user (0.22s)
+--- PASS: TestRegisterUserHandler (0.68s)
+    --- PASS: TestRegisterUserHandler/Valid_new_user_registration (0.24s)
+    --- PASS: TestRegisterUserHandler/Duplicate_email_with_seeded_user (0.23s)
     --- PASS: TestRegisterUserHandler/Invalid_email_format (0.22s)
 === RUN   TestActivateUserHandler
     users_test.go:177: === Testing Activate User Handler ===
@@ -456,7 +893,7 @@
     users_test.go:457: Step: Received status code 200
     users_test.go:470: Step: Retrieved 1 users
     users_test.go:477: Completed test: Search by first name
---- PASS: TestListUsersHandler (0.00s)
+--- PASS: TestListUsersHandler (0.01s)
     --- PASS: TestListUsersHandler/List_all_users_with_default_pagination (0.00s)
     --- PASS: TestListUsersHandler/List_users_with_pagination (0.00s)
     --- PASS: TestListUsersHandler/Filter_users_by_officer_status (0.00s)
@@ -502,8 +939,8 @@
     users_test.go:619: Starting test: Non-existent user
     users_test.go:636: Step: Received status code 404
     users_test.go:641: Completed test: Non-existent user
---- PASS: TestUpdatePasswordHandler (0.44s)
-    --- PASS: TestUpdatePasswordHandler/Valid_password_update (0.22s)
+--- PASS: TestUpdatePasswordHandler (0.45s)
+    --- PASS: TestUpdatePasswordHandler/Valid_password_update (0.23s)
     --- PASS: TestUpdatePasswordHandler/Invalid_password_format (0.22s)
     --- PASS: TestUpdatePasswordHandler/Non-existent_user (0.00s)
 === RUN   TestDeleteUserHandler
@@ -559,12 +996,205 @@
     --- PASS: TestHardDeleteUserHandler/Non-existent_user (0.00s)
 === RUN   TestUserWorkflow
     users_test.go:873: === Testing Complete User Workflow ===
-    users_test.go:906: Step: Created user ID 207
+    users_test.go:906: Step: Created user ID 95
     users_test.go:926: Step: Successfully activated user
     users_test.go:950: Step: Complete user workflow test passed successfully!
 --- PASS: TestUserWorkflow (0.24s)
-FAIL
-coverage: 16.5% of statements
-FAIL	github.com/Pedro-J-Kukul/police_training/cmd/api	4.924s
-	github.com/Pedro-J-Kukul/police_training/cmd/api/docs		coverage: 0.0% of statements
-FAIL
+=== RUN   TestCreateWorkshopHandler
+    workshops_test.go:82: === Testing Create Workshop Handler ===
+    workshops_test.go:84: Step: Getting seeded workshop reference data
+    workshops_test.go:84: Step: Using category ID 10 and type ID 1
+    workshops_test.go:85: Step: Fetching seeded user with email: admin1@police-training.bz
+    workshops_test.go:85: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    workshops_test.go:86: Step: Creating authentication token for user ID 1
+    workshops_test.go:86: Step: Successfully created token for user ID 1
+    workshops_test.go:153: Step: Getting seeded workshop
+    workshops_test.go:153: Step: Using seeded workshop ID 1: Basic Firearms Training
+=== RUN   TestCreateWorkshopHandler/Valid_workshop_creation
+    workshops_test.go:167: Starting test: Valid workshop creation
+    workshops_test.go:182: Step: Received status code 201
+    workshops_test.go:106: Step: Validating successful workshop creation
+    workshops_test.go:120: Step: Created workshop ID 47: NEW_Workshop_1761588157295161736
+    workshops_test.go:124: Step: Cleaned up test workshop ID 47
+    workshops_test.go:188: Completed test: Valid workshop creation
+=== RUN   TestCreateWorkshopHandler/Missing_required_fields
+    workshops_test.go:167: Starting test: Missing required fields
+    workshops_test.go:182: Step: Received status code 422
+    workshops_test.go:134: Step: Validating missing fields validation
+    workshops_test.go:188: Completed test: Missing required fields
+=== RUN   TestCreateWorkshopHandler/Invalid_category_id
+    workshops_test.go:167: Starting test: Invalid category_id
+    workshops_test.go:182: Step: Received status code 400
+    workshops_test.go:147: Step: Validating invalid category_id handling
+    workshops_test.go:188: Completed test: Invalid category_id
+=== RUN   TestCreateWorkshopHandler/Duplicate_workshop_name
+    workshops_test.go:167: Starting test: Duplicate workshop name
+    workshops_test.go:182: Step: Received status code 409
+    workshops_test.go:160: Step: Validating duplicate workshop name handling
+    workshops_test.go:188: Completed test: Duplicate workshop name
+--- PASS: TestCreateWorkshopHandler (0.01s)
+    --- PASS: TestCreateWorkshopHandler/Valid_workshop_creation (0.01s)
+    --- PASS: TestCreateWorkshopHandler/Missing_required_fields (0.00s)
+    --- PASS: TestCreateWorkshopHandler/Invalid_category_id (0.00s)
+    --- PASS: TestCreateWorkshopHandler/Duplicate_workshop_name (0.00s)
+=== RUN   TestShowWorkshopHandler
+    workshops_test.go:194: === Testing Show Workshop Handler ===
+    workshops_test.go:196: Step: Getting seeded workshop
+    workshops_test.go:196: Step: Using seeded workshop ID 1: Basic Firearms Training
+    workshops_test.go:197: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    workshops_test.go:197: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    workshops_test.go:198: Step: Creating authentication token for user ID 3
+    workshops_test.go:198: Step: Successfully created token for user ID 3
+=== RUN   TestShowWorkshopHandler/Valid_seeded_workshop_ID
+    workshops_test.go:259: Starting test: Valid seeded workshop ID with workshop ID 1
+    workshops_test.go:268: Step: Set URL param id=1
+    workshops_test.go:276: Step: Received status code 200
+    workshops_test.go:211: Step: Validating workshop details response
+    workshops_test.go:228: Step: Retrieved workshop: Basic Firearms Training
+    workshops_test.go:282: Completed test: Valid seeded workshop ID
+=== RUN   TestShowWorkshopHandler/Non-existent_workshop_ID
+    workshops_test.go:259: Starting test: Non-existent workshop ID with workshop ID 999999
+    workshops_test.go:268: Step: Set URL param id=999999
+    workshops_test.go:276: Step: Received status code 404
+    workshops_test.go:244: Step: Validating non-existent workshop response
+    workshops_test.go:282: Completed test: Non-existent workshop ID
+=== RUN   TestShowWorkshopHandler/Invalid_workshop_ID_format
+    workshops_test.go:259: Starting test: Invalid workshop ID format with workshop ID abc
+    workshops_test.go:268: Step: Set URL param id=abc
+    workshops_test.go:276: Step: Received status code 404
+    workshops_test.go:252: Step: Validating invalid ID format response
+    workshops_test.go:282: Completed test: Invalid workshop ID format
+--- PASS: TestShowWorkshopHandler (0.00s)
+    --- PASS: TestShowWorkshopHandler/Valid_seeded_workshop_ID (0.00s)
+    --- PASS: TestShowWorkshopHandler/Non-existent_workshop_ID (0.00s)
+    --- PASS: TestShowWorkshopHandler/Invalid_workshop_ID_format (0.00s)
+=== RUN   TestListWorkshopsHandler
+    workshops_test.go:288: === Testing List Workshops Handler ===
+    workshops_test.go:290: Step: Getting seeded workshop reference data
+    workshops_test.go:290: Step: Using category ID 10 and type ID 1
+    workshops_test.go:291: Step: Fetching seeded user with email: admin1@police-training.bz
+    workshops_test.go:291: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    workshops_test.go:292: Step: Creating authentication token for user ID 1
+    workshops_test.go:292: Step: Successfully created token for user ID 1
+    workshops_test.go:412: Step: Getting seeded workshop
+    workshops_test.go:412: Step: Using seeded workshop ID 1: Basic Firearms Training
+=== RUN   TestListWorkshopsHandler/List_all_workshops
+    workshops_test.go:430: Starting test: List all workshops
+    workshops_test.go:435: Step: Making request to /v1/workshops
+    workshops_test.go:443: Step: Received status code 200
+    workshops_test.go:304: Step: Validating workshops list response
+    workshops_test.go:317: Step: Retrieved 10 workshops
+    workshops_test.go:334: Step: First workshop ID 2, Name: Advanced First Aid
+    workshops_test.go:449: Completed test: List all workshops
+=== RUN   TestListWorkshopsHandler/List_workshops_with_pagination
+    workshops_test.go:430: Starting test: List workshops with pagination
+    workshops_test.go:435: Step: Making request to /v1/workshops?page=1&page_size=2
+    workshops_test.go:443: Step: Received status code 200
+    workshops_test.go:347: Step: Validating paginated workshops response
+    workshops_test.go:355: Step: Retrieved 2 workshops with page_size=2
+    workshops_test.go:449: Completed test: List workshops with pagination
+=== RUN   TestListWorkshopsHandler/Filter_workshops_by_category
+    workshops_test.go:430: Starting test: Filter workshops by category
+    workshops_test.go:435: Step: Making request to /v1/workshops?category_id=10
+    workshops_test.go:443: Step: Received status code 200
+    workshops_test.go:367: Step: Validating category filter response
+    workshops_test.go:375: Step: Retrieved 1 workshops for category 10
+    workshops_test.go:449: Completed test: Filter workshops by category
+=== RUN   TestListWorkshopsHandler/Filter_workshops_by_active_status
+    workshops_test.go:430: Starting test: Filter workshops by active status
+    workshops_test.go:435: Step: Making request to /v1/workshops?is_active=true
+    workshops_test.go:443: Step: Received status code 200
+    workshops_test.go:391: Step: Validating active status filter response
+    workshops_test.go:399: Step: Retrieved 10 active workshops
+    workshops_test.go:449: Completed test: Filter workshops by active status
+=== RUN   TestListWorkshopsHandler/Search_workshops_by_name
+    workshops_test.go:430: Starting test: Search workshops by name
+    workshops_test.go:435: Step: Making request to /v1/workshops?workshop_name=Basic+Firearms+Training
+    workshops_test.go:443: Step: Received status code 200
+    workshops_test.go:415: Step: Validating workshop name search
+    workshops_test.go:423: Step: Retrieved 1 workshops for name search
+    workshops_test.go:449: Completed test: Search workshops by name
+--- PASS: TestListWorkshopsHandler (0.00s)
+    --- PASS: TestListWorkshopsHandler/List_all_workshops (0.00s)
+    --- PASS: TestListWorkshopsHandler/List_workshops_with_pagination (0.00s)
+    --- PASS: TestListWorkshopsHandler/Filter_workshops_by_category (0.00s)
+    --- PASS: TestListWorkshopsHandler/Filter_workshops_by_active_status (0.00s)
+    --- PASS: TestListWorkshopsHandler/Search_workshops_by_name (0.00s)
+=== RUN   TestUpdateWorkshopHandler
+    workshops_test.go:455: === Testing Update Workshop Handler ===
+    workshops_test.go:458: Step: Getting seeded workshop reference data
+    workshops_test.go:458: Step: Using category ID 10 and type ID 1
+    workshops_test.go:458: Step: Created test workshop ID 50: TEST_Workshop_1761588157310442002
+    workshops_test.go:461: Step: Fetching seeded user with email: admin1@police-training.bz
+    workshops_test.go:461: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    workshops_test.go:462: Step: Creating authentication token for user ID 1
+    workshops_test.go:462: Step: Successfully created token for user ID 1
+    workshops_test.go:527: Step: Getting seeded workshop
+    workshops_test.go:527: Step: Using seeded workshop ID 1: Basic Firearms Training
+=== RUN   TestUpdateWorkshopHandler/Valid_workshop_update
+    workshops_test.go:538: Starting test: Valid workshop update
+    workshops_test.go:555: Step: Received status code 200
+    workshops_test.go:481: Step: Validating successful workshop update
+    workshops_test.go:498: Step: Updated workshop name to UPDATED_Workshop_1761588157315553013
+    workshops_test.go:561: Completed test: Valid workshop update
+=== RUN   TestUpdateWorkshopHandler/Non-existent_workshop
+    workshops_test.go:538: Starting test: Non-existent workshop
+    workshops_test.go:555: Step: Received status code 404
+    workshops_test.go:509: Step: Validating non-existent workshop update
+    workshops_test.go:561: Completed test: Non-existent workshop
+=== RUN   TestUpdateWorkshopHandler/Invalid_category_id
+    workshops_test.go:538: Starting test: Invalid category_id
+    workshops_test.go:555: Step: Received status code 400
+    workshops_test.go:520: Step: Validating invalid category_id handling
+    workshops_test.go:561: Completed test: Invalid category_id
+=== RUN   TestUpdateWorkshopHandler/Update_to_duplicate_name
+    workshops_test.go:538: Starting test: Update to duplicate name
+    workshops_test.go:555: Step: Received status code 409
+    workshops_test.go:531: Step: Validating duplicate name handling
+    workshops_test.go:561: Completed test: Update to duplicate name
+--- PASS: TestUpdateWorkshopHandler (0.01s)
+    --- PASS: TestUpdateWorkshopHandler/Valid_workshop_update (0.00s)
+    --- PASS: TestUpdateWorkshopHandler/Non-existent_workshop (0.00s)
+    --- PASS: TestUpdateWorkshopHandler/Invalid_category_id (0.00s)
+    --- PASS: TestUpdateWorkshopHandler/Update_to_duplicate_name (0.00s)
+=== RUN   TestDeleteWorkshopHandler
+    workshops_test.go:567: === Testing Delete Workshop Handler ===
+    workshops_test.go:570: Step: Getting seeded workshop reference data
+    workshops_test.go:570: Step: Using category ID 10 and type ID 1
+    workshops_test.go:570: Step: Created test workshop ID 51: TEST_Workshop_1761588157322340751
+    workshops_test.go:573: Step: Fetching seeded user with email: admin1@police-training.bz
+    workshops_test.go:573: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    workshops_test.go:574: Step: Creating authentication token for user ID 1
+    workshops_test.go:574: Step: Successfully created token for user ID 1
+=== RUN   TestDeleteWorkshopHandler/Valid_workshop_deletion
+    workshops_test.go:613: Starting test: Valid workshop deletion
+    workshops_test.go:628: Step: Received status code 200
+    workshops_test.go:587: Step: Validating successful workshop deletion
+    workshops_test.go:598: Step: Workshop deleted with message: workshop successfully deleted
+    workshops_test.go:634: Completed test: Valid workshop deletion
+=== RUN   TestDeleteWorkshopHandler/Non-existent_workshop
+    workshops_test.go:613: Starting test: Non-existent workshop
+    workshops_test.go:628: Step: Received status code 404
+    workshops_test.go:606: Step: Validating non-existent workshop deletion
+    workshops_test.go:634: Completed test: Non-existent workshop
+--- PASS: TestDeleteWorkshopHandler (0.01s)
+    --- PASS: TestDeleteWorkshopHandler/Valid_workshop_deletion (0.00s)
+    --- PASS: TestDeleteWorkshopHandler/Non-existent_workshop (0.00s)
+=== RUN   TestWorkshopWorkflow
+    workshops_test.go:640: === Testing Complete Workshop Workflow ===
+    workshops_test.go:642: Step: Getting seeded workshop reference data
+    workshops_test.go:642: Step: Using category ID 10 and type ID 1
+    workshops_test.go:643: Step: Fetching seeded user with email: admin1@police-training.bz
+    workshops_test.go:643: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    workshops_test.go:644: Step: Creating authentication token for user ID 1
+    workshops_test.go:644: Step: Successfully created token for user ID 1
+    workshops_test.go:676: Step: Created workshop ID 52
+    workshops_test.go:691: Step: Successfully retrieved workshop
+    workshops_test.go:714: Step: Successfully updated workshop
+    workshops_test.go:728: Step: Successfully listed workshops
+    workshops_test.go:743: Step: Successfully deleted workshop
+    workshops_test.go:745: Step: Complete workshop workflow test passed successfully!
+--- PASS: TestWorkshopWorkflow (0.01s)
+PASS
+ok  	github.com/Pedro-J-Kukul/police_training/cmd/api	5.160s
+?   	github.com/Pedro-J-Kukul/police_training/cmd/api/docs	[no test files]

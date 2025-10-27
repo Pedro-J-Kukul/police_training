@@ -61,8 +61,8 @@ func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrDuplicateValue):
-			v.AddError("workshop_name", "a workshop with this name already exists")
-			app.failedValidationResponse(w, r, v.Errors)
+			app.conflictResponse(w, r) // Change from failedValidationResponse to conflictResponse
+			return
 		case errors.Is(err, data.ErrForeignKeyViolation):
 			app.badRequestResponse(w, r, errors.New("invalid category_id or type_id"))
 		default:
@@ -208,8 +208,8 @@ func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(w, r)
 		case errors.Is(err, data.ErrDuplicateValue):
-			v.AddError("workshop_name", "a workshop with this name already exists")
-			app.failedValidationResponse(w, r, v.Errors)
+			app.conflictResponse(w, r) // Change from failedValidationResponse to conflictResponse
+			return
 		case errors.Is(err, data.ErrForeignKeyViolation):
 			app.badRequestResponse(w, r, errors.New("invalid category_id or type_id"))
 		default:

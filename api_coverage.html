@@ -59,11 +59,11 @@
 				
 				<option value="file1">github.com/Pedro-J-Kukul/police_training/cmd/api/docs/docs.go (0.0%)</option>
 				
-				<option value="file2">github.com/Pedro-J-Kukul/police_training/cmd/api/errors.go (31.2%)</option>
+				<option value="file2">github.com/Pedro-J-Kukul/police_training/cmd/api/errors.go (38.2%)</option>
 				
 				<option value="file3">github.com/Pedro-J-Kukul/police_training/cmd/api/healthcheck.go (0.0%)</option>
 				
-				<option value="file4">github.com/Pedro-J-Kukul/police_training/cmd/api/helpers.go (55.7%)</option>
+				<option value="file4">github.com/Pedro-J-Kukul/police_training/cmd/api/helpers.go (59.5%)</option>
 				
 				<option value="file5">github.com/Pedro-J-Kukul/police_training/cmd/api/main.go (0.0%)</option>
 				
@@ -71,7 +71,7 @@
 				
 				<option value="file7">github.com/Pedro-J-Kukul/police_training/cmd/api/officers.go (71.3%)</option>
 				
-				<option value="file8">github.com/Pedro-J-Kukul/police_training/cmd/api/reference_data.go (0.0%)</option>
+				<option value="file8">github.com/Pedro-J-Kukul/police_training/cmd/api/reference_data.go (0.4%)</option>
 				
 				<option value="file9">github.com/Pedro-J-Kukul/police_training/cmd/api/routes.go (0.0%)</option>
 				
@@ -81,13 +81,13 @@
 				
 				<option value="file12">github.com/Pedro-J-Kukul/police_training/cmd/api/tokens.go (57.0%)</option>
 				
-				<option value="file13">github.com/Pedro-J-Kukul/police_training/cmd/api/training_enrollments.go (0.0%)</option>
+				<option value="file13">github.com/Pedro-J-Kukul/police_training/cmd/api/training_enrollments.go (70.5%)</option>
 				
-				<option value="file14">github.com/Pedro-J-Kukul/police_training/cmd/api/training_sessions.go (0.0%)</option>
+				<option value="file14">github.com/Pedro-J-Kukul/police_training/cmd/api/training_sessions.go (64.2%)</option>
 				
 				<option value="file15">github.com/Pedro-J-Kukul/police_training/cmd/api/users.go (63.6%)</option>
 				
-				<option value="file16">github.com/Pedro-J-Kukul/police_training/cmd/api/workshops.go (0.0%)</option>
+				<option value="file16">github.com/Pedro-J-Kukul/police_training/cmd/api/workshops.go (76.1%)</option>
 				
 				</select>
 			</div>
@@ -4725,7 +4725,7 @@ func (app *appDependencies) methodNotAllowedResponse(w http.ResponseWriter, r *h
 }</span>
 
 // send an error response if our client messes up with a 400 (bad request)
-func (a *appDependencies) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) <span class="cov0" title="0">{
+func (a *appDependencies) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) <span class="cov8" title="1">{
         a.errorResponseJSON(w, r, http.StatusBadRequest, err.Error())
 }</span>
 
@@ -4775,6 +4775,12 @@ func (a *appDependencies) inactiveAccountResponse(w http.ResponseWriter, r *http
 func (a *appDependencies) notPermittedResponse(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
         message := "you do not have the necessary permissions to access this resource"
         a.errorResponseJSON(w, r, http.StatusForbidden, message)
+}</span>
+
+// Return a 409 status code
+func (a *appDependencies) conflictResponse(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        message := "the request could not be completed due to a conflict with the current state of the resource"
+        a.errorResponseJSON(w, r, http.StatusConflict, message)
 }</span>
 </pre>
 		
@@ -5015,7 +5021,7 @@ func (app *appDependencies) getOptionalInt64QueryParameter(params url.Values, ke
 }
 
 // readFilters constructs a Filters struct using standard query parameters and validates it.
-func (app *appDependencies) readFilters(query url.Values, defaultSort string, defaultPageSize int, safelist []string, v *validator.Validator) data.Filters <span class="cov0" title="0">{
+func (app *appDependencies) readFilters(query url.Values, defaultSort string, defaultPageSize int, safelist []string, v *validator.Validator) data.Filters <span class="cov8" title="1">{
         filters := data.Filters{
                 Page:         app.getSingleIntQueryParameter(query, "page", 1, v),
                 PageSize:     app.getSingleIntQueryParameter(query, "page_size", defaultPageSize, v),
@@ -5945,11 +5951,11 @@ import (
         "github.com/Pedro-J-Kukul/police_training/internal/validator"
 )
 
-func likeSearch(value string) string <span class="cov0" title="0">{
-        if value == "" </span><span class="cov0" title="0">{
+func likeSearch(value string) string <span class="cov8" title="1">{
+        if value == "" </span><span class="cov8" title="1">{
                 return ""
         }</span>
-        <span class="cov0" title="0">return fmt.Sprintf("%%%s%%", value)</span>
+        <span class="cov8" title="1">return fmt.Sprintf("%%%s%%", value)</span>
 }
 
 /*********************** Regions ***********************/
@@ -8412,7 +8418,7 @@ import (
         "github.com/Pedro-J-Kukul/police_training/internal/validator"
 )
 
-func (app *appDependencies) createTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) createTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         var input struct {
                 OfficerID          int64   `json:"officer_id"`
                 SessionID          int64   `json:"session_id"`
@@ -8430,7 +8436,7 @@ func (app *appDependencies) createTrainingEnrollmentHandler(w http.ResponseWrite
                 return
         }</span>
 
-        <span class="cov0" title="0">enrollment := &amp;data.TrainingEnrollment{
+        <span class="cov8" title="1">enrollment := &amp;data.TrainingEnrollment{
                 OfficerID:          input.OfficerID,
                 SessionID:          input.SessionID,
                 EnrollmentStatusID: input.EnrollmentStatusID,
@@ -8440,42 +8446,42 @@ func (app *appDependencies) createTrainingEnrollmentHandler(w http.ResponseWrite
                 CertificateNumber:  input.CertificateNumber,
         }
 
-        if input.CertificateIssued != nil </span><span class="cov0" title="0">{
+        if input.CertificateIssued != nil </span><span class="cov8" title="1">{
                 enrollment.CertificateIssued = *input.CertificateIssued
         }</span>
 
         // Parse completion date if provided
-        <span class="cov0" title="0">if input.CompletionDate != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.CompletionDate != nil </span><span class="cov8" title="1">{
                 completionDate, err := time.Parse("2006-01-02", *input.CompletionDate)
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         app.badRequestResponse(w, r, errors.New("invalid completion_date format, use YYYY-MM-DD"))
                         return
                 }</span>
                 <span class="cov0" title="0">enrollment.CompletionDate = &amp;completionDate</span>
         }
 
-        <span class="cov0" title="0">v := validator.New()
+        <span class="cov8" title="1">v := validator.New()
         data.ValidateTrainingEnrollment(v, enrollment)
 
-        if !v.IsEmpty() </span><span class="cov0" title="0">{
+        if !v.IsEmpty() </span><span class="cov8" title="1">{
                 app.failedValidationResponse(w, r, v.Errors)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.TrainingEnrollment.Insert(enrollment)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">err = app.models.TrainingEnrollment.Insert(enrollment)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
                 case errors.Is(err, data.ErrDuplicateValue):<span class="cov0" title="0">
                         app.badRequestResponse(w, r, errors.New("officer is already enrolled in this session"))</span>
-                case errors.Is(err, data.ErrForeignKeyViolation):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrForeignKeyViolation):<span class="cov8" title="1">
                         app.badRequestResponse(w, r, errors.New("invalid officer_id, session_id, enrollment_status_id, or progress_status_id"))</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">headers := make(http.Header)
+        <span class="cov8" title="1">headers := make(http.Header)
         headers.Set("Location", fmt.Sprintf("/v1/training-enrollments/%d", enrollment.ID))
 
         err = app.writeJSON(w, http.StatusCreated, envelope{"training_enrollment": enrollment}, headers)
@@ -8484,31 +8490,31 @@ func (app *appDependencies) createTrainingEnrollmentHandler(w http.ResponseWrite
         }</span>
 }
 
-func (app *appDependencies) showTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) showTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">enrollment, err := app.models.TrainingEnrollment.Get(id)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">enrollment, err := app.models.TrainingEnrollment.Get(id)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollment": enrollment}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollment": enrollment}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) listTrainingEnrollmentsHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) listTrainingEnrollmentsHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         query := r.URL.Query()
         v := validator.New()
 
@@ -8525,37 +8531,37 @@ func (app *appDependencies) listTrainingEnrollmentsHandler(w http.ResponseWriter
                 return
         }</span>
 
-        <span class="cov0" title="0">enrollments, metadata, err := app.models.TrainingEnrollment.GetAll(officerID, sessionID, enrollmentStatusID, attendanceStatusID, progressStatusID, filters)
+        <span class="cov8" title="1">enrollments, metadata, err := app.models.TrainingEnrollment.GetAll(officerID, sessionID, enrollmentStatusID, attendanceStatusID, progressStatusID, filters)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) updateTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) updateTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
         if err != nil </span><span class="cov0" title="0">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">enrollment, err := app.models.TrainingEnrollment.Get(id)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">enrollment, err := app.models.TrainingEnrollment.Get(id)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">var input struct {
+        <span class="cov8" title="1">var input struct {
                 OfficerID          *int64  `json:"officer_id"`
                 SessionID          *int64  `json:"session_id"`
                 EnrollmentStatusID *int64  `json:"enrollment_status_id"`
@@ -8572,41 +8578,41 @@ func (app *appDependencies) updateTrainingEnrollmentHandler(w http.ResponseWrite
                 return
         }</span>
 
-        <span class="cov0" title="0">if input.OfficerID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.OfficerID != nil </span><span class="cov0" title="0">{
                 enrollment.OfficerID = *input.OfficerID
         }</span>
-        <span class="cov0" title="0">if input.SessionID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.SessionID != nil </span><span class="cov0" title="0">{
                 enrollment.SessionID = *input.SessionID
         }</span>
-        <span class="cov0" title="0">if input.EnrollmentStatusID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.EnrollmentStatusID != nil </span><span class="cov0" title="0">{
                 enrollment.EnrollmentStatusID = *input.EnrollmentStatusID
         }</span>
-        <span class="cov0" title="0">if input.AttendanceStatusID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.AttendanceStatusID != nil </span><span class="cov0" title="0">{
                 enrollment.AttendanceStatusID = input.AttendanceStatusID
         }</span>
-        <span class="cov0" title="0">if input.ProgressStatusID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.ProgressStatusID != nil </span><span class="cov8" title="1">{
                 enrollment.ProgressStatusID = *input.ProgressStatusID
         }</span>
-        <span class="cov0" title="0">if input.CompletionDate != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.CompletionDate != nil </span><span class="cov8" title="1">{
                 if *input.CompletionDate == "" </span><span class="cov0" title="0">{
                         enrollment.CompletionDate = nil
-                }</span> else<span class="cov0" title="0"> {
+                }</span> else<span class="cov8" title="1"> {
                         completionDate, err := time.Parse("2006-01-02", *input.CompletionDate)
-                        if err != nil </span><span class="cov0" title="0">{
+                        if err != nil </span><span class="cov8" title="1">{
                                 app.badRequestResponse(w, r, errors.New("invalid completion_date format, use YYYY-MM-DD"))
                                 return
                         }</span>
-                        <span class="cov0" title="0">enrollment.CompletionDate = &amp;completionDate</span>
+                        <span class="cov8" title="1">enrollment.CompletionDate = &amp;completionDate</span>
                 }
         }
-        <span class="cov0" title="0">if input.CertificateIssued != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.CertificateIssued != nil </span><span class="cov8" title="1">{
                 enrollment.CertificateIssued = *input.CertificateIssued
         }</span>
-        <span class="cov0" title="0">if input.CertificateNumber != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.CertificateNumber != nil </span><span class="cov8" title="1">{
                 enrollment.CertificateNumber = input.CertificateNumber
         }</span>
 
-        <span class="cov0" title="0">v := validator.New()
+        <span class="cov8" title="1">v := validator.New()
         data.ValidateTrainingEnrollment(v, enrollment)
 
         if !v.IsEmpty() </span><span class="cov0" title="0">{
@@ -8614,7 +8620,7 @@ func (app *appDependencies) updateTrainingEnrollmentHandler(w http.ResponseWrite
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.TrainingEnrollment.Update(enrollment)
+        <span class="cov8" title="1">err = app.models.TrainingEnrollment.Update(enrollment)
         if err != nil </span><span class="cov0" title="0">{
                 switch </span>{
                 case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
@@ -8629,45 +8635,45 @@ func (app *appDependencies) updateTrainingEnrollmentHandler(w http.ResponseWrite
                 <span class="cov0" title="0">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollment": enrollment}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollment": enrollment}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) deleteTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) deleteTrainingEnrollmentHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
         if err != nil </span><span class="cov0" title="0">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.TrainingEnrollment.Delete(id)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">err = app.models.TrainingEnrollment.Delete(id)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"message": "training enrollment successfully deleted"}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"message": "training enrollment successfully deleted"}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
 // Specialized handlers
-func (app *appDependencies) getOfficerEnrollmentsHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) getOfficerEnrollmentsHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
         if err != nil </span><span class="cov0" title="0">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">query := r.URL.Query()
+        <span class="cov8" title="1">query := r.URL.Query()
         v := validator.New()
         filters := app.readFilters(query, "created_at", 20, []string{"created_at", "-created_at", "completion_date", "-completion_date"}, v)
 
@@ -8676,26 +8682,26 @@ func (app *appDependencies) getOfficerEnrollmentsHandler(w http.ResponseWriter, 
                 return
         }</span>
 
-        <span class="cov0" title="0">enrollments, metadata, err := app.models.TrainingEnrollment.GetByOfficer(id, filters)
+        <span class="cov8" title="1">enrollments, metadata, err := app.models.TrainingEnrollment.GetByOfficer(id, filters)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) getSessionEnrollmentsHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) getSessionEnrollmentsHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
         if err != nil </span><span class="cov0" title="0">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">query := r.URL.Query()
+        <span class="cov8" title="1">query := r.URL.Query()
         v := validator.New()
         filters := app.readFilters(query, "created_at", 20, []string{"created_at", "-created_at", "completion_date", "-completion_date"}, v)
 
@@ -8704,26 +8710,26 @@ func (app *appDependencies) getSessionEnrollmentsHandler(w http.ResponseWriter, 
                 return
         }</span>
 
-        <span class="cov0" title="0">enrollments, metadata, err := app.models.TrainingEnrollment.GetBySession(id, filters)
+        <span class="cov8" title="1">enrollments, metadata, err := app.models.TrainingEnrollment.GetBySession(id, filters)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"training_enrollments": enrollments, "metadata": metadata}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) issueCertificateHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) issueCertificateHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
         if err != nil </span><span class="cov0" title="0">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">var input struct {
+        <span class="cov8" title="1">var input struct {
                 CertificateNumber string `json:"certificate_number"`
                 CompletionDate    string `json:"completion_date"` // "2025-01-15"
         }
@@ -8735,33 +8741,33 @@ func (app *appDependencies) issueCertificateHandler(w http.ResponseWriter, r *ht
         }</span>
 
         // Validate inputs
-        <span class="cov0" title="0">v := validator.New()
+        <span class="cov8" title="1">v := validator.New()
         v.Check(input.CertificateNumber != "", "certificate_number", "must be provided")
         v.Check(len(input.CertificateNumber) &lt;= 100, "certificate_number", "must not exceed 100 characters")
         v.Check(input.CompletionDate != "", "completion_date", "must be provided")
 
         completionDate, err := time.Parse("2006-01-02", input.CompletionDate)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 v.AddError("completion_date", "invalid date format, use YYYY-MM-DD")
         }</span>
 
-        <span class="cov0" title="0">if !v.IsEmpty() </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !v.IsEmpty() </span><span class="cov8" title="1">{
                 app.failedValidationResponse(w, r, v.Errors)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.TrainingEnrollment.IssueCertificate(id, input.CertificateNumber, completionDate)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">err = app.models.TrainingEnrollment.IssueCertificate(id, input.CertificateNumber, completionDate)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"message": "certificate issued successfully"}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"message": "certificate issued successfully"}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
@@ -8780,7 +8786,7 @@ import (
         "github.com/Pedro-J-Kukul/police_training/internal/validator"
 )
 
-func (app *appDependencies) createTrainingSessionHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) createTrainingSessionHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         var input struct {
                 FacilitatorID    int64   `json:"facilitator_id"`
                 WorkshopID       int64   `json:"workshop_id"`
@@ -8802,25 +8808,25 @@ func (app *appDependencies) createTrainingSessionHandler(w http.ResponseWriter, 
         }</span>
 
         // Parse date and times
-        <span class="cov0" title="0">sessionDate, err := time.Parse("2006-01-02", input.SessionDate)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">sessionDate, err := time.Parse("2006-01-02", input.SessionDate)
+        if err != nil </span><span class="cov8" title="1">{
                 app.badRequestResponse(w, r, errors.New("invalid session_date format, use YYYY-MM-DD"))
                 return
         }</span>
 
-        <span class="cov0" title="0">startTime, err := time.Parse("15:04", input.StartTime)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">startTime, err := time.Parse("15:04", input.StartTime)
+        if err != nil </span><span class="cov8" title="1">{
                 app.badRequestResponse(w, r, errors.New("invalid start_time format, use HH:MM"))
                 return
         }</span>
 
-        <span class="cov0" title="0">endTime, err := time.Parse("15:04", input.EndTime)
+        <span class="cov8" title="1">endTime, err := time.Parse("15:04", input.EndTime)
         if err != nil </span><span class="cov0" title="0">{
                 app.badRequestResponse(w, r, errors.New("invalid end_time format, use HH:MM"))
                 return
         }</span>
 
-        <span class="cov0" title="0">session := &amp;data.TrainingSession{
+        <span class="cov8" title="1">session := &amp;data.TrainingSession{
                 FacilitatorID:    input.FacilitatorID,
                 WorkshopID:       input.WorkshopID,
                 FormationID:      input.FormationID,
@@ -8842,7 +8848,7 @@ func (app *appDependencies) createTrainingSessionHandler(w http.ResponseWriter, 
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.TrainingSession.Insert(session)
+        <span class="cov8" title="1">err = app.models.TrainingSession.Insert(session)
         if err != nil </span><span class="cov0" title="0">{
                 switch </span>{
                 case errors.Is(err, data.ErrDuplicateValue):<span class="cov0" title="0">
@@ -8855,7 +8861,7 @@ func (app *appDependencies) createTrainingSessionHandler(w http.ResponseWriter, 
                 <span class="cov0" title="0">return</span>
         }
 
-        <span class="cov0" title="0">headers := make(http.Header)
+        <span class="cov8" title="1">headers := make(http.Header)
         headers.Set("Location", fmt.Sprintf("/v1/training-sessions/%d", session.ID))
 
         err = app.writeJSON(w, http.StatusCreated, envelope{"training_session": session}, headers)
@@ -8864,31 +8870,31 @@ func (app *appDependencies) createTrainingSessionHandler(w http.ResponseWriter, 
         }</span>
 }
 
-func (app *appDependencies) showTrainingSessionHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) showTrainingSessionHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">session, err := app.models.TrainingSession.Get(id)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">session, err := app.models.TrainingSession.Get(id)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"training_session": session}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"training_session": session}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) listTrainingSessionsHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) listTrainingSessionsHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         query := r.URL.Query()
         v := validator.New()
 
@@ -8902,51 +8908,51 @@ func (app *appDependencies) listTrainingSessionsHandler(w http.ResponseWriter, r
 
         var sessionDate *time.Time
         sessionDateStr := app.getSingleQueryParameter(query, "session_date", "")
-        if sessionDateStr != "" </span><span class="cov0" title="0">{
+        if sessionDateStr != "" </span><span class="cov8" title="1">{
                 parsedDate, err := time.Parse("2006-01-02", sessionDateStr)
                 if err != nil </span><span class="cov0" title="0">{
                         v.AddError("session_date", "invalid date format, use YYYY-MM-DD")
-                }</span> else<span class="cov0" title="0"> {
+                }</span> else<span class="cov8" title="1"> {
                         sessionDate = &amp;parsedDate
                 }</span>
         }
 
-        <span class="cov0" title="0">if !v.IsEmpty() </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !v.IsEmpty() </span><span class="cov0" title="0">{
                 app.failedValidationResponse(w, r, v.Errors)
                 return
         }</span>
 
-        <span class="cov0" title="0">sessions, metadata, err := app.models.TrainingSession.GetAll(facilitatorID, workshopID, formationID, regionID, statusID, sessionDate, filters)
+        <span class="cov8" title="1">sessions, metadata, err := app.models.TrainingSession.GetAll(facilitatorID, workshopID, formationID, regionID, statusID, sessionDate, filters)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"training_sessions": sessions, "metadata": metadata}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"training_sessions": sessions, "metadata": metadata}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) updateTrainingSessionHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) updateTrainingSessionHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
         if err != nil </span><span class="cov0" title="0">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">session, err := app.models.TrainingSession.Get(id)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">session, err := app.models.TrainingSession.Get(id)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">var input struct {
+        <span class="cov8" title="1">var input struct {
                 FacilitatorID    *int64  `json:"facilitator_id"`
                 WorkshopID       *int64  `json:"workshop_id"`
                 FormationID      *int64  `json:"formation_id"`
@@ -8966,27 +8972,27 @@ func (app *appDependencies) updateTrainingSessionHandler(w http.ResponseWriter, 
                 return
         }</span>
 
-        <span class="cov0" title="0">if input.FacilitatorID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.FacilitatorID != nil </span><span class="cov0" title="0">{
                 session.FacilitatorID = *input.FacilitatorID
         }</span>
-        <span class="cov0" title="0">if input.WorkshopID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.WorkshopID != nil </span><span class="cov0" title="0">{
                 session.WorkshopID = *input.WorkshopID
         }</span>
-        <span class="cov0" title="0">if input.FormationID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.FormationID != nil </span><span class="cov0" title="0">{
                 session.FormationID = *input.FormationID
         }</span>
-        <span class="cov0" title="0">if input.RegionID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.RegionID != nil </span><span class="cov0" title="0">{
                 session.RegionID = *input.RegionID
         }</span>
-        <span class="cov0" title="0">if input.SessionDate != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.SessionDate != nil </span><span class="cov8" title="1">{
                 sessionDate, err := time.Parse("2006-01-02", *input.SessionDate)
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         app.badRequestResponse(w, r, errors.New("invalid session_date format, use YYYY-MM-DD"))
                         return
                 }</span>
                 <span class="cov0" title="0">session.SessionDate = sessionDate</span>
         }
-        <span class="cov0" title="0">if input.StartTime != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.StartTime != nil </span><span class="cov0" title="0">{
                 startTime, err := time.Parse("15:04", *input.StartTime)
                 if err != nil </span><span class="cov0" title="0">{
                         app.badRequestResponse(w, r, errors.New("invalid start_time format, use HH:MM"))
@@ -8994,7 +9000,7 @@ func (app *appDependencies) updateTrainingSessionHandler(w http.ResponseWriter, 
                 }</span>
                 <span class="cov0" title="0">session.StartTime = startTime</span>
         }
-        <span class="cov0" title="0">if input.EndTime != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.EndTime != nil </span><span class="cov0" title="0">{
                 endTime, err := time.Parse("15:04", *input.EndTime)
                 if err != nil </span><span class="cov0" title="0">{
                         app.badRequestResponse(w, r, errors.New("invalid end_time format, use HH:MM"))
@@ -9002,20 +9008,20 @@ func (app *appDependencies) updateTrainingSessionHandler(w http.ResponseWriter, 
                 }</span>
                 <span class="cov0" title="0">session.EndTime = endTime</span>
         }
-        <span class="cov0" title="0">if input.Location != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.Location != nil </span><span class="cov8" title="1">{
                 session.Location = input.Location
         }</span>
-        <span class="cov0" title="0">if input.MaxCapacity != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.MaxCapacity != nil </span><span class="cov8" title="1">{
                 session.MaxCapacity = input.MaxCapacity
         }</span>
-        <span class="cov0" title="0">if input.TrainingStatusID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.TrainingStatusID != nil </span><span class="cov0" title="0">{
                 session.TrainingStatusID = *input.TrainingStatusID
         }</span>
-        <span class="cov0" title="0">if input.Notes != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.Notes != nil </span><span class="cov8" title="1">{
                 session.Notes = input.Notes
         }</span>
 
-        <span class="cov0" title="0">v := validator.New()
+        <span class="cov8" title="1">v := validator.New()
         data.ValidateTrainingSession(v, session)
 
         if !v.IsEmpty() </span><span class="cov0" title="0">{
@@ -9023,7 +9029,7 @@ func (app *appDependencies) updateTrainingSessionHandler(w http.ResponseWriter, 
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.TrainingSession.Update(session)
+        <span class="cov8" title="1">err = app.models.TrainingSession.Update(session)
         if err != nil </span><span class="cov0" title="0">{
                 switch </span>{
                 case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
@@ -9038,31 +9044,31 @@ func (app *appDependencies) updateTrainingSessionHandler(w http.ResponseWriter, 
                 <span class="cov0" title="0">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"training_session": session}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"training_session": session}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) deleteTrainingSessionHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) deleteTrainingSessionHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
         if err != nil </span><span class="cov0" title="0">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.TrainingSession.Delete(id)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">err = app.models.TrainingSession.Delete(id)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"message": "training session successfully deleted"}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"message": "training session successfully deleted"}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
@@ -9604,7 +9610,7 @@ import (
 // @Failure 422 {object} map[string]interface{} "Validation errors"
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /v1/workshops [post]
-func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         var input struct {
                 WorkshopName string  `json:"workshop_name"`
                 CategoryID   int64   `json:"category_id"`
@@ -9620,7 +9626,7 @@ func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http
                 return
         }</span>
 
-        <span class="cov0" title="0">workshop := &amp;data.Workshop{
+        <span class="cov8" title="1">workshop := &amp;data.Workshop{
                 WorkshopName: input.WorkshopName,
                 CategoryID:   input.CategoryID,
                 TypeID:       input.TypeID,
@@ -9629,33 +9635,33 @@ func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http
                 IsActive:     true, // default
         }
 
-        if input.IsActive != nil </span><span class="cov0" title="0">{
+        if input.IsActive != nil </span><span class="cov8" title="1">{
                 workshop.IsActive = *input.IsActive
         }</span>
 
-        <span class="cov0" title="0">v := validator.New()
+        <span class="cov8" title="1">v := validator.New()
         data.ValidateWorkshop(v, workshop)
 
-        if !v.IsEmpty() </span><span class="cov0" title="0">{
+        if !v.IsEmpty() </span><span class="cov8" title="1">{
                 app.failedValidationResponse(w, r, v.Errors)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.Workshop.Insert(workshop)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">err = app.models.Workshop.Insert(workshop)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrDuplicateValue):<span class="cov0" title="0">
-                        v.AddError("workshop_name", "a workshop with this name already exists")
-                        app.failedValidationResponse(w, r, v.Errors)</span>
-                case errors.Is(err, data.ErrForeignKeyViolation):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrDuplicateValue):<span class="cov8" title="1">
+                        app.conflictResponse(w, r) // Change from failedValidationResponse to conflictResponse
+                        return</span>
+                case errors.Is(err, data.ErrForeignKeyViolation):<span class="cov8" title="1">
                         app.badRequestResponse(w, r, errors.New("invalid category_id or type_id"))</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">headers := make(http.Header)
+        <span class="cov8" title="1">headers := make(http.Header)
         headers.Set("Location", fmt.Sprintf("/v1/workshops/%d", workshop.ID))
 
         err = app.writeJSON(w, http.StatusCreated, envelope{"workshop": workshop}, headers)
@@ -9674,31 +9680,31 @@ func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http
 // @Failure 404 {object} map[string]string "Not found"
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /v1/workshops/{id} [get]
-func (app *appDependencies) showWorkshopHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) showWorkshopHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">workshop, err := app.models.Workshop.Get(id)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">workshop, err := app.models.Workshop.Get(id)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"workshop": workshop}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"workshop": workshop}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) listWorkshopsHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) listWorkshopsHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         query := r.URL.Query()
         v := validator.New()
 
@@ -9714,37 +9720,37 @@ func (app *appDependencies) listWorkshopsHandler(w http.ResponseWriter, r *http.
                 return
         }</span>
 
-        <span class="cov0" title="0">workshops, metadata, err := app.models.Workshop.GetAll(name, categoryID, typeID, isActive, filters)
+        <span class="cov8" title="1">workshops, metadata, err := app.models.Workshop.GetAll(name, categoryID, typeID, isActive, filters)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"workshops": workshops, "metadata": metadata}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"workshops": workshops, "metadata": metadata}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
         if err != nil </span><span class="cov0" title="0">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">workshop, err := app.models.Workshop.Get(id)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">workshop, err := app.models.Workshop.Get(id)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">var input struct {
+        <span class="cov8" title="1">var input struct {
                 WorkshopName *string `json:"workshop_name"`
                 CategoryID   *int64  `json:"category_id"`
                 TypeID       *int64  `json:"type_id"`
@@ -9759,26 +9765,26 @@ func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http
                 return
         }</span>
 
-        <span class="cov0" title="0">if input.WorkshopName != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.WorkshopName != nil </span><span class="cov8" title="1">{
                 workshop.WorkshopName = *input.WorkshopName
         }</span>
-        <span class="cov0" title="0">if input.CategoryID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.CategoryID != nil </span><span class="cov8" title="1">{
                 workshop.CategoryID = *input.CategoryID
         }</span>
-        <span class="cov0" title="0">if input.TypeID != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.TypeID != nil </span><span class="cov0" title="0">{
                 workshop.TypeID = *input.TypeID
         }</span>
-        <span class="cov0" title="0">if input.CreditHours != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.CreditHours != nil </span><span class="cov8" title="1">{
                 workshop.CreditHours = *input.CreditHours
         }</span>
-        <span class="cov0" title="0">if input.Description != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.Description != nil </span><span class="cov8" title="1">{
                 workshop.Description = input.Description
         }</span>
-        <span class="cov0" title="0">if input.IsActive != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.IsActive != nil </span><span class="cov0" title="0">{
                 workshop.IsActive = *input.IsActive
         }</span>
 
-        <span class="cov0" title="0">v := validator.New()
+        <span class="cov8" title="1">v := validator.New()
         data.ValidateWorkshop(v, workshop)
 
         if !v.IsEmpty() </span><span class="cov0" title="0">{
@@ -9786,47 +9792,47 @@ func (app *appDependencies) updateWorkshopHandler(w http.ResponseWriter, r *http
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.Workshop.Update(workshop)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">err = app.models.Workshop.Update(workshop)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
                 case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
                         app.notFoundResponse(w, r)</span>
-                case errors.Is(err, data.ErrDuplicateValue):<span class="cov0" title="0">
-                        v.AddError("workshop_name", "a workshop with this name already exists")
-                        app.failedValidationResponse(w, r, v.Errors)</span>
-                case errors.Is(err, data.ErrForeignKeyViolation):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrDuplicateValue):<span class="cov8" title="1">
+                        app.conflictResponse(w, r) // Change from failedValidationResponse to conflictResponse
+                        return</span>
+                case errors.Is(err, data.ErrForeignKeyViolation):<span class="cov8" title="1">
                         app.badRequestResponse(w, r, errors.New("invalid category_id or type_id"))</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"workshop": workshop}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"workshop": workshop}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
 }
 
-func (app *appDependencies) deleteWorkshopHandler(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (app *appDependencies) deleteWorkshopHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         id, err := app.readIDParameter(r)
         if err != nil </span><span class="cov0" title="0">{
                 app.notFoundResponse(w, r)
                 return
         }</span>
 
-        <span class="cov0" title="0">err = app.models.Workshop.Delete(id)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">err = app.models.Workshop.Delete(id)
+        if err != nil </span><span class="cov8" title="1">{
                 switch </span>{
-                case errors.Is(err, data.ErrRecordNotFound):<span class="cov0" title="0">
+                case errors.Is(err, data.ErrRecordNotFound):<span class="cov8" title="1">
                         app.notFoundResponse(w, r)</span>
                 default:<span class="cov0" title="0">
                         app.serverErrorResponse(w, r, err)</span>
                 }
-                <span class="cov0" title="0">return</span>
+                <span class="cov8" title="1">return</span>
         }
 
-        <span class="cov0" title="0">err = app.writeJSON(w, http.StatusOK, envelope{"message": "workshop successfully deleted"}, nil)
+        <span class="cov8" title="1">err = app.writeJSON(w, http.StatusOK, envelope{"message": "workshop successfully deleted"}, nil)
         if err != nil </span><span class="cov0" title="0">{
                 app.serverErrorResponse(w, r, err)
         }</span>
