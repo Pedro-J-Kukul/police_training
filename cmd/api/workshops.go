@@ -13,6 +13,7 @@ import (
 // @Description Create a new workshop
 // @Tags workshops
 // @Accept json
+// @Security ApiKeyAuth
 // @Produce json
 // @Param workshop body map[string]interface{} true "Workshop data (workshop_name, category_id, type_id, credit_hours, description, is_active)"
 // @Success 201 {object} map[string]interface{} "Created workshop envelope {\"workshop\": {...}}"
@@ -85,6 +86,7 @@ func (app *appDependencies) createWorkshopHandler(w http.ResponseWriter, r *http
 // @Tags workshops
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param id path int true "Workshop ID"
 // @Success 200 {object} map[string]interface{} "Workshop envelope {\"workshop\": {...}}"
 // @Failure 404 {object} map[string]string "Not found"

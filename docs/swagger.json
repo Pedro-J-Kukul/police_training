@@ -3135,7 +3135,7 @@
                     {
                         "type": "integer",
                         "description": "User ID",
-                        "name": "user_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -3164,6 +3164,11 @@
         },
         "/v1/workshops": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new workshop",
                 "consumes": [
                     "application/json"
@@ -3225,6 +3230,11 @@
         },
         "/v1/workshops/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a workshop by ID",
                 "consumes": [
                     "application/json"

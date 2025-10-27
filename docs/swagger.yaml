@@ -2137,7 +2137,7 @@ paths:
       parameters:
       - description: User ID
         in: path
-        name: user_id
+        name: id
         required: true
         type: integer
       produces:
@@ -2267,6 +2267,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Create a workshop
       tags:
       - workshops
@@ -2301,6 +2303,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Get a workshop
       tags:
       - workshops

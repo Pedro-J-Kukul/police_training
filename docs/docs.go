@@ -3141,7 +3141,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "User ID",
-                        "name": "user_id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -3170,6 +3170,11 @@ const docTemplate = `{
         },
         "/v1/workshops": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new workshop",
                 "consumes": [
                     "application/json"
@@ -3231,6 +3236,11 @@ const docTemplate = `{
         },
         "/v1/workshops/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve a workshop by ID",
                 "consumes": [
                     "application/json"
