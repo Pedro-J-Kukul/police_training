@@ -91,7 +91,7 @@ func (m *ProgressStatusModel) GetAll(name string, filters Filters) ([]*ProgressS
 	query := fmt.Sprintf(`
 		SELECT COUNT(*) OVER(), id, status
 		FROM progress_statuses
-		WHERE ($1 = '' OR status ILIKE $1)
+		WHERE (to_tsvector('simple', status) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		ORDER BY %s %s, id ASC
 		LIMIT $2 OFFSET $3`, filters.sortColumn(), filters.sortDirection())
 

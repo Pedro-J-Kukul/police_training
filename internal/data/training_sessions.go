@@ -142,9 +142,8 @@ func (m *TrainingSessionModel) Get(id int64) (*TrainingSession, error) {
 // GetAll returns training sessions filtered by various criteria.
 func (m *TrainingSessionModel) GetAll(facilitatorID, workshopID, formationID, regionID, statusID *int64, sessionDate *time.Time, filters Filters) ([]*TrainingSession, MetaData, error) {
 	if filters.Sort == "" {
-		filters.Sort = "session_date"
+		filters.Sort = "id" // Add this line
 	}
-
 	query := fmt.Sprintf(`
 		SELECT COUNT(*) OVER(), id, facilitator_id, workshop_id, formation_id, region_id, session_date, start_time, end_time, location, max_capacity, training_status_id, notes, created_at, updated_at
 		FROM training_sessions

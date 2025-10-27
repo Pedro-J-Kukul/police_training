@@ -84,13 +84,13 @@ func (m *TrainingTypeModel) Get(id int64) (*TrainingType, error) {
 // GetAll returns training types filtered by name.
 func (m *TrainingTypeModel) GetAll(name string, filters Filters) ([]*TrainingType, MetaData, error) {
 	if filters.Sort == "" {
-		filters.Sort = "type"
+		filters.Sort = "id"
 	}
 
 	query := fmt.Sprintf(`
 		SELECT COUNT(*) OVER(), id, name, is_active
 		FROM training_types
-		WHERE (to_tsvector('simple', type) @@ plainto_tsquery('simple', $1) OR $1 = '')
+		WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		ORDER BY %s %s, id ASC
 		LIMIT $2 OFFSET $3`, filters.sortColumn(), filters.sortDirection())
 
@@ -110,7 +110,7 @@ func (m *TrainingTypeModel) GetAll(name string, filters Filters) ([]*TrainingTyp
 
 	for rows.Next() {
 		var trainingType TrainingType
-		if err := rows.Scan(&totalRecords, &trainingType.ID, &trainingType.Type); err != nil {
+		if err := rows.Scan(&totalRecords, &trainingType.ID, &trainingType.Type, &trainingType.IsActive); err != nil {
 			return nil, MetaData{}, err
 		}
 		trainingTypes = append(trainingTypes, &trainingType)

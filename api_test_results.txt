@@ -1,0 +1,570 @@
+=== RUN   TestCreateOfficerHandler
+    officers_test.go:89: === Testing Create Officer Handler ===
+    officers_test.go:122: Step: Fetching seeded user with email: admin1@police-training.bz
+    officers_test.go:122: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    officers_test.go:123: Step: Creating authentication token for user ID 1
+    officers_test.go:123: Step: Successfully created token for user ID 1
+=== RUN   TestCreateOfficerHandler/Valid_officer_creation
+    officers_test.go:192: Starting test: Valid officer creation
+    officers_test.go:207: Step: Received status code 201
+    officers_test.go:143: Step: Validating successful officer creation
+    officers_test.go:157: Step: Created officer ID 87
+    officers_test.go:213: Completed test: Valid officer creation
+=== RUN   TestCreateOfficerHandler/Missing_required_fields
+    officers_test.go:192: Starting test: Missing required fields
+    officers_test.go:207: Step: Received status code 422
+    officers_test.go:170: Step: Validating missing fields validation
+    officers_test.go:213: Completed test: Missing required fields
+=== RUN   TestCreateOfficerHandler/Invalid_user_id
+    officers_test.go:192: Starting test: Invalid user_id
+    officers_test.go:207: Step: Received status code 422
+    officers_test.go:185: Step: Validating invalid user_id handling
+    officers_test.go:213: Completed test: Invalid user_id
+--- PASS: TestCreateOfficerHandler (0.26s)
+    --- PASS: TestCreateOfficerHandler/Valid_officer_creation (0.01s)
+    --- PASS: TestCreateOfficerHandler/Missing_required_fields (0.00s)
+    --- PASS: TestCreateOfficerHandler/Invalid_user_id (0.00s)
+=== RUN   TestShowOfficerHandler
+    officers_test.go:219: === Testing Show Officer Handler ===
+    officers_test.go:221: Step: Getting seeded officer and user data
+    officers_test.go:221: Step: Fetching seeded user with email: john.smith@police-training.bz
+    officers_test.go:221: Step: Successfully retrieved user ID 6 (John Smith)
+    officers_test.go:221: Step: Retrieved officer ID 1 for user john.smith@police-training.bz
+    officers_test.go:222: Step: Creating authentication token for user ID 6
+    officers_test.go:222: Step: Successfully created token for user ID 6
+=== RUN   TestShowOfficerHandler/Valid_seeded_officer_ID
+    officers_test.go:278: Starting test: Valid seeded officer ID with officer ID 1
+    officers_test.go:287: Step: Set URL param id=1
+    officers_test.go:295: Step: Received status code 200
+    officers_test.go:235: Step: Validating officer details response
+    officers_test.go:248: Step: Retrieved officer with regulation number PC001
+    officers_test.go:301: Completed test: Valid seeded officer ID
+=== RUN   TestShowOfficerHandler/Non-existent_officer_ID
+    officers_test.go:278: Starting test: Non-existent officer ID with officer ID 999999
+    officers_test.go:287: Step: Set URL param id=999999
+    officers_test.go:295: Step: Received status code 404
+    officers_test.go:263: Step: Validating non-existent officer response
+    officers_test.go:301: Completed test: Non-existent officer ID
+=== RUN   TestShowOfficerHandler/Invalid_officer_ID_format
+    officers_test.go:278: Starting test: Invalid officer ID format with officer ID abc
+    officers_test.go:287: Step: Set URL param id=abc
+    officers_test.go:295: Step: Received status code 404
+    officers_test.go:271: Step: Validating invalid ID format response
+    officers_test.go:301: Completed test: Invalid officer ID format
+--- PASS: TestShowOfficerHandler (0.00s)
+    --- PASS: TestShowOfficerHandler/Valid_seeded_officer_ID (0.00s)
+    --- PASS: TestShowOfficerHandler/Non-existent_officer_ID (0.00s)
+    --- PASS: TestShowOfficerHandler/Invalid_officer_ID_format (0.00s)
+=== RUN   TestShowOfficerWithDetailsHandler
+    officers_test.go:307: === Testing Show Officer With Details Handler ===
+    officers_test.go:309: Step: Getting seeded officer and user data
+    officers_test.go:309: Step: Fetching seeded user with email: john.smith@police-training.bz
+    officers_test.go:309: Step: Successfully retrieved user ID 6 (John Smith)
+    officers_test.go:309: Step: Retrieved officer ID 1 for user john.smith@police-training.bz
+    officers_test.go:310: Step: Creating authentication token for user ID 6
+    officers_test.go:310: Step: Successfully created token for user ID 6
+=== RUN   TestShowOfficerWithDetailsHandler/Valid_seeded_officer_ID_with_details
+    officers_test.go:361: Starting test: Valid seeded officer ID with details
+    officers_test.go:376: Step: Received status code 200
+    officers_test.go:323: Step: Validating officer with details response
+    officers_test.go:336: Step: Retrieved detailed officer with regulation number PC001
+    officers_test.go:344: Step: Found detailed field user
+    officers_test.go:344: Step: Found detailed field rank
+    officers_test.go:344: Step: Found detailed field posting
+    officers_test.go:344: Step: Found detailed field formation
+    officers_test.go:344: Step: Found detailed field region
+    officers_test.go:382: Completed test: Valid seeded officer ID with details
+=== RUN   TestShowOfficerWithDetailsHandler/Non-existent_officer_ID
+    officers_test.go:361: Starting test: Non-existent officer ID
+    officers_test.go:376: Step: Received status code 404
+    officers_test.go:354: Step: Validating non-existent officer details response
+    officers_test.go:382: Completed test: Non-existent officer ID
+--- PASS: TestShowOfficerWithDetailsHandler (0.00s)
+    --- PASS: TestShowOfficerWithDetailsHandler/Valid_seeded_officer_ID_with_details (0.00s)
+    --- PASS: TestShowOfficerWithDetailsHandler/Non-existent_officer_ID (0.00s)
+=== RUN   TestListOfficersHandler
+    officers_test.go:388: === Testing List Officers Handler ===
+    officers_test.go:390: Step: Fetching seeded user with email: admin1@police-training.bz
+    officers_test.go:390: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    officers_test.go:391: Step: Creating authentication token for user ID 1
+    officers_test.go:391: Step: Successfully created token for user ID 1
+=== RUN   TestListOfficersHandler/List_all_officers
+    officers_test.go:514: Starting test: List all officers
+    officers_test.go:521: Step: Making request to /v1/officers
+    officers_test.go:529: Step: Received status code 200
+    officers_test.go:404: Step: Validating officers list response
+    officers_test.go:417: Step: Retrieved 6 officers
+    officers_test.go:434: Step: First officer ID 1, Reg Number: PC001
+    officers_test.go:535: Completed test: List all officers
+=== RUN   TestListOfficersHandler/List_officers_with_pagination
+    officers_test.go:514: Starting test: List officers with pagination
+    officers_test.go:521: Step: Making request to /v1/officers?page=1&page_size=3
+    officers_test.go:529: Step: Received status code 200
+    officers_test.go:447: Step: Validating paginated officers response
+    officers_test.go:455: Step: Retrieved 3 officers with page_size=3
+    officers_test.go:535: Completed test: List officers with pagination
+=== RUN   TestListOfficersHandler/Filter_officers_by_rank
+    officers_test.go:514: Starting test: Filter officers by rank
+    officers_test.go:521: Step: Making request to /v1/officers?rank_id=1
+    officers_test.go:529: Step: Received status code 200
+    officers_test.go:467: Step: Validating rank filter response
+    officers_test.go:475: Step: Retrieved 0 officers for rank 1
+    officers_test.go:535: Completed test: Filter officers by rank
+=== RUN   TestListOfficersHandler/Search_officers_by_regulation_number
+    officers_test.go:514: Starting test: Search officers by regulation number
+    officers_test.go:521: Step: Making request to /v1/officers?regulation_number=PC001
+    officers_test.go:529: Step: Received status code 200
+    officers_test.go:491: Step: Validating regulation number search
+    officers_test.go:499: Step: Retrieved 1 officers with regulation number PC001
+    officers_test.go:535: Completed test: Search officers by regulation number
+--- PASS: TestListOfficersHandler (0.00s)
+    --- PASS: TestListOfficersHandler/List_all_officers (0.00s)
+    --- PASS: TestListOfficersHandler/List_officers_with_pagination (0.00s)
+    --- PASS: TestListOfficersHandler/Filter_officers_by_rank (0.00s)
+    --- PASS: TestListOfficersHandler/Search_officers_by_regulation_number (0.00s)
+=== RUN   TestUpdateOfficerHandler
+    officers_test.go:541: === Testing Update Officer Handler ===
+    officers_test.go:544: Step: Creating authentication token for user ID 197
+    officers_test.go:544: Step: Successfully created token for user ID 197
+    officers_test.go:544: Step: Created test officer ID 89 for user testofficer1761584122043498891@test-police-training.bz
+=== RUN   TestUpdateOfficerHandler/Valid_officer_update
+    officers_test.go:610: Starting test: Valid officer update
+    officers_test.go:627: Step: Received status code 200
+    officers_test.go:568: Step: Validating successful officer update
+    officers_test.go:581: Step: Updated officer regulation number to UPD1761584122283404704
+    officers_test.go:633: Completed test: Valid officer update
+=== RUN   TestUpdateOfficerHandler/Non-existent_officer
+    officers_test.go:610: Starting test: Non-existent officer
+    officers_test.go:627: Step: Received status code 404
+    officers_test.go:592: Step: Validating non-existent officer update
+    officers_test.go:633: Completed test: Non-existent officer
+=== RUN   TestUpdateOfficerHandler/Invalid_rank_id
+    officers_test.go:610: Starting test: Invalid rank_id
+    officers_test.go:627: Step: Received status code 422
+    officers_test.go:603: Step: Validating invalid rank_id handling
+    officers_test.go:633: Completed test: Invalid rank_id
+--- PASS: TestUpdateOfficerHandler (0.25s)
+    --- PASS: TestUpdateOfficerHandler/Valid_officer_update (0.00s)
+    --- PASS: TestUpdateOfficerHandler/Non-existent_officer (0.00s)
+    --- PASS: TestUpdateOfficerHandler/Invalid_rank_id (0.00s)
+=== RUN   TestDeleteOfficerHandler
+    officers_test.go:639: === Testing Delete Officer Handler ===
+    officers_test.go:642: Step: Creating authentication token for user ID 198
+    officers_test.go:642: Step: Successfully created token for user ID 198
+    officers_test.go:642: Step: Created test officer ID 90 for user testofficer1761584122290878851@test-police-training.bz
+=== RUN   TestDeleteOfficerHandler/Valid_officer_deletion
+    officers_test.go:682: Starting test: Valid officer deletion
+    officers_test.go:697: Step: Received status code 200
+    officers_test.go:656: Step: Validating successful officer deletion
+    officers_test.go:667: Step: Officer deleted with message: officer successfully deleted
+    officers_test.go:703: Completed test: Valid officer deletion
+=== RUN   TestDeleteOfficerHandler/Non-existent_officer
+    officers_test.go:682: Starting test: Non-existent officer
+    officers_test.go:697: Step: Received status code 404
+    officers_test.go:675: Step: Validating non-existent officer deletion
+    officers_test.go:703: Completed test: Non-existent officer
+--- PASS: TestDeleteOfficerHandler (0.24s)
+    --- PASS: TestDeleteOfficerHandler/Valid_officer_deletion (0.00s)
+    --- PASS: TestDeleteOfficerHandler/Non-existent_officer (0.00s)
+=== RUN   TestGetUserOfficerHandler
+    officers_test.go:709: === Testing Get User Officer Handler ===
+    officers_test.go:711: Step: Getting seeded officer and user data
+    officers_test.go:711: Step: Fetching seeded user with email: john.smith@police-training.bz
+    officers_test.go:711: Step: Successfully retrieved user ID 6 (John Smith)
+    officers_test.go:711: Step: Retrieved officer ID 1 for user john.smith@police-training.bz
+    officers_test.go:712: Step: Creating authentication token for user ID 6
+    officers_test.go:712: Step: Successfully created token for user ID 6
+=== RUN   TestGetUserOfficerHandler/Valid_user_ID_with_officer
+    officers_test.go:765: Starting test: Valid user ID with officer
+    officers_test.go:780: Step: Received status code 200
+    officers_test.go:725: Step: Validating user officer response
+    officers_test.go:742: Step: Set user context for user ID 6
+    officers_test.go:786: Completed test: Valid user ID with officer
+=== RUN   TestGetUserOfficerHandler/User_without_officer_record
+    officers_test.go:765: Starting test: User without officer record
+    officers_test.go:780: Step: Received status code 404
+    officers_test.go:750: Step: Validating user without officer record
+    officers_test.go:786: Completed test: User without officer record
+=== RUN   TestGetUserOfficerHandler/Invalid_user_ID_format
+    officers_test.go:765: Starting test: Invalid user ID format
+    officers_test.go:780: Step: Received status code 404
+    officers_test.go:758: Step: Validating invalid user ID format
+    officers_test.go:786: Completed test: Invalid user ID format
+--- PASS: TestGetUserOfficerHandler (0.00s)
+    --- PASS: TestGetUserOfficerHandler/Valid_user_ID_with_officer (0.00s)
+    --- PASS: TestGetUserOfficerHandler/User_without_officer_record (0.00s)
+    --- PASS: TestGetUserOfficerHandler/Invalid_user_ID_format (0.00s)
+=== RUN   TestOfficerWorkflow
+    officers_test.go:792: === Testing Complete Officer Workflow ===
+    officers_test.go:820: Step: Creating authentication token for user ID 199
+    officers_test.go:820: Step: Successfully created token for user ID 199
+    officers_test.go:856: Step: Created officer ID 91
+    officers_test.go:870: Officer retrieval failed with status 404
+--- FAIL: TestOfficerWorkflow (0.25s)
+=== RUN   TestCreateAuthenticationTokenHandler
+    tokens_test.go:16: === Testing Authentication Token Creation ===
+=== RUN   TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_admin
+    tokens_test.go:146: Starting test: Valid credentials for seeded admin
+    tokens_test.go:152: Step: Making POST request with email admin1@police-training.bz
+    tokens_test.go:160: Step: Received status code 201 (expected 201)
+    tokens_test.go:32: Step: Validating successful token creation
+    tokens_test.go:52: Step: Successfully created token with expiry 2025-10-28T10:55:23.005368945-06:00
+    tokens_test.go:166: Completed test: Valid credentials for seeded admin
+=== RUN   TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_facilitator
+    tokens_test.go:146: Starting test: Valid credentials for seeded facilitator
+    tokens_test.go:152: Step: Making POST request with email admin1@police-training.bz
+    tokens_test.go:160: Step: Received status code 201 (expected 201)
+    tokens_test.go:63: Step: Validating facilitator token creation
+    tokens_test.go:74: Step: Facilitator token created successfully
+    tokens_test.go:166: Completed test: Valid credentials for seeded facilitator
+=== RUN   TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_officer
+    tokens_test.go:146: Starting test: Valid credentials for seeded officer
+    tokens_test.go:152: Step: Making POST request with email john.smith@police-training.bz
+    tokens_test.go:160: Step: Received status code 201 (expected 201)
+    tokens_test.go:85: Step: Validating officer token creation
+    tokens_test.go:96: Step: Officer token created successfully
+    tokens_test.go:166: Completed test: Valid credentials for seeded officer
+=== RUN   TestCreateAuthenticationTokenHandler/Invalid_password_for_seeded_user
+    tokens_test.go:146: Starting test: Invalid password for seeded user
+    tokens_test.go:152: Step: Making POST request with email admin1@police-training.bz
+    tokens_test.go:160: Step: Received status code 401 (expected 401)
+    tokens_test.go:107: Step: Validating invalid password rejection
+    tokens_test.go:166: Completed test: Invalid password for seeded user
+=== RUN   TestCreateAuthenticationTokenHandler/Non-existent_email
+    tokens_test.go:146: Starting test: Non-existent email
+    tokens_test.go:152: Step: Making POST request with email nonexistent@police-training.bz
+    tokens_test.go:160: Step: Received status code 401 (expected 401)
+    tokens_test.go:118: Step: Validating non-existent user rejection
+    tokens_test.go:166: Completed test: Non-existent email
+=== RUN   TestCreateAuthenticationTokenHandler/Invalid_email_format
+    tokens_test.go:146: Starting test: Invalid email format
+    tokens_test.go:152: Step: Making POST request with email invalid-email
+    tokens_test.go:160: Step: Received status code 422 (expected 422)
+    tokens_test.go:129: Step: Validating email format validation
+    tokens_test.go:166: Completed test: Invalid email format
+=== RUN   TestCreateAuthenticationTokenHandler/Missing_password
+    tokens_test.go:146: Starting test: Missing password
+    tokens_test.go:152: Step: Making POST request with email admin1@police-training.bz
+    tokens_test.go:160: Step: Received status code 422 (expected 422)
+    tokens_test.go:139: Step: Validating missing password validation
+    tokens_test.go:166: Completed test: Missing password
+--- PASS: TestCreateAuthenticationTokenHandler (0.89s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_admin (0.23s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_facilitator (0.22s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Valid_credentials_for_seeded_officer (0.22s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Invalid_password_for_seeded_user (0.22s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Non-existent_email (0.00s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Invalid_email_format (0.00s)
+    --- PASS: TestCreateAuthenticationTokenHandler/Missing_password (0.00s)
+=== RUN   TestCreatePasswordResetTokenHandler
+    tokens_test.go:172: === Testing Password Reset Token Creation ===
+=== RUN   TestCreatePasswordResetTokenHandler/Valid_email_for_seeded_user
+    tokens_test.go:233: Starting test: Valid email for seeded user
+    tokens_test.go:239: Step: Making POST request for password reset
+    tokens_test.go:247: Step: Received status code 202
+    tokens_test.go:187: Step: Validating password reset token creation
+    tokens_test.go:198: Step: Password reset token created successfully
+    tokens_test.go:253: Completed test: Valid email for seeded user
+=== RUN   TestCreatePasswordResetTokenHandler/Non-existent_email
+    tokens_test.go:233: Starting test: Non-existent email
+    tokens_test.go:239: Step: Making POST request for password reset
+    tokens_test.go:247: Step: Received status code 202
+    tokens_test.go:208: Step: Validating non-existent email handling
+    tokens_test.go:253: Completed test: Non-existent email
+=== RUN   TestCreatePasswordResetTokenHandler/Invalid_email_format
+    tokens_test.go:233: Starting test: Invalid email format
+    tokens_test.go:239: Step: Making POST request for password reset
+    tokens_test.go:247: Step: Received status code 422
+    tokens_test.go:218: Step: Validating email format validation
+    tokens_test.go:253: Completed test: Invalid email format
+=== RUN   TestCreatePasswordResetTokenHandler/Missing_email
+    tokens_test.go:233: Starting test: Missing email
+    tokens_test.go:239: Step: Making POST request for password reset
+    tokens_test.go:247: Step: Received status code 422
+    tokens_test.go:226: Step: Validating missing email validation
+    tokens_test.go:253: Completed test: Missing email
+--- PASS: TestCreatePasswordResetTokenHandler (0.01s)
+    --- PASS: TestCreatePasswordResetTokenHandler/Valid_email_for_seeded_user (0.01s)
+    --- PASS: TestCreatePasswordResetTokenHandler/Non-existent_email (0.00s)
+    --- PASS: TestCreatePasswordResetTokenHandler/Invalid_email_format (0.00s)
+    --- PASS: TestCreatePasswordResetTokenHandler/Missing_email (0.00s)
+=== RUN   TestResetPasswordHandler
+    tokens_test.go:259: === Testing Password Reset Handler ===
+    tokens_test.go:262: Step: Fetching seeded user with email: admin2.garcia@police-training.bz
+    tokens_test.go:262: Step: Successfully retrieved user ID 2 (Immanuel Garcia)
+=== RUN   TestResetPasswordHandler/Valid_password_reset
+    tokens_test.go:334: Starting test: Valid password reset
+    tokens_test.go:340: Step: Making PUT request for password reset
+    tokens_test.go:348: Step: Received status code 200
+    tokens_test.go:284: Step: Validating successful password reset
+    tokens_test.go:295: Step: Password reset completed successfully
+    tokens_test.go:354: Completed test: Valid password reset
+=== RUN   TestResetPasswordHandler/Invalid_token
+    tokens_test.go:334: Starting test: Invalid token
+    tokens_test.go:340: Step: Making PUT request for password reset
+    tokens_test.go:348: Step: Received status code 422
+    tokens_test.go:306: Step: Validating invalid token rejection
+    tokens_test.go:354: Completed test: Invalid token
+=== RUN   TestResetPasswordHandler/Invalid_password_format
+    tokens_test.go:334: Starting test: Invalid password format
+    tokens_test.go:340: Step: Making PUT request for password reset
+    tokens_test.go:348: Step: Received status code 422
+    tokens_test.go:317: Step: Validating password format validation
+    tokens_test.go:354: Completed test: Invalid password format
+=== RUN   TestResetPasswordHandler/Missing_token
+    tokens_test.go:334: Starting test: Missing token
+    tokens_test.go:340: Step: Making PUT request for password reset
+    tokens_test.go:348: Step: Received status code 422
+    tokens_test.go:327: Step: Validating missing token validation
+    tokens_test.go:354: Completed test: Missing token
+--- PASS: TestResetPasswordHandler (0.23s)
+    --- PASS: TestResetPasswordHandler/Valid_password_reset (0.23s)
+    --- PASS: TestResetPasswordHandler/Invalid_token (0.00s)
+    --- PASS: TestResetPasswordHandler/Invalid_password_format (0.00s)
+    --- PASS: TestResetPasswordHandler/Missing_token (0.00s)
+=== RUN   TestTokenWorkflow
+    tokens_test.go:360: === Testing Complete Token Workflow ===
+    tokens_test.go:362: Step: Starting authentication workflow with seeded admin user
+    tokens_test.go:387: Step: Successfully created authentication token
+    tokens_test.go:394: Step: Fetching seeded user with email: admin2.garcia@police-training.bz
+    tokens_test.go:394: Step: Successfully retrieved user ID 2 (Immanuel Garcia)
+    tokens_test.go:408: Step: Successfully accessed protected endpoint for user Immanuel Garcia
+    tokens_test.go:436: Step: Password reset token creation completed
+    tokens_test.go:438: Step: Token workflow completed successfully with correct user data
+--- PASS: TestTokenWorkflow (0.22s)
+=== RUN   TestRegisterUserHandler
+    users_test.go:78: === Testing User Registration Handler ===
+=== RUN   TestRegisterUserHandler/Valid_new_user_registration
+    users_test.go:153: Starting test: Valid new user registration
+    users_test.go:165: Step: Received status code 201 (expected 201)
+    users_test.go:99: Step: Validating successful registration response
+    users_test.go:112: Step: Created user ID 200 with email newuser1761584124142020341@test-police-training.bz
+    users_test.go:117: Step: Cleaned up test user ID 200
+    users_test.go:171: Completed test: Valid new user registration
+=== RUN   TestRegisterUserHandler/Duplicate_email_with_seeded_user
+    users_test.go:153: Starting test: Duplicate email with seeded user
+    users_test.go:165: Step: Received status code 422 (expected 422)
+    users_test.go:132: Step: Validating duplicate email rejection
+    users_test.go:171: Completed test: Duplicate email with seeded user
+=== RUN   TestRegisterUserHandler/Invalid_email_format
+    users_test.go:153: Starting test: Invalid email format
+    users_test.go:165: Step: Received status code 422 (expected 422)
+    users_test.go:146: Step: Validating email format validation
+    users_test.go:171: Completed test: Invalid email format
+--- PASS: TestRegisterUserHandler (0.66s)
+    --- PASS: TestRegisterUserHandler/Valid_new_user_registration (0.23s)
+    --- PASS: TestRegisterUserHandler/Duplicate_email_with_seeded_user (0.22s)
+    --- PASS: TestRegisterUserHandler/Invalid_email_format (0.22s)
+=== RUN   TestActivateUserHandler
+    users_test.go:177: === Testing Activate User Handler ===
+=== RUN   TestActivateUserHandler/Valid_activation_token
+    users_test.go:238: Starting test: Valid activation token
+    users_test.go:250: Step: Received status code 200
+    users_test.go:255: Completed test: Valid activation token
+=== RUN   TestActivateUserHandler/Invalid_activation_token
+    users_test.go:238: Starting test: Invalid activation token
+    users_test.go:250: Step: Received status code 422
+    users_test.go:255: Completed test: Invalid activation token
+=== RUN   TestActivateUserHandler/Missing_token
+    users_test.go:238: Starting test: Missing token
+    users_test.go:250: Step: Received status code 422
+    users_test.go:255: Completed test: Missing token
+--- PASS: TestActivateUserHandler (0.24s)
+    --- PASS: TestActivateUserHandler/Valid_activation_token (0.01s)
+    --- PASS: TestActivateUserHandler/Invalid_activation_token (0.00s)
+    --- PASS: TestActivateUserHandler/Missing_token (0.00s)
+=== RUN   TestShowCurrentUserHandler
+    users_test.go:261: === Testing Show Current User Handler ===
+    users_test.go:263: Step: Fetching seeded user with email: admin1@police-training.bz
+    users_test.go:263: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    users_test.go:264: Step: Creating authentication token for user ID 1
+    users_test.go:264: Step: Successfully created token for user ID 1
+=== RUN   TestShowCurrentUserHandler/Authenticated_seeded_admin_user
+    users_test.go:291: Starting test: Authenticated seeded admin user
+    users_test.go:296: Step: Set authorization header with token
+    users_test.go:300: Step: Set user context for user ID 1
+    users_test.go:308: Step: Received status code 200
+    users_test.go:321: Step: Response contains user email admin1@police-training.bz
+    users_test.go:328: Completed test: Authenticated seeded admin user
+=== RUN   TestShowCurrentUserHandler/Anonymous_user_context
+    users_test.go:291: Starting test: Anonymous user context
+    users_test.go:300: Step: Set user context for user ID 0
+    users_test.go:308: Step: Received status code 200
+    users_test.go:328: Completed test: Anonymous user context
+--- PASS: TestShowCurrentUserHandler (0.00s)
+    --- PASS: TestShowCurrentUserHandler/Authenticated_seeded_admin_user (0.00s)
+    --- PASS: TestShowCurrentUserHandler/Anonymous_user_context (0.00s)
+=== RUN   TestShowUserHandler
+    users_test.go:334: === Testing Show User Handler ===
+    users_test.go:336: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    users_test.go:336: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    users_test.go:337: Step: Creating authentication token for user ID 3
+    users_test.go:337: Step: Successfully created token for user ID 3
+=== RUN   TestShowUserHandler/Valid_seeded_user_ID
+    users_test.go:363: Starting test: Valid seeded user ID with user ID 3
+    users_test.go:372: Step: Set URL param id=3 and user context
+    users_test.go:380: Step: Received status code 200
+    users_test.go:393: Step: Successfully retrieved user 3 (Maria Rodriguez)
+    users_test.go:397: Completed test: Valid seeded user ID
+=== RUN   TestShowUserHandler/Non-existent_user_ID
+    users_test.go:363: Starting test: Non-existent user ID with user ID 999999
+    users_test.go:372: Step: Set URL param id=999999 and user context
+    users_test.go:380: Step: Received status code 404
+    users_test.go:397: Completed test: Non-existent user ID
+=== RUN   TestShowUserHandler/Invalid_user_ID_format
+    users_test.go:363: Starting test: Invalid user ID format with user ID abc
+    users_test.go:372: Step: Set URL param id=abc and user context
+    users_test.go:380: Step: Received status code 404
+    users_test.go:397: Completed test: Invalid user ID format
+--- PASS: TestShowUserHandler (0.00s)
+    --- PASS: TestShowUserHandler/Valid_seeded_user_ID (0.00s)
+    --- PASS: TestShowUserHandler/Non-existent_user_ID (0.00s)
+    --- PASS: TestShowUserHandler/Invalid_user_ID_format (0.00s)
+=== RUN   TestListUsersHandler
+    users_test.go:403: === Testing List Users Handler ===
+    users_test.go:405: Step: Fetching seeded user with email: admin1@police-training.bz
+    users_test.go:405: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    users_test.go:406: Step: Creating authentication token for user ID 1
+    users_test.go:406: Step: Successfully created token for user ID 1
+=== RUN   TestListUsersHandler/List_all_users_with_default_pagination
+    users_test.go:442: Starting test: List all users with default pagination
+    users_test.go:449: Step: Making request to /v1/users
+    users_test.go:457: Step: Received status code 200
+    users_test.go:470: Step: Retrieved 11 users
+    users_test.go:477: Completed test: List all users with default pagination
+=== RUN   TestListUsersHandler/List_users_with_pagination
+    users_test.go:442: Starting test: List users with pagination
+    users_test.go:449: Step: Making request to /v1/users?page=1&page_size=3
+    users_test.go:457: Step: Received status code 200
+    users_test.go:470: Step: Retrieved 3 users
+    users_test.go:477: Completed test: List users with pagination
+=== RUN   TestListUsersHandler/Filter_users_by_officer_status
+    users_test.go:442: Starting test: Filter users by officer status
+    users_test.go:449: Step: Making request to /v1/users?is_officer=true
+    users_test.go:457: Step: Received status code 200
+    users_test.go:470: Step: Retrieved 6 users
+    users_test.go:477: Completed test: Filter users by officer status
+=== RUN   TestListUsersHandler/Filter_users_by_facilitator_status
+    users_test.go:442: Starting test: Filter users by facilitator status
+    users_test.go:449: Step: Making request to /v1/users?is_facilitator=true
+    users_test.go:457: Step: Received status code 200
+    users_test.go:470: Step: Retrieved 5 users
+    users_test.go:477: Completed test: Filter users by facilitator status
+=== RUN   TestListUsersHandler/Search_by_first_name
+    users_test.go:442: Starting test: Search by first name
+    users_test.go:449: Step: Making request to /v1/users?first_name=Pedro
+    users_test.go:457: Step: Received status code 200
+    users_test.go:470: Step: Retrieved 1 users
+    users_test.go:477: Completed test: Search by first name
+--- PASS: TestListUsersHandler (0.00s)
+    --- PASS: TestListUsersHandler/List_all_users_with_default_pagination (0.00s)
+    --- PASS: TestListUsersHandler/List_users_with_pagination (0.00s)
+    --- PASS: TestListUsersHandler/Filter_users_by_officer_status (0.00s)
+    --- PASS: TestListUsersHandler/Filter_users_by_facilitator_status (0.00s)
+    --- PASS: TestListUsersHandler/Search_by_first_name (0.00s)
+=== RUN   TestUpdateUserHandler
+    users_test.go:483: === Testing Update User Handler ===
+    users_test.go:511: Step: Fetching seeded user with email: admin1@police-training.bz
+    users_test.go:511: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    users_test.go:512: Step: Creating authentication token for user ID 1
+    users_test.go:512: Step: Successfully created token for user ID 1
+=== RUN   TestUpdateUserHandler/Valid_user_update
+    users_test.go:552: Starting test: Valid user update
+    users_test.go:569: Step: Received status code 200
+    users_test.go:574: Completed test: Valid user update
+=== RUN   TestUpdateUserHandler/Version_conflict
+    users_test.go:552: Starting test: Version conflict
+    users_test.go:569: Step: Received status code 409
+    users_test.go:574: Completed test: Version conflict
+=== RUN   TestUpdateUserHandler/Non-existent_user
+    users_test.go:552: Starting test: Non-existent user
+    users_test.go:569: Step: Received status code 404
+    users_test.go:574: Completed test: Non-existent user
+--- PASS: TestUpdateUserHandler (0.24s)
+    --- PASS: TestUpdateUserHandler/Valid_user_update (0.00s)
+    --- PASS: TestUpdateUserHandler/Version_conflict (0.00s)
+    --- PASS: TestUpdateUserHandler/Non-existent_user (0.00s)
+=== RUN   TestUpdatePasswordHandler
+    users_test.go:580: === Testing Update Password Handler ===
+    users_test.go:582: Step: Fetching seeded user with email: maria.rodriguez@police-training.bz
+    users_test.go:582: Step: Successfully retrieved user ID 3 (Maria Rodriguez)
+    users_test.go:583: Step: Creating authentication token for user ID 3
+    users_test.go:583: Step: Successfully created token for user ID 3
+=== RUN   TestUpdatePasswordHandler/Valid_password_update
+    users_test.go:619: Starting test: Valid password update
+    users_test.go:636: Step: Received status code 200
+    users_test.go:641: Completed test: Valid password update
+=== RUN   TestUpdatePasswordHandler/Invalid_password_format
+    users_test.go:619: Starting test: Invalid password format
+    users_test.go:636: Step: Received status code 422
+    users_test.go:641: Completed test: Invalid password format
+=== RUN   TestUpdatePasswordHandler/Non-existent_user
+    users_test.go:619: Starting test: Non-existent user
+    users_test.go:636: Step: Received status code 404
+    users_test.go:641: Completed test: Non-existent user
+--- PASS: TestUpdatePasswordHandler (0.44s)
+    --- PASS: TestUpdatePasswordHandler/Valid_password_update (0.22s)
+    --- PASS: TestUpdatePasswordHandler/Invalid_password_format (0.22s)
+    --- PASS: TestUpdatePasswordHandler/Non-existent_user (0.00s)
+=== RUN   TestDeleteUserHandler
+    users_test.go:647: === Testing Delete User Handler (Soft Delete) ===
+    users_test.go:674: Step: Fetching seeded user with email: admin1@police-training.bz
+    users_test.go:674: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    users_test.go:675: Step: Creating authentication token for user ID 1
+    users_test.go:675: Step: Successfully created token for user ID 1
+=== RUN   TestDeleteUserHandler/Valid_user_soft_deletion
+    users_test.go:696: Starting test: Valid user soft deletion
+    users_test.go:711: Step: Received status code 200
+    users_test.go:716: Completed test: Valid user soft deletion
+=== RUN   TestDeleteUserHandler/Non-existent_user
+    users_test.go:696: Starting test: Non-existent user
+    users_test.go:711: Step: Received status code 404
+    users_test.go:716: Completed test: Non-existent user
+--- PASS: TestDeleteUserHandler (0.24s)
+    --- PASS: TestDeleteUserHandler/Valid_user_soft_deletion (0.00s)
+    --- PASS: TestDeleteUserHandler/Non-existent_user (0.00s)
+=== RUN   TestRestoreUserHandler
+    users_test.go:722: === Testing Restore User Handler ===
+    users_test.go:752: Step: Fetching seeded user with email: admin1@police-training.bz
+    users_test.go:752: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    users_test.go:753: Step: Creating authentication token for user ID 1
+    users_test.go:753: Step: Successfully created token for user ID 1
+=== RUN   TestRestoreUserHandler/Valid_user_restore
+    users_test.go:774: Starting test: Valid user restore
+    users_test.go:789: Step: Received status code 200
+    users_test.go:794: Completed test: Valid user restore
+=== RUN   TestRestoreUserHandler/Non-existent_user
+    users_test.go:774: Starting test: Non-existent user
+    users_test.go:789: Step: Received status code 404
+    users_test.go:794: Completed test: Non-existent user
+--- PASS: TestRestoreUserHandler (0.24s)
+    --- PASS: TestRestoreUserHandler/Valid_user_restore (0.00s)
+    --- PASS: TestRestoreUserHandler/Non-existent_user (0.00s)
+=== RUN   TestHardDeleteUserHandler
+    users_test.go:800: === Testing Hard Delete User Handler ===
+    users_test.go:825: Step: Fetching seeded user with email: admin1@police-training.bz
+    users_test.go:825: Step: Successfully retrieved user ID 1 (Pedro Kukul)
+    users_test.go:826: Step: Creating authentication token for user ID 1
+    users_test.go:826: Step: Successfully created token for user ID 1
+=== RUN   TestHardDeleteUserHandler/Valid_user_hard_deletion
+    users_test.go:847: Starting test: Valid user hard deletion
+    users_test.go:862: Step: Received status code 200
+    users_test.go:867: Completed test: Valid user hard deletion
+=== RUN   TestHardDeleteUserHandler/Non-existent_user
+    users_test.go:847: Starting test: Non-existent user
+    users_test.go:862: Step: Received status code 404
+    users_test.go:867: Completed test: Non-existent user
+--- PASS: TestHardDeleteUserHandler (0.23s)
+    --- PASS: TestHardDeleteUserHandler/Valid_user_hard_deletion (0.00s)
+    --- PASS: TestHardDeleteUserHandler/Non-existent_user (0.00s)
+=== RUN   TestUserWorkflow
+    users_test.go:873: === Testing Complete User Workflow ===
+    users_test.go:906: Step: Created user ID 207
+    users_test.go:926: Step: Successfully activated user
+    users_test.go:950: Step: Complete user workflow test passed successfully!
+--- PASS: TestUserWorkflow (0.24s)
+FAIL
+coverage: 16.5% of statements
+FAIL	github.com/Pedro-J-Kukul/police_training/cmd/api	4.924s
+	github.com/Pedro-J-Kukul/police_training/cmd/api/docs		coverage: 0.0% of statements
+FAIL

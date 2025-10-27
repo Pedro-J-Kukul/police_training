@@ -337,7 +337,7 @@ func (app *appDependencies) deleteOfficerHandler(w http.ResponseWriter, r *http.
 //	@Tags			officers
 //	@Produce		json
 //	@Security		ApiKeyAuth
-//	@Param			user_id	path		int	true	"User ID"
+//	@Param			id	path		int	true	"User ID"
 //	@Success		200		{object}	envelope
 //	@Failure		404		{object}	errorResponse
 //	@Failure		500		{object}	errorResponse

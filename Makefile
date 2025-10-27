@@ -1,6 +1,6 @@
 include .envrc
 
-.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix d b/migrations/up swagger/docs pg_dump/schema run/users run/officers run/tests/internal/data run/tests/cmd/api
+.PHONY: run/api run/tests run/api/win psql/login psql/sudo migrate/create migrate/up migrate/down migrate/fix d b/migrations/up swagger/docs pg_dump/schema run/users run/officers run/tests/internal/data run/tests/cmd/api run/populate_data
 run/api:
 	@echo "Starting API server on port $(PORT) in $(ENVIRONMENT) mode..."
 	@go run ./cmd/api \
@@ -137,3 +137,26 @@ run/tests/cmd/api:
 # go test -v ./cmd/api/
 # go test -v ./internal/data/
 # go test -v ./...
+
+run/populate_data:
+	@echo "Running Data Population Script..."
+	@go run ./cmd/populate_data/main.go -dsn "$(TEST_DB_DSN)"
+
+# Test API handlers only
+.PHONY: test-api
+test-api:
+	@echo "Running API handler tests only..."
+	go test -v ./cmd/api/... | tee api_test_results.txt
+
+# Test API handlers with coverage
+.PHONY: test-api-coverage
+test-api-coverage:
+	@echo "Running API handler tests with coverage..."
+	go test -v -coverprofile=api_coverage.out ./cmd/api/... | tee api_test_results.txt
+	go tool cover -html=api_coverage.out -o api_coverage.html
+	@echo "Coverage report saved to api_coverage.html"
+
+# Clean test artifacts
+.PHONY: clean-test
+clean-test:
+	rm -f api_test_results.txt api_coverage.out api_coverage.html

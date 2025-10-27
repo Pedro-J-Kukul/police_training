@@ -27,3 +27,17 @@ INSERT INTO attendance_statuses (status, counts_as_present) VALUES
 ('Sick Leave', false),
 ('Emergency Leave', false)
 ON CONFLICT (status) DO NOTHING;
+
+-- Add training types
+INSERT INTO training_types (name) VALUES 
+('Practical'),
+('Theoretical'),
+('Hands-on'),
+('Simulation');
+
+-- Add training statuses
+INSERT INTO training_status (status) VALUES 
+('Scheduled'),
+('In Progress'),
+('Completed'),
+('Cancelled');

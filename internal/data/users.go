@@ -394,10 +394,10 @@ func (m *UserModel) GetAll(fname, lname, email, gender string, activated *bool, 
 		AND (to_tsvector('simple', last_name) @@ plainto_tsquery('simple', $2) OR $2 = '')
 		AND (to_tsvector('simple', email) @@ plainto_tsquery('simple', $3) OR $3 = '')
 		AND (to_tsvector('simple', gender) @@ plainto_tsquery('simple', $4) OR $4 = '')
-		AND (is_activated:boolean = $5 OR $5 IS NULL)
-		AND (is_facilitator:boolean = $6 OR $6 IS NULL)
-		AND (is_officer:boolean = $7 OR $7 IS NULL)
-		AND (is_deleted:boolean = $8 OR $8 IS NULL)
+		AND (is_activated::boolean = $5 OR $5 IS NULL)
+		AND (is_facilitator::boolean = $6 OR $6 IS NULL)
+		AND (is_officer::boolean = $7 OR $7 IS NULL)
+		AND (is_deleted::boolean = $8 OR $8 IS NULL)
 		ORDER BY %s %s, id ASC
 		LIMIT $9 OFFSET $10`, filters.sortColumn(), filters.sortDirection())
 

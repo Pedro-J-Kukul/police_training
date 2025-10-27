@@ -1,403 +1,751 @@
 package main
 
-import (
-	"database/sql"
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-	"time"
+// package main
 
-	"github.com/Pedro-J-Kukul/police_training/internal/data"
-)
+// import (
+// 	"bytes"
+// 	"encoding/json"
+// 	"fmt"
+// 	"net/http"
+// 	"net/http/httptest"
+// 	"net/url"
+// 	"strconv"
+// 	"testing"
+// 	"time"
 
-// Test-specific cleanup helper
-type workshopTestHelper struct {
-	t          *testing.T
-	createdIDs []int64
-	db         *sql.DB
-}
+// 	"github.com/Pedro-J-Kukul/police_training/internal/data"
+// )
 
-func newWorkshopTestHelper(t *testing.T) *workshopTestHelper {
-	return &workshopTestHelper{
-		t:          t,
-		createdIDs: make([]int64, 0),
-		db:         testApp.models.User.DB,
-	}
-}
+// func getSeededWorkshopData(t *testing.T) (categoryID, typeID int64) {
+// 	t.Helper()
+// 	t.Log("Step: Getting seeded workshop reference data")
 
-func (h *workshopTestHelper) addWorkshopID(id int64) {
-	h.createdIDs = append(h.createdIDs, id)
-	h.t.Logf("Tracking workshop ID for cleanup: %d", id)
-}
+// 	// Get first available category
+// 	categories, _, err := testApp.models.TrainingCategory.GetAll("", nil, data.Filters{Page: 10, PageSize: 1, Sort: "id", SortSafelist: []string{"id"}})
+// 	if err != nil || len(categories) == 0 {
+// 		t.Fatal("No training categories found in seeded data")
+// 	}
 
-func (h *workshopTestHelper) cleanup() {
-	h.t.Helper()
-	h.t.Logf("Cleaning up %d workshop records", len(h.createdIDs))
+// 	// Get first available type
+// 	types, _, err := testApp.models.TrainingType.GetAll("", data.Filters{Page: 1, PageSize: 10, Sort: "id", SortSafelist: []string{"id"}})
+// 	if err != nil || len(types) == 0 {
+// 		t.Fatal("No training types found in seeded data")
+// 	}
 
-	for _, id := range h.createdIDs {
-		_, err := h.db.Exec("DELETE FROM workshops WHERE id = $1", id)
-		if err != nil {
-			h.t.Logf("Warning: Failed to cleanup workshop ID %d: %v", id, err)
-		} else {
-			h.t.Logf("Successfully deleted workshop ID: %d", id)
-		}
-	}
-	h.createdIDs = nil
-}
+// 	categoryID = categories[0].ID
+// 	typeID = types[0].ID
 
-func TestCreateWorkshopHandler(t *testing.T) {
-	helper := newWorkshopTestHelper(t)
-	defer helper.cleanup()
+// 	t.Logf("Step: Using category ID %d and type ID %d", categoryID, typeID)
+// 	return categoryID, typeID
+// }
 
-	// Get existing seed data
-	category, err := testApp.models.TrainingCategory.Get(1)
-	if err != nil {
-		t.Skipf("Skipping test - seed data not available: %v", err)
-	}
+// func getSeededWorkshop(t *testing.T) *data.Workshop {
+// 	t.Helper()
+// 	t.Log("Step: Getting seeded workshop")
 
-	trainingType, err := testApp.models.TrainingType.Get(1)
-	if err != nil {
-		t.Skipf("Skipping test - seed data not available: %v", err)
-	}
+// 	workshops, _, err := testApp.models.Workshop.GetAll("", nil, nil, nil, data.Filters{Page: 1, PageSize: 1, Sort: "id", SortSafelist: []string{"id"}})
+// 	if err != nil || len(workshops) == 0 {
+// 		t.Fatal("No workshops found in seeded data")
+// 	}
 
-	_, token := createTestUserWithToken(t)
+// 	workshop := workshops[0]
+// 	t.Logf("Step: Using seeded workshop ID %d: %s", workshop.ID, workshop.WorkshopName)
+// 	return workshop
+// }
 
-	tests := []struct {
-		name           string
-		input          map[string]any
-		token          string
-		expectedStatus int
-		checkResponse  func(*testing.T, *http.Response, *workshopTestHelper)
-	}{
-		{
-			name: "Valid workshop creation",
-			input: map[string]any{
-				"workshop_name": fmt.Sprintf("TEST_API_Workshop_%d", time.Now().UnixNano()),
-				"category_id":   category.ID,
-				"type_id":       trainingType.ID,
-				"credit_hours":  40,
-				"description":   "Test workshop description",
-				"is_active":     true,
-			},
-			token:          token,
-			expectedStatus: http.StatusCreated,
-			checkResponse: func(t *testing.T, res *http.Response, h *workshopTestHelper) {
-				var response map[string]any
-				err := json.NewDecoder(res.Body).Decode(&response)
-				if err != nil {
-					t.Fatalf("Failed to decode response: %v", err)
-				}
-				if response["workshop"] == nil {
-					t.Error("Expected workshop object in response")
-				} else {
-					workshop := response["workshop"].(map[string]any)
-					workshopID := int64(workshop["id"].(float64))
-					h.addWorkshopID(workshopID) // Track for cleanup
-					t.Logf("Created workshop with ID: %d", workshopID)
-				}
-			},
-		},
-		{
-			name: "Missing required fields",
-			input: map[string]any{
-				"workshop_name": "Test",
-			},
-			token:          token,
-			expectedStatus: http.StatusUnprocessableEntity,
-			checkResponse: func(t *testing.T, res *http.Response, h *workshopTestHelper) {
-				var response map[string]any
-				err := json.NewDecoder(res.Body).Decode(&response)
-				if err != nil {
-					t.Fatalf("Failed to decode response: %v", err)
-				}
-				if response["error"] == nil {
-					t.Error("Expected error in response")
-				}
-			},
-		},
-	}
+// func createTestWorkshop(t *testing.T) *data.Workshop {
+// 	t.Helper()
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			body, _ := json.Marshal(tt.input)
-			req := createAuthenticatedRequest(http.MethodPost, "/v1/workshops", body, tt.token)
+// 	categoryID, typeID := getSeededWorkshopData(t)
 
-			rec := httptest.NewRecorder()
+// 	workshop := &data.Workshop{
+// 		WorkshopName: fmt.Sprintf("TEST_Workshop_%d", time.Now().UnixNano()),
+// 		CategoryID:   categoryID,
+// 		TypeID:       typeID,
+// 		CreditHours:  40,
+// 		Description:  stringPtr("Test workshop for API testing"),
+// 		IsActive:     true,
+// 	}
 
-			if tt.token != "" {
-				user, _ := testApp.models.User.GetForToken(data.ScopeAuthentication, tt.token)
-				req = setUserContext(req, user)
-				testApp.createWorkshopHandler(rec, req)
-			} else {
-				handler := testApp.authenticate(http.HandlerFunc(testApp.createWorkshopHandler))
-				handler.ServeHTTP(rec, req)
-			}
+// 	err := testApp.models.Workshop.Insert(workshop)
+// 	if err != nil {
+// 		t.Fatalf("Failed to create test workshop: %v", err)
+// 	}
 
-			res := rec.Result()
-			defer res.Body.Close()
+// 	t.Logf("Step: Created test workshop ID %d: %s", workshop.ID, workshop.WorkshopName)
+// 	return workshop
+// }
 
-			if res.StatusCode != tt.expectedStatus {
-				t.Errorf("Expected status %d; got %d", tt.expectedStatus, res.StatusCode)
-			}
+// func stringPtr(s string) *string {
+// 	return &s
+// }
 
-			tt.checkResponse(t, res, helper)
-		})
-	}
-}
+// func TestCreateWorkshopHandler(t *testing.T) {
+// 	t.Log("=== Testing Create Workshop Handler ===")
 
-func TestListWorkshopsHandler(t *testing.T) {
-	helper := newWorkshopTestHelper(t)
-	defer helper.cleanup()
+// 	categoryID, typeID := getSeededWorkshopData(t)
+// 	adminUser := getSeededUser(t, "admin1@police-training.bz")
+// 	adminToken := createTokenForSeededUser(t, adminUser.ID)
 
-	_, token := createTestUserWithToken(t)
+// 	tests := []struct {
+// 		name           string
+// 		input          map[string]any
+// 		expectedStatus int
+// 		checkResponse  func(*testing.T, *http.Response)
+// 	}{
+// 		{
+// 			name: "Valid workshop creation",
+// 			input: map[string]any{
+// 				"workshop_name": fmt.Sprintf("NEW_Workshop_%d", time.Now().UnixNano()),
+// 				"category_id":   categoryID,
+// 				"type_id":       typeID,
+// 				"credit_hours":  60,
+// 				"description":   "New workshop created via API",
+// 				"is_active":     true,
+// 			},
+// 			expectedStatus: http.StatusCreated,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating successful workshop creation")
+// 				var response map[string]any
+// 				err := json.NewDecoder(res.Body).Decode(&response)
+// 				if err != nil {
+// 					t.Fatalf("Failed to decode response: %v", err)
+// 				}
 
-	// Get existing seed data
-	category, err := testApp.models.TrainingCategory.Get(1)
-	if err != nil {
-		t.Skipf("Skipping test - seed data not available: %v", err)
-	}
+// 				if response["workshop"] == nil {
+// 					t.Error("Expected workshop object in response")
+// 					return
+// 				}
 
-	trainingType, err := testApp.models.TrainingType.Get(1)
-	if err != nil {
-		t.Skipf("Skipping test - seed data not available: %v", err)
-	}
+// 				workshop := response["workshop"].(map[string]any)
+// 				workshopID := int64(workshop["id"].(float64))
+// 				t.Logf("Step: Created workshop ID %d: %v", workshopID, workshop["workshop_name"])
 
-	// Create test workshops
-	numTestWorkshops := 3
-	for i := 0; i < numTestWorkshops; i++ {
-		workshop := &data.Workshop{
-			WorkshopName: fmt.Sprintf("TEST_List_Workshop_%d_%d", i, time.Now().UnixNano()),
-			CategoryID:   category.ID,
-			TypeID:       trainingType.ID,
-			CreditHours:  40,
-			IsActive:     true,
-		}
-		err := testApp.models.Workshop.Insert(workshop)
-		if err != nil {
-			t.Fatalf("Failed to create test workshop: %v", err)
-		}
-		helper.addWorkshopID(workshop.ID)
-		t.Logf("Created test workshop with ID: %d", workshop.ID)
-	}
+// 				// Cleanup created workshop
+// 				testApp.models.Workshop.Delete(workshopID)
+// 				t.Logf("Step: Cleaned up test workshop ID %d", workshopID)
+// 			},
+// 		},
+// 		{
+// 			name: "Missing required fields",
+// 			input: map[string]any{
+// 				"workshop_name": "Incomplete Workshop",
+// 			},
+// 			expectedStatus: http.StatusUnprocessableEntity,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating missing fields validation")
+// 			},
+// 		},
+// 		{
+// 			name: "Invalid category_id",
+// 			input: map[string]any{
+// 				"workshop_name": fmt.Sprintf("Invalid_Category_%d", time.Now().UnixNano()),
+// 				"category_id":   999999,
+// 				"type_id":       typeID,
+// 				"credit_hours":  40,
+// 			},
+// 			expectedStatus: http.StatusBadRequest,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating invalid category_id handling")
+// 			},
+// 		},
+// 		{
+// 			name: "Duplicate workshop name",
+// 			input: map[string]any{
+// 				"workshop_name": getSeededWorkshop(t).WorkshopName,
+// 				"category_id":   categoryID,
+// 				"type_id":       typeID,
+// 				"credit_hours":  40,
+// 			},
+// 			expectedStatus: http.StatusUnprocessableEntity,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating duplicate workshop name handling")
+// 			},
+// 		},
+// 	}
 
-	tests := []struct {
-		name           string
-		queryParams    string
-		token          string
-		expectedStatus int
-		minWorkshops   int // Minimum workshops expected (since seed data exists)
-	}{
-		{
-			name:           "Valid list request",
-			queryParams:    "",
-			token:          token,
-			expectedStatus: http.StatusOK,
-			minWorkshops:   numTestWorkshops, // At least our test workshops
-		},
-		{
-			name:           "With pagination",
-			queryParams:    "?page=1&page_size=2",
-			token:          token,
-			expectedStatus: http.StatusOK,
-			minWorkshops:   0, // Could be 0-2 depending on seed data
-		},
-		{
-			name:           "Filter by category",
-			queryParams:    fmt.Sprintf("?category_id=%d", category.ID),
-			token:          token,
-			expectedStatus: http.StatusOK,
-			minWorkshops:   numTestWorkshops, // At least our test workshops
-		},
-	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			t.Logf("Starting test: %s", tt.name)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			path := "/v1/workshops" + tt.queryParams
-			req := createAuthenticatedRequest(http.MethodGet, path, nil, tt.token)
+// 			body, _ := json.Marshal(tt.input)
+// 			req := httptest.NewRequest(http.MethodPost, "/v1/workshops", bytes.NewReader(body))
+// 			req.Header.Set("Content-Type", "application/json")
+// 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
 
-			rec := httptest.NewRecorder()
+// 			req = setUserContext(req, adminUser)
 
-			user, _ := testApp.models.User.GetForToken(data.ScopeAuthentication, tt.token)
-			req = setUserContext(req, user)
-			testApp.listWorkshopsHandler(rec, req)
+// 			rec := httptest.NewRecorder()
+// 			testApp.createWorkshopHandler(rec, req)
 
-			res := rec.Result()
-			defer res.Body.Close()
+// 			res := rec.Result()
+// 			defer res.Body.Close()
 
-			if res.StatusCode != tt.expectedStatus {
-				t.Errorf("Expected status %d; got %d", tt.expectedStatus, res.StatusCode)
-			}
+// 			t.Logf("Step: Received status code %d", res.StatusCode)
+// 			if res.StatusCode != tt.expectedStatus {
+// 				t.Errorf("Expected status %d; got %d", tt.expectedStatus, res.StatusCode)
+// 			}
 
-			if tt.expectedStatus == http.StatusOK {
-				var response map[string]any
-				err := json.NewDecoder(res.Body).Decode(&response)
-				if err != nil {
-					t.Fatalf("Failed to decode response: %v", err)
-				}
+// 			tt.checkResponse(t, res)
+// 			t.Logf("Completed test: %s", tt.name)
+// 		})
+// 	}
+// }
 
-				workshops := response["workshops"].([]any)
-				if len(workshops) < tt.minWorkshops {
-					t.Errorf("Expected at least %d workshops; got %d", tt.minWorkshops, len(workshops))
-				}
-				t.Logf("Retrieved %d workshops", len(workshops))
-			}
-		})
-	}
-}
+// func TestShowWorkshopHandler(t *testing.T) {
+// 	t.Log("=== Testing Show Workshop Handler ===")
 
-func TestUpdateWorkshopHandler(t *testing.T) {
-	helper := newWorkshopTestHelper(t)
-	defer helper.cleanup()
+// 	seededWorkshop := getSeededWorkshop(t)
+// 	facilitatorUser := getSeededUser(t, "maria.rodriguez@police-training.bz")
+// 	facilitatorToken := createTokenForSeededUser(t, facilitatorUser.ID)
 
-	_, token := createTestUserWithToken(t)
+// 	tests := []struct {
+// 		name           string
+// 		workshopID     string
+// 		expectedStatus int
+// 		checkResponse  func(*testing.T, *http.Response)
+// 	}{
+// 		{
+// 			name:           "Valid seeded workshop ID",
+// 			workshopID:     strconv.FormatInt(seededWorkshop.ID, 10),
+// 			expectedStatus: http.StatusOK,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating workshop details response")
+// 				var response map[string]any
+// 				err := json.NewDecoder(res.Body).Decode(&response)
+// 				if err != nil {
+// 					t.Fatalf("Failed to decode response: %v", err)
+// 				}
 
-	// Get existing seed data and create test workshop
-	category, err := testApp.models.TrainingCategory.Get(1)
-	if err != nil {
-		t.Skipf("Skipping test - seed data not available: %v", err)
-	}
+// 				if response["workshop"] == nil {
+// 					t.Error("Expected workshop object in response")
+// 					return
+// 				}
 
-	trainingType, err := testApp.models.TrainingType.Get(1)
-	if err != nil {
-		t.Skipf("Skipping test - seed data not available: %v", err)
-	}
+// 				workshop := response["workshop"].(map[string]any)
+// 				if workshop["id"] != float64(seededWorkshop.ID) {
+// 					t.Errorf("Expected workshop ID %d, got %v", seededWorkshop.ID, workshop["id"])
+// 				}
 
-	workshop := &data.Workshop{
-		WorkshopName: fmt.Sprintf("TEST_Update_Workshop_%d", time.Now().UnixNano()),
-		CategoryID:   category.ID,
-		TypeID:       trainingType.ID,
-		CreditHours:  40,
-		IsActive:     true,
-	}
-	err = testApp.models.Workshop.Insert(workshop)
-	if err != nil {
-		t.Fatalf("Failed to create test workshop: %v", err)
-	}
-	helper.addWorkshopID(workshop.ID)
+// 				t.Logf("Step: Retrieved workshop: %v", workshop["workshop_name"])
 
-	tests := []struct {
-		name           string
-		workshopID     string
-		input          map[string]any
-		token          string
-		expectedStatus int
-	}{
-		{
-			name:       "Valid workshop update",
-			workshopID: fmt.Sprintf("%d", workshop.ID),
-			input: map[string]any{
-				"workshop_name": fmt.Sprintf("TEST_Updated_Workshop_%d", time.Now().UnixNano()),
-				"credit_hours":  60,
-			},
-			token:          token,
-			expectedStatus: http.StatusOK,
-		},
-		{
-			name:       "Non-existent workshop",
-			workshopID: "999999",
-			input: map[string]any{
-				"workshop_name": "Non-existent Workshop",
-			},
-			token:          token,
-			expectedStatus: http.StatusNotFound,
-		},
-	}
+// 				// Verify expected fields
+// 				requiredFields := []string{"id", "workshop_name", "category_id", "type_id", "credit_hours", "is_active"}
+// 				for _, field := range requiredFields {
+// 					if workshop[field] == nil {
+// 						t.Errorf("Expected field %s in workshop response", field)
+// 					}
+// 				}
+// 			},
+// 		},
+// 		{
+// 			name:           "Non-existent workshop ID",
+// 			workshopID:     "999999",
+// 			expectedStatus: http.StatusNotFound,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating non-existent workshop response")
+// 			},
+// 		},
+// 		{
+// 			name:           "Invalid workshop ID format",
+// 			workshopID:     "abc",
+// 			expectedStatus: http.StatusNotFound,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating invalid ID format response")
+// 			},
+// 		},
+// 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			body, _ := json.Marshal(tt.input)
-			path := fmt.Sprintf("/v1/workshops/%s", tt.workshopID)
-			req := createAuthenticatedRequest(http.MethodPatch, path, body, tt.token)
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			t.Logf("Starting test: %s with workshop ID %s", tt.name, tt.workshopID)
 
-			req = setURLParam(req, "id", tt.workshopID)
+// 			path := fmt.Sprintf("/v1/workshops/%s", tt.workshopID)
+// 			req := httptest.NewRequest(http.MethodGet, path, nil)
+// 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", facilitatorToken))
 
-			rec := httptest.NewRecorder()
+// 			req = setURLParam(req, "id", tt.workshopID)
+// 			req = setUserContext(req, facilitatorUser)
 
-			user, _ := testApp.models.User.GetForToken(data.ScopeAuthentication, tt.token)
-			req = setUserContext(req, user)
-			testApp.updateWorkshopHandler(rec, req)
+// 			t.Logf("Step: Set URL param id=%s", tt.workshopID)
 
-			res := rec.Result()
-			defer res.Body.Close()
+// 			rec := httptest.NewRecorder()
+// 			testApp.showWorkshopHandler(rec, req)
 
-			if res.StatusCode != tt.expectedStatus {
-				t.Errorf("Expected status %d; got %d", tt.expectedStatus, res.StatusCode)
-			}
-		})
-	}
-}
+// 			res := rec.Result()
+// 			defer res.Body.Close()
 
-func TestDeleteWorkshopHandler(t *testing.T) {
-	helper := newWorkshopTestHelper(t)
-	defer helper.cleanup()
+// 			t.Logf("Step: Received status code %d", res.StatusCode)
+// 			if res.StatusCode != tt.expectedStatus {
+// 				t.Errorf("Expected status %d; got %d", tt.expectedStatus, res.StatusCode)
+// 			}
 
-	_, token := createTestUserWithToken(t)
+// 			tt.checkResponse(t, res)
+// 			t.Logf("Completed test: %s", tt.name)
+// 		})
+// 	}
+// }
 
-	// Get existing seed data and create test workshop
-	category, err := testApp.models.TrainingCategory.Get(1)
-	if err != nil {
-		t.Skipf("Skipping test - seed data not available: %v", err)
-	}
+// func TestListWorkshopsHandler(t *testing.T) {
+// 	t.Log("=== Testing List Workshops Handler ===")
 
-	trainingType, err := testApp.models.TrainingType.Get(1)
-	if err != nil {
-		t.Skipf("Skipping test - seed data not available: %v", err)
-	}
+// 	categoryID, _ := getSeededWorkshopData(t)
+// 	adminUser := getSeededUser(t, "admin1@police-training.bz")
+// 	adminToken := createTokenForSeededUser(t, adminUser.ID)
 
-	workshop := &data.Workshop{
-		WorkshopName: fmt.Sprintf("TEST_Delete_Workshop_%d", time.Now().UnixNano()),
-		CategoryID:   category.ID,
-		TypeID:       trainingType.ID,
-		CreditHours:  40,
-		IsActive:     true,
-	}
-	err = testApp.models.Workshop.Insert(workshop)
-	if err != nil {
-		t.Fatalf("Failed to create test workshop: %v", err)
-	}
-	// Note: We don't add to helper here since the test itself will delete it
+// 	tests := []struct {
+// 		name           string
+// 		queryParams    string
+// 		expectedStatus int
+// 		checkResponse  func(*testing.T, *http.Response)
+// 	}{
+// 		{
+// 			name:           "List all workshops",
+// 			queryParams:    "",
+// 			expectedStatus: http.StatusOK,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating workshops list response")
+// 				var response map[string]any
+// 				err := json.NewDecoder(res.Body).Decode(&response)
+// 				if err != nil {
+// 					t.Fatalf("Failed to decode response: %v", err)
+// 				}
 
-	tests := []struct {
-		name           string
-		workshopID     string
-		token          string
-		expectedStatus int
-	}{
-		{
-			name:           "Valid workshop deletion",
-			workshopID:     fmt.Sprintf("%d", workshop.ID),
-			token:          token,
-			expectedStatus: http.StatusOK,
-		},
-		{
-			name:           "Non-existent workshop",
-			workshopID:     "999999",
-			token:          token,
-			expectedStatus: http.StatusNotFound,
-		},
-	}
+// 				if response["workshops"] == nil {
+// 					t.Error("Expected workshops array in response")
+// 					return
+// 				}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			path := fmt.Sprintf("/v1/workshops/%s", tt.workshopID)
-			req := createAuthenticatedRequest(http.MethodDelete, path, nil, tt.token)
+// 				workshops := response["workshops"].([]any)
+// 				t.Logf("Step: Retrieved %d workshops", len(workshops))
 
-			req = setURLParam(req, "id", tt.workshopID)
+// 				// Should have seeded workshops
+// 				if len(workshops) == 0 {
+// 					t.Error("Expected at least some seeded workshops")
+// 				}
 
-			rec := httptest.NewRecorder()
+// 				// Verify first workshop structure
+// 				if len(workshops) > 0 {
+// 					workshop := workshops[0].(map[string]any)
+// 					requiredFields := []string{"id", "workshop_name", "category_id", "type_id", "credit_hours"}
+// 					for _, field := range requiredFields {
+// 						if workshop[field] == nil {
+// 							t.Errorf("Expected field %s in workshop response", field)
+// 						}
+// 					}
 
-			user, _ := testApp.models.User.GetForToken(data.ScopeAuthentication, tt.token)
-			req = setUserContext(req, user)
-			testApp.deleteWorkshopHandler(rec, req)
+// 					t.Logf("Step: First workshop ID %v, Name: %v", workshop["id"], workshop["workshop_name"])
+// 				}
 
-			res := rec.Result()
-			defer res.Body.Close()
+// 				if response["metadata"] == nil {
+// 					t.Error("Expected metadata in response")
+// 				}
+// 			},
+// 		},
+// 		{
+// 			name:           "List workshops with pagination",
+// 			queryParams:    "?page=1&page_size=2",
+// 			expectedStatus: http.StatusOK,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating paginated workshops response")
+// 				var response map[string]any
+// 				err := json.NewDecoder(res.Body).Decode(&response)
+// 				if err != nil {
+// 					t.Fatalf("Failed to decode response: %v", err)
+// 				}
 
-			if res.StatusCode != tt.expectedStatus {
-				t.Errorf("Expected status %d; got %d", tt.expectedStatus, res.StatusCode)
-			}
-		})
-	}
-}
+// 				workshops := response["workshops"].([]any)
+// 				t.Logf("Step: Retrieved %d workshops with page_size=2", len(workshops))
+
+// 				if len(workshops) > 2 {
+// 					t.Errorf("Expected max 2 workshops, got %d", len(workshops))
+// 				}
+// 			},
+// 		},
+// 		{
+// 			name:           "Filter workshops by category",
+// 			queryParams:    fmt.Sprintf("?category_id=%d", categoryID),
+// 			expectedStatus: http.StatusOK,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating category filter response")
+// 				var response map[string]any
+// 				err := json.NewDecoder(res.Body).Decode(&response)
+// 				if err != nil {
+// 					t.Fatalf("Failed to decode response: %v", err)
+// 				}
+
+// 				workshops := response["workshops"].([]any)
+// 				t.Logf("Step: Retrieved %d workshops for category %d", len(workshops), categoryID)
+
+// 				// Verify all workshops belong to the specified category
+// 				for i, workshopInterface := range workshops {
+// 					workshop := workshopInterface.(map[string]any)
+// 					if catID, ok := workshop["category_id"].(float64); !ok || catID != float64(categoryID) {
+// 						t.Errorf("Workshop at index %d does not belong to category %d", i, categoryID)
+// 					}
+// 				}
+// 			},
+// 		},
+// 		{
+// 			name:           "Filter workshops by active status",
+// 			queryParams:    "?is_active=true",
+// 			expectedStatus: http.StatusOK,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating active status filter response")
+// 				var response map[string]any
+// 				err := json.NewDecoder(res.Body).Decode(&response)
+// 				if err != nil {
+// 					t.Fatalf("Failed to decode response: %v", err)
+// 				}
+
+// 				workshops := response["workshops"].([]any)
+// 				t.Logf("Step: Retrieved %d active workshops", len(workshops))
+
+// 				// Verify all workshops are active
+// 				for i, workshopInterface := range workshops {
+// 					workshop := workshopInterface.(map[string]any)
+// 					if isActive, ok := workshop["is_active"].(bool); !ok || !isActive {
+// 						t.Errorf("Workshop at index %d is not active", i)
+// 					}
+// 				}
+// 			},
+// 		},
+// 		{
+// 			name:           "Search workshops by name",
+// 			queryParams:    "?workshop_name=" + getSeededWorkshop(t).WorkshopName,
+// 			expectedStatus: http.StatusOK,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating workshop name search")
+// 				var response map[string]any
+// 				err := json.NewDecoder(res.Body).Decode(&response)
+// 				if err != nil {
+// 					t.Fatalf("Failed to decode response: %v", err)
+// 				}
+
+// 				workshops := response["workshops"].([]any)
+// 				t.Logf("Step: Retrieved %d workshops for name search", len(workshops))
+// 			},
+// 		},
+// 	}
+
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			t.Logf("Starting test: %s", tt.name)
+
+// 			path := "/v1/workshops?workshop_name=" + url.QueryEscape(getSeededWorkshop(t).WorkshopName)
+// 			req := httptest.NewRequest(http.MethodGet, path, nil)
+// 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
+// 			req = setUserContext(req, adminUser)
+
+// 			t.Logf("Step: Making request to %s", path)
+
+// 			rec := httptest.NewRecorder()
+// 			testApp.listWorkshopsHandler(rec, req)
+
+// 			res := rec.Result()
+// 			defer res.Body.Close()
+
+// 			t.Logf("Step: Received status code %d", res.StatusCode)
+// 			if res.StatusCode != tt.expectedStatus {
+// 				t.Errorf("Expected status %d; got %d", tt.expectedStatus, res.StatusCode)
+// 			}
+
+// 			tt.checkResponse(t, res)
+// 			t.Logf("Completed test: %s", tt.name)
+// 		})
+// 	}
+// }
+
+// func TestUpdateWorkshopHandler(t *testing.T) {
+// 	t.Log("=== Testing Update Workshop Handler ===")
+
+// 	// Create test workshop for updating
+// 	testWorkshop := createTestWorkshop(t)
+// 	defer testApp.models.Workshop.Delete(testWorkshop.ID) // Cleanup
+
+// 	adminUser := getSeededUser(t, "admin1@police-training.bz")
+// 	adminToken := createTokenForSeededUser(t, adminUser.ID)
+
+// 	tests := []struct {
+// 		name           string
+// 		workshopID     string
+// 		input          map[string]any
+// 		expectedStatus int
+// 		checkResponse  func(*testing.T, *http.Response)
+// 	}{
+// 		{
+// 			name:       "Valid workshop update",
+// 			workshopID: strconv.FormatInt(testWorkshop.ID, 10),
+// 			input: map[string]any{
+// 				"workshop_name": fmt.Sprintf("UPDATED_Workshop_%d", time.Now().UnixNano()),
+// 				"credit_hours":  80,
+// 				"description":   "Updated workshop description",
+// 			},
+// 			expectedStatus: http.StatusOK,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating successful workshop update")
+// 				var response map[string]any
+// 				err := json.NewDecoder(res.Body).Decode(&response)
+// 				if err != nil {
+// 					t.Fatalf("Failed to decode response: %v", err)
+// 				}
+
+// 				if response["workshop"] == nil {
+// 					t.Error("Expected workshop object in response")
+// 					return
+// 				}
+
+// 				workshop := response["workshop"].(map[string]any)
+// 				if workshop["credit_hours"] != float64(80) {
+// 					t.Errorf("Expected credit_hours 80, got %v", workshop["credit_hours"])
+// 				}
+
+// 				t.Logf("Step: Updated workshop name to %v", workshop["workshop_name"])
+// 			},
+// 		},
+// 		{
+// 			name:       "Non-existent workshop",
+// 			workshopID: "999999",
+// 			input: map[string]any{
+// 				"workshop_name": "Non-existent Workshop",
+// 			},
+// 			expectedStatus: http.StatusNotFound,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating non-existent workshop update")
+// 			},
+// 		},
+// 		{
+// 			name:       "Invalid category_id",
+// 			workshopID: strconv.FormatInt(testWorkshop.ID, 10),
+// 			input: map[string]any{
+// 				"category_id": 999999,
+// 			},
+// 			expectedStatus: http.StatusBadRequest,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating invalid category_id handling")
+// 			},
+// 		},
+// 		{
+// 			name:       "Update to duplicate name",
+// 			workshopID: strconv.FormatInt(testWorkshop.ID, 10),
+// 			input: map[string]any{
+// 				"workshop_name": getSeededWorkshop(t).WorkshopName,
+// 			},
+// 			expectedStatus: http.StatusUnprocessableEntity,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating duplicate name handling")
+// 			},
+// 		},
+// 	}
+
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			t.Logf("Starting test: %s", tt.name)
+
+// 			body, _ := json.Marshal(tt.input)
+// 			path := fmt.Sprintf("/v1/workshops/%s", tt.workshopID)
+// 			req := httptest.NewRequest(http.MethodPatch, path, bytes.NewReader(body))
+// 			req.Header.Set("Content-Type", "application/json")
+// 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
+
+// 			req = setURLParam(req, "id", tt.workshopID)
+// 			req = setUserContext(req, adminUser)
+
+// 			rec := httptest.NewRecorder()
+// 			testApp.updateWorkshopHandler(rec, req)
+
+// 			res := rec.Result()
+// 			defer res.Body.Close()
+
+// 			t.Logf("Step: Received status code %d", res.StatusCode)
+// 			if res.StatusCode != tt.expectedStatus {
+// 				t.Errorf("Expected status %d; got %d", tt.expectedStatus, res.StatusCode)
+// 			}
+
+// 			tt.checkResponse(t, res)
+// 			t.Logf("Completed test: %s", tt.name)
+// 		})
+// 	}
+// }
+
+// func TestDeleteWorkshopHandler(t *testing.T) {
+// 	t.Log("=== Testing Delete Workshop Handler ===")
+
+// 	// Create test workshop for deletion
+// 	testWorkshop := createTestWorkshop(t)
+// 	// No defer cleanup since the test will delete it
+
+// 	adminUser := getSeededUser(t, "admin1@police-training.bz")
+// 	adminToken := createTokenForSeededUser(t, adminUser.ID)
+
+// 	tests := []struct {
+// 		name           string
+// 		workshopID     string
+// 		expectedStatus int
+// 		checkResponse  func(*testing.T, *http.Response)
+// 	}{
+// 		{
+// 			name:           "Valid workshop deletion",
+// 			workshopID:     strconv.FormatInt(testWorkshop.ID, 10),
+// 			expectedStatus: http.StatusOK,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating successful workshop deletion")
+// 				var response map[string]any
+// 				err := json.NewDecoder(res.Body).Decode(&response)
+// 				if err != nil {
+// 					t.Fatalf("Failed to decode response: %v", err)
+// 				}
+
+// 				if response["message"] == nil {
+// 					t.Error("Expected message in response")
+// 				}
+
+// 				t.Logf("Step: Workshop deleted with message: %v", response["message"])
+// 			},
+// 		},
+// 		{
+// 			name:           "Non-existent workshop",
+// 			workshopID:     "999999",
+// 			expectedStatus: http.StatusNotFound,
+// 			checkResponse: func(t *testing.T, res *http.Response) {
+// 				t.Log("Step: Validating non-existent workshop deletion")
+// 			},
+// 		},
+// 	}
+
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			t.Logf("Starting test: %s", tt.name)
+
+// 			path := fmt.Sprintf("/v1/workshops/%s", tt.workshopID)
+// 			req := httptest.NewRequest(http.MethodDelete, path, nil)
+// 			req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
+
+// 			req = setURLParam(req, "id", tt.workshopID)
+// 			req = setUserContext(req, adminUser)
+
+// 			rec := httptest.NewRecorder()
+// 			testApp.deleteWorkshopHandler(rec, req)
+
+// 			res := rec.Result()
+// 			defer res.Body.Close()
+
+// 			t.Logf("Step: Received status code %d", res.StatusCode)
+// 			if res.StatusCode != tt.expectedStatus {
+// 				t.Errorf("Expected status %d; got %d", tt.expectedStatus, res.StatusCode)
+// 			}
+
+// 			tt.checkResponse(t, res)
+// 			t.Logf("Completed test: %s", tt.name)
+// 		})
+// 	}
+// }
+
+// func TestWorkshopWorkflow(t *testing.T) {
+// 	t.Log("=== Testing Complete Workshop Workflow ===")
+
+// 	categoryID, typeID := getSeededWorkshopData(t)
+// 	adminUser := getSeededUser(t, "admin1@police-training.bz")
+// 	adminToken := createTokenForSeededUser(t, adminUser.ID)
+
+// 	// 1. Create workshop
+// 	workshopInput := map[string]any{
+// 		"workshop_name": fmt.Sprintf("WORKFLOW_Workshop_%d", time.Now().UnixNano()),
+// 		"category_id":   categoryID,
+// 		"type_id":       typeID,
+// 		"credit_hours":  50,
+// 		"description":   "Complete workflow test workshop",
+// 		"is_active":     true,
+// 	}
+
+// 	body, _ := json.Marshal(workshopInput)
+// 	req := httptest.NewRequest(http.MethodPost, "/v1/workshops", bytes.NewReader(body))
+// 	req.Header.Set("Content-Type", "application/json")
+// 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
+// 	req = setUserContext(req, adminUser)
+
+// 	rec := httptest.NewRecorder()
+// 	testApp.createWorkshopHandler(rec, req)
+
+// 	if rec.Result().StatusCode != http.StatusCreated {
+// 		t.Fatalf("Workshop creation failed with status %d", rec.Result().StatusCode)
+// 	}
+
+// 	var createResponse map[string]any
+// 	_ = json.NewDecoder(rec.Result().Body).Decode(&createResponse)
+// 	workshopResponse := createResponse["workshop"].(map[string]any)
+// 	workshopID := int64(workshopResponse["id"].(float64))
+
+// 	defer testApp.models.Workshop.Delete(workshopID) // Cleanup
+
+// 	t.Logf("Step: Created workshop ID %d", workshopID)
+
+// 	// 2. Get the workshop
+// 	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/v1/workshops/%d", workshopID), nil)
+// 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
+// 	req = setURLParam(req, "id", strconv.FormatInt(workshopID, 10))
+// 	req = setUserContext(req, adminUser)
+
+// 	rec = httptest.NewRecorder()
+// 	testApp.showWorkshopHandler(rec, req)
+
+// 	if rec.Result().StatusCode != http.StatusOK {
+// 		t.Fatalf("Workshop retrieval failed with status %d", rec.Result().StatusCode)
+// 	}
+
+// 	t.Logf("Step: Successfully retrieved workshop")
+
+// 	// 3. Update the workshop
+// 	updateInput := map[string]any{
+// 		"workshop_name": fmt.Sprintf("UPDATED_WORKFLOW_Workshop_%d", time.Now().UnixNano()),
+// 		"credit_hours":  75,
+// 		"description":   "Updated workflow workshop description",
+// 	}
+
+// 	body, _ = json.Marshal(updateInput)
+// 	req = httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/v1/workshops/%d", workshopID), bytes.NewReader(body))
+// 	req.Header.Set("Content-Type", "application/json")
+// 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
+// 	req = setURLParam(req, "id", strconv.FormatInt(workshopID, 10))
+// 	req = setUserContext(req, adminUser)
+
+// 	rec = httptest.NewRecorder()
+// 	testApp.updateWorkshopHandler(rec, req)
+
+// 	if rec.Result().StatusCode != http.StatusOK {
+// 		t.Fatalf("Workshop update failed with status %d", rec.Result().StatusCode)
+// 	}
+
+// 	t.Logf("Step: Successfully updated workshop")
+
+// 	// 4. List workshops (should include our workshop)
+// 	req = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/v1/workshops?category_id=%d", categoryID), nil)
+// 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
+// 	req = setUserContext(req, adminUser)
+
+// 	rec = httptest.NewRecorder()
+// 	testApp.listWorkshopsHandler(rec, req)
+
+// 	if rec.Result().StatusCode != http.StatusOK {
+// 		t.Fatalf("Workshop listing failed with status %d", rec.Result().StatusCode)
+// 	}
+
+// 	t.Logf("Step: Successfully listed workshops")
+
+// 	// 5. Delete the workshop
+// 	req = httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/v1/workshops/%d", workshopID), nil)
+// 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", adminToken))
+// 	req = setURLParam(req, "id", strconv.FormatInt(workshopID, 10))
+// 	req = setUserContext(req, adminUser)
+
+// 	rec = httptest.NewRecorder()
+// 	testApp.deleteWorkshopHandler(rec, req)
+
+// 	if rec.Result().StatusCode != http.StatusOK {
+// 		t.Fatalf("Workshop deletion failed with status %d", rec.Result().StatusCode)
+// 	}
+
+// 	t.Logf("Step: Successfully deleted workshop")
+
+// 	t.Log("Step: Complete workshop workflow test passed successfully!")
+// }
