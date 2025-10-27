@@ -140,6 +140,11 @@ run/tests/cmd/api:
 
 run/populate_data:
 	@echo "Running Data Population Script..."
+	@go run ./cmd/populate_data/main.go -dsn "$(DB_DSN)"
+
+.PHONY: run/populate_data/tests
+run/populate_data/tests:
+	@echo "Running Data Population Script for Tests..."
 	@go run ./cmd/populate_data/main.go -dsn "$(TEST_DB_DSN)"
 
 # Test API handlers only
